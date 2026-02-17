@@ -1,0 +1,75 @@
+<div class="side-modal">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="vendor-box">
+      <span class="vendor-label">Vendor</span>
+      <span class="vendor-value">{{ selectedOrders?.vendorName }}</span>
+    </div>
+    <div class="invoice-details"
+      [innerHTML]="selectedOrders?.salesOrderNumber | salesorderDetailedViewFormat : selectedOrders?.orderDate">
+    </div>
+    <button type="button" class="close-btn" (click)="onClose()" aria-label="Dismiss">
+      <img src="/assets/dismiss_btn_24_24.svg" alt="Dismiss">
+    </button>
+  </div>
+
+  <div class="reseller-info-container" *ngIf="tableexpandable === null">
+    <div class="reseller-header">
+      Reseller Info
+    </div>
+    <div class="reseller-details">
+      <p>{{ selectedOrders?.resellerName }}<br>Email : {{ selectedOrders?.orderDetail?.reseller?.email}}</p>
+    </div>
+  </div>
+
+  <app-traverseinfo-component *ngIf="tableexpandable !== null" [tableId]="tableId">
+  </app-traverseinfo-component>
+
+
+  <div class="table-section">
+    <app-data-table [columns]="tableColumns" [data]="tableData" (tableIdGenerated)="onTableIdReady($event)"
+      (clickedRow)="onclickedOrderItem($event)" [expandableRows]="true">
+    </app-data-table>
+  </div>
+
+
+  <!-- Footer -->
+  <div class="modal-footer">
+    <div class="footer-left" [class.error-bar]="selectedOrders.issueCount > 0">
+      <button (click)="onScrollButtonClick()" class="left-bottom-btn" aria-label="scroll-up-down">
+        <img src="/assets/scroll_up_down_32_32.svg" alt="Dismiss" />
+      </button>
+      <div *ngIf="selectedOrders.issueCount > 0 && selectedOrders.issueCount < 2" class="error-message">
+        <span></span>  <!-- Spacer for single error -->
+      </div>
+      <div *ngIf="selectedOrders.issueCount >= 2" class="error-message">
+        <img src="/assets/alert.svg" alt="Alert">
+        {{ selectedOrders.issueCount }} errors found
+        <button mat-button [matMenuTriggerFor]="errorMenu" aria-label="Show error details">
+          <img src="/assets/arrow_up_24_24.svg" alt="ArrowUp">
+        </button>
+      </div>
+    </div>
+
+    <div class="footer-right">
+      <div class="invoice-actions" *ngIf="currentTab === 'NONE'">
+        <app-action-button [actions]="actnButtons"
+          (clickedWithEvent)="onDetailedLevelAction($event.actionKey, $event.event)"></app-action-button>
+      </div>
+
+
+      <div class="status-info" *ngIf="currentTab !== 'NONE'">
+        <img [src]="getStatus(selectedOrders).imgURL" alt="orderstatus" />
+        <span [innerHTML]="selectedOrders.orderDate | statusDateDetailedViewFormat"></span>
+      </div>
+      <app-host-menu-wrapper style="width: 48px;" (actionSelected)="handleAction($event)"></app-host-menu-wrapper>
+    </div>
+
+
+    <mat-menu #errorMenu="matMenu" yPosition="above">
+      <div class="error-popup-content">
+       <!-- Spacer for multiple error -->
+      </div>
+    </mat-menu>
+  </div>
+</div>

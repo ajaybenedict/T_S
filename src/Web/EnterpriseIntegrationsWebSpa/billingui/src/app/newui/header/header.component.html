@@ -1,0 +1,63 @@
+<div class="filter-container">
+  <div class="date-range-container">
+    <span class="date-range text">Date Range</span>
+    <div class="date-range-picker-holder">
+      <ng-container #datefilter></ng-container>
+    </div>
+  </div>
+  <div class="filter-btn-container">
+    <div class="selected-filters" *ngIf="hasActiveFilters()">
+
+      <app-filterbutton [buttonConfigs]="resetButtonConfig" (buttonClicked)="onResetAllTabs()">
+      </app-filterbutton>
+
+      <ng-container *ngFor="let tab of tabs">
+
+        <ng-container *ngIf="appliedTabCounts[tab] > 0">
+          <app-filterbutton [buttonConfigs]="tabButtonConfig[tab]" (buttonClicked)="redirecttoTabs($event)"
+            (clearTab)="onClearTab($event)">
+          </app-filterbutton>
+
+        </ng-container>
+      </ng-container>
+    </div>
+
+    <button (click)="isFilterOpen = true" class="btn secondary">Add Filters</button>
+
+    <app-side-panel [isOpen]="isFilterOpen" (closepanel)="isFilterOpen = false" [headername]="headername">
+
+      <app-filterbutton class="filterbutton" panel-tabs [tabCounts]="tabCounts"
+        [buttonConfigs]="filterPanelButtonConfig" (buttonClicked)="filterButtonChange($event)"
+        (clearTab)="onClearTab($event)">
+      </app-filterbutton>
+
+      <div panel-content>
+        <div class="input-wrapper">
+          <img class="input-icon" src="/assets/search.svg" alt="Search">
+          <div class="input-container">
+            <input type="text" class="input-field" [placeholder]="searchPlaceholder" [(ngModel)]="searchText"
+              (input)="onSearchChange()" />
+          </div>
+        </div>
+
+         <div class="checkbox-scroll-container">
+          <!-- Checkbox List Filtered by Search -->
+        <app-flatCheckBox [CheckboxesValue]="filteredCheckboxList" (CheckboxesChange)="onCheckboxChange($event)">
+        </app-flatCheckBox>
+         </div>
+
+        
+      </div>
+      <div panel-footer class="filter-footer">
+        <button class="btn secondary resetbtn" (click)="onResetAllTabs()">
+          Reset All
+        </button>
+
+        <button class="btn primary applybtn" (click)="onApplyFilters()">
+          Apply
+        </button>
+
+      </div>
+    </app-side-panel>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<button
+  *ngFor="let action of actions"
+  class="{{ action.class }}"
+  [ngClass]="{'static-button': action.showHoverIcon === false}" 
+  [ngStyle]="{ width: action.width || 'auto' }"
+  [disabled]="disabled || action.disabled"
+  (mouseenter)="onHover(action)"
+  (mouseleave)="onLeave(action)"
+  (mousedown)="onPress(action)"
+  (mouseup)="onRelease(action)"
+  (click)="onClick($event, action)"
+  
+>
+  <img *ngIf="action.showIcon"
+    class="action-icon"
+    [src]="getCurrentIcon(action)"
+    [alt]="action.label"
+    (error)="onImageError($event, action)"
+  />
+  <span *ngIf="action.showLabel">{{ action.label }}</span>
+</button>
+
+
+
+
+
+
+
+

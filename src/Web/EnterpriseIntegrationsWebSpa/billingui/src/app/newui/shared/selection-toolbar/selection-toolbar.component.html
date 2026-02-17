@@ -1,0 +1,19 @@
+<div *ngIf="selectedCount > 1" class="selection-toolbar-container">
+  <div>
+    <span class="selected-info-text">
+      {{ selectedCount }} Selected on this page
+    </span>
+    <a class="select-all" (click)="onToggleSelectAllClick(); $event.preventDefault()">
+      {{ allSelectedOnPage ? 'Deselect all from this page' : 'Select all from this page' }}
+    </a>
+  </div>
+
+  <div class="toolbar-actions">
+    <ng-container *ngIf="buttonConfigs$ | async as configs">
+      <app-action-button *ngIf="configs.length" [actions]="configs" (clicked)="onActionClicked($event)">
+      </app-action-button>
+    </ng-container>
+  </div>
+
+ 
+</div>

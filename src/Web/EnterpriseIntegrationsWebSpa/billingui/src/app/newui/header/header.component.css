@@ -1,0 +1,96 @@
+.filter-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 44px;
+    
+}
+
+.date-range-container {
+    display: flex;
+    flex-direction: row;
+    width: 328px;
+    gap: 20px;
+    align-items: center;
+}
+
+.date-range-picker-holder {
+    height: 44px !important;
+    width: 222px !important;
+}
+
+.date-range-text {
+    color: #262626;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 150%;
+}
+
+.filter-btn-container,
+.dynamic-btn-container {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: end;
+}
+
+.filter-footer{
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+.resetbtn{
+    width: 95px;
+}
+.applybtn{
+    width: 255px;
+}
+
+
+
+.input-wrapper {
+    display: flex;
+    align-items: center;     
+    border-radius: 4px;
+    padding: 8px;    
+    border: 1px solid #E4E5E6;
+    background-color: #F8F8F8;
+    width: 100%;
+    height: 50px;
+    margin-bottom: 20px;
+}
+.input-container {
+    position: relative;    
+    flex: 1;
+} 
+
+.checkbox-scroll-container {
+  max-height: 510px;
+  overflow-y: auto;
+  margin-top: 12px; 
+  padding-right: 4px; 
+}
+
+/* Optional scrollbar styling */
+.checkbox-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.checkbox-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+
+.input-field {
+    width: 100%;  
+    border: none;
+    outline: none;
+    background-color: #F8F8F8;  
+}
+
+.selected-filters{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}

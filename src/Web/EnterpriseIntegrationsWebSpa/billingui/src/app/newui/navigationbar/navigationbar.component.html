@@ -1,0 +1,15 @@
+<div class="tab-wrapper">
+  <div class="tab-content">
+    <ng-container #tabContainer></ng-container>
+  </div>
+
+  <div class="tab-icon-group">
+    <ng-container *ngIf="dynamicButtonConfigs$ | async as configs">
+      <app-action-button
+        *ngIf="configs.length"
+        [actions]="configs"
+        (clicked)="dashboardActionClicked($event)">
+      </app-action-button>
+    </ng-container>
+  </div>
+</div>

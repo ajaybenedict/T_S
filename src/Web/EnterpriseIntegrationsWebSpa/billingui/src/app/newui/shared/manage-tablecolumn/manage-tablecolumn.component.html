@@ -1,0 +1,33 @@
+<app-side-panel [isOpen]="isOpen" (closepanel)="closePanel()" [headername]="headername">
+
+  <!-- TAB -->
+  <div *ngIf="tabs.length" panel-tabs>
+    <app-filterbutton class="filterbutton" [buttonConfigs]="tabs" (buttonClicked)="filterButtonChange($event)">
+    </app-filterbutton>
+  </div>
+
+  <div panel-content>
+    <ng-container *ngTemplateOutlet="groupTemplate; context: { columns: activeTabColumns }"></ng-container>
+  </div>
+
+  <!-- Footer -->
+  <div panel-footer class="filter-footer">
+    <button class="btn secondary resetbtn" (click)="resetAll()">Default</button>
+    <button class="btn primary applybtn" (click)="applyChanges()">Apply</button>
+  </div>
+
+</app-side-panel>
+
+<!-- Reusable Template for Groups -->
+<ng-template #groupTemplate let-columns="columns">
+  <div class="group-container" *ngFor="let group of groupColumns(columns); trackBy: trackByGroup">
+    <div cdkDropList (cdkDropListDropped)="drop($event, group)">
+      <div class="group-header">{{ group[0].groupname || '' }}</div>
+
+      <div *ngFor="let col of group" cdkDrag class="reorderable-item">
+        <app-reorderable-button [label]="col.displayName" [visible]="col.visible" (toggledcolumn)="toggleVisibility(col)">
+        </app-reorderable-button>
+      </div>
+    </div>
+  </div>
+</ng-template>

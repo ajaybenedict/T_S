@@ -1,0 +1,39 @@
+<div class="data-table-wrapper">
+  <div class="data-table">
+    <table mat-table [dataSource]="tableDataSource" matSort>
+      <!-- Dynamic Columns -->
+      <ng-container *ngFor="let column of columns" [matColumnDef]="column.columnName">
+        <th mat-header-cell *matHeaderCellDef [ngClass]="[column.className, getStickyClass(column) || '']">
+          {{ column.columnName }}
+        </th>
+
+        <td mat-cell *matCellDef="let row" [ngClass]="[column.className, getStickyClass(column) || '']">
+          <span [innerHTML]="row[column.key] | dynamicPipe:(column.pipe || ''):row:column.pipeArgs"></span>
+        </td>
+
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="fullDisplayedColumns"></tr>
+      <ng-container *matRowDef="let row; let i = index; columns: fullDisplayedColumns">
+
+        <tr mat-row class="nrml" [attr.data-rowIndex]="i" (click)="onRowClick(row, i)" 
+         (keypress)="onRowClick(row, i)"
+         (keydown)="onRowClick(row, i)"
+         (keyup)="onRowClick(row, i)"
+          [class.tbody-expanded]="tbodyExpanded">
+        </tr>
+
+        <tr *ngIf="expandableRows && expandedRowId === row.salesOrderLineId" class="expanded-row">
+          <td [attr.colspan]="fullDisplayedColumns.length + 1">
+            <app-order-second-level-component></app-order-second-level-component>
+          </td>
+        </tr>
+      </ng-container>
+
+      <tr class="mat-row" *ngIf="tableDataSource?.data?.length === 0">
+        <td class="mat-cell" [attr.colspan]="fullDisplayedColumns.length + 2">
+          No data found.
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

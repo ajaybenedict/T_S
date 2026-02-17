@@ -1,0 +1,21 @@
+<div class="column-item" *ngIf="!hasCheckboxButton">
+  <button type="button" class="drag-icon">
+    <img src="/assets/drag_handle_icon_40_40.svg" alt="drag">
+  </button>
+  <span class="s1-FW400 s1-FS14px s1-C-Teal">{{ label }}</span>
+  <button type="button" class="column-button" s1-button *ngIf="visible" (click)="onToggle()">
+    <img src="/assets/column_show_icon_40_40.svg" alt="ColumnVisibility" class="default">
+    <img src="/assets/column_show_hover_icon_40_40.svg" alt="ColumnVisibility" class="hover">
+  </button>
+  <button type="button" class="column-button" *ngIf="!visible" (click)="onToggle()">
+    <img src="/assets/column_hide_icon_40_40.svg" alt="ColumnVisibility" class="default">
+    <img src="/assets/column_hide_hover_icon_40_40.svg" alt="ColumnVisibility" class="hover">
+  </button>
+</div>
+
+
+
+<div class="column-item checkbox-item" *ngIf="hasCheckboxButton">
+  <app-flatCheckBox [CheckboxesValue]="checkBoxData" class="checkbox-button">
+  </app-flatCheckBox>
+</div>

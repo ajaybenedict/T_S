@@ -1,0 +1,156 @@
+/* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+* {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+
+/* PPC primary btn */  
+.mdc-button.mat-primary {
+    display: flex;
+    align-items: center;    
+    justify-content: center;
+    background-color: #005758 !important;
+    transition: background-color 1s ease-in-out;
+    color: #FFF !important;
+    height: 36px !important;
+    width: 111px !important;
+    border-radius: 4px;    
+    font-weight: 400 !important;
+    font-size: 14px !important;    
+    cursor: pointer !important;
+}
+
+.mdc-button.mat-primary:hover {
+    background-color: #337979 !important;
+}
+/* Button pressed state */
+.mdc-button.mat-primary:active {
+    background-color: #004646 !important;
+    cursor: pointer !important;
+}
+
+.mdc-button.mat-primary:disabled {
+    background-color: #E4E5E6 !important;
+    cursor: default;
+}
+
+/* PPC secondary button */
+.mdc-button.mat-secondary {
+    width: 160px;
+    height: 36px;
+    border-radius: 4px;
+    border: 1px solid #005768 !important;
+    background-color: #FFF !important;        
+    font-weight: 400;
+    font-size: 14px;
+    color: #005758 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 1s ease-in-out;
+}
+
+.mdc-button.mat-secondary:hover {
+    background-color: #DCE5E5 !important;
+}
+
+.mdc-button.mat-secondary:active {
+    background-color: #C4D5D6 !important;
+}
+
+.mdc-button.mat-secondary:disabled {
+    cursor: default;
+    border: 1px solid #888B8D !important;
+    color: #888B8D !important;
+}
+
+/* Renmove letter spacing in all mat btn */
+.mdc-button {
+    letter-spacing: normal !important;
+}
+
+/* Disable ripple effect fro all mat btn */
+.mdc-button .mat-mdc-button-ripple {
+    display: none !important;
+}
+
+
+/* action btn hover & selected functionalities */
+.btn-action-Approve:hover img {
+    content: url('/assets/approve_hover.svg');
+}
+.btn-action-Decline:hover img {
+    content: url('/assets/decline_hover.svg');
+}
+.btn-action-Approve:active img {
+    content: url('/assets/approve_pressed.svg');
+}
+.btn-action-Decline:active img {
+    content: url('/assets/decline_pressed.svg');
+}
+.btn-action-notallowed{
+    cursor: not-allowed !important;
+     opacity: 0.6;
+}
+/* Global changes to override default material progress bar */
+mat-progress-bar {         
+    --mdc-linear-progress-active-indicator-color: #005758 !important;    
+}
+
+/* Custom accent color overrides */
+.mat-mdc-checkbox.mat-accent {
+  --mdc-checkbox-selected-focus-icon-color: #005758;
+  --mdc-checkbox-selected-hover-icon-color: #005758;
+  --mdc-checkbox-selected-pressed-icon-color: #005758;
+  --mdc-checkbox-selected-icon-color: #005758;
+}
+
+/* Checkbox checked and indeterminate background */
+.mat-mdc-checkbox-checked .mdc-checkbox__background,
+.mat-mdc-checkbox-indeterminate .mdc-checkbox__background {
+  background-color: #005758 !important;
+  border-color: #005758 !important;
+}
+
+/* White checkmark color */
+.mdc-checkbox__checkmark-path {
+  stroke: white !important;
+}
+
+/* Scoped ripple and styling for specific checkboxes */
+mat-checkbox.checkboxcls {
+  position: relative;
+
+  .mdc-checkbox__ripple,
+  .mat-mdc-checkbox-ripple .mat-ripple-element {
+    background-color: #005758 !important;
+    border-radius: 2px !important;
+    width: 24px !important;
+    height: 24px !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    transition: opacity 250ms ease-out, background-color 250ms ease-out !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    box-shadow: 0 0 4px 1px #007b7b, 0 0 8px 2px #007b7b inset !important;
+  }
+
+  &:hover .mdc-checkbox__ripple,
+  &:hover .mat-mdc-checkbox-ripple .mat-ripple-element {
+    opacity: 0.2 !important;
+  }
+}
+
+.mat-mdc-dialog-container {
+  width: 480px;
+  height: 264px;
+  border-radius: 8px;
+  background: #FFFFFF;
+  box-shadow: 0px 0px 8px 0px #00000029;
+}

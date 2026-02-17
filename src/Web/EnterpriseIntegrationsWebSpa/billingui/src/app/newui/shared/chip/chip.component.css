@@ -1,0 +1,12 @@
+.chip-container {
+    background-color: rgba(0, 87, 88, 0.1);
+    border: 1px solid #005758;
+    border-radius: 14px;
+    padding: 4px 8px;
+    gap: 8px;
+}
+.chip-text {
+    font-size: 12px;
+    font-weight: 400;
+    color: #005758;
+}

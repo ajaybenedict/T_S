@@ -1,0 +1,244 @@
+<app-selection-toolbar *ngIf="selectedRows.length > 0" [selectedCount]="selectedRows.length"
+  [allSelectedOnPage]="isAllSelected()" (selectAll)="toggleAllRows()" (deselectAll)="toggleAllRows()"
+  (buttonAction)="selectedToolbarButtonAction($event)">
+</app-selection-toolbar>
+
+<!-- GROUPED VIEW -->
+<div class="table-wrapper" *ngIf="isGroupedView">
+  <p-table [value]="groupedData" [scrollable]="true" scrollHeight="flex" scrollDirection="both"
+    [groupRowsBy]="groupByField" rowGroupMode="subheader">
+
+    <!-- HEADER -->
+    <ng-template pTemplate="header">
+      <tr class="limit-header">
+        <ng-container *ngFor="let col of columns">
+          <th *ngIf="col.isGroupColumn" [attr.colspan]="getColspanForGroup(col.key)"
+            class="scrollable-col {{ col.className }}">
+            {{ col.columnName }}
+          </th>
+
+          <th *ngIf="!col.parentKey && !col.isGroupColumn" class="scrollable-col {{ col.className }}"
+            [ngClass]="{ 'has-checkbox': col.isCheckbox }">
+            <div class="checkbox-inline-wrap">
+              <mat-checkbox *ngIf="col.isCheckbox" class="checkboxcls" (change)="toggleAllRows()"
+                [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()"
+                [aria-label]="checkboxLabel()">
+              </mat-checkbox>
+              <span>{{ col.columnName }}</span>
+            </div>
+          </th>
+        </ng-container>
+      </tr>
+
+      <!-- Horizontal Divider -->
+      <tr class="header-divider">
+        <th scope="col" *ngFor="let _ of columns" class="scrollable-col" style="padding: 0;">
+          <div style="border-bottom: 1px solid #005758; width: 100%;"></div>
+        </th>
+      </tr>
+    </ng-template>
+
+    <!-- GROUP HEADER -->
+    <ng-template pTemplate="groupheader" let-rowData>
+      <ng-container *ngIf="rowData.orders?.length > 1">
+        <tr pRowGroupHeader class="group-header limit-groupheader" [ngClass]="{
+                  'highlight-selected-group': rowData[groupByField] === highlightedGroupKey
+                }">
+
+          <!-- LEFT COLUMNS -->
+          <ng-container *ngFor="let col of getGroupHeaderColumns('left')">
+            <td class="scrollable-col groupheadercol" [ngClass]="{
+                  'highlight-group-header': hasIssueCountGreaterThanZero(rowData.orders),
+                  'has-checkbox': col.isCheckbox }">
+              <ng-container *ngTemplateOutlet="checkboxTemplate; context: { col: col, data: rowData }"></ng-container>
+            </td>
+          </ng-container>
+
+          <!-- TOGGLE GROUP -->
+          <ng-container *ngIf="getMiddleColspan() as middlespan">
+            <td *ngIf="middlespan > 0" [attr.colspan]="middlespan" class="scrollable-col">
+              <div class="order-toggle" (click)="toggleGroup(rowData[groupByField])">
+                <span class="order-icon" *ngIf="!isGroupExpanded(rowData[groupByField])">
+                  <img src="/assets/arrow_down_24_24.svg" alt="Expand group" width="24" height="24" />
+                </span>
+                <span class="order-icon" *ngIf="isGroupExpanded(rowData[groupByField])">
+                  <img src="/assets/arrow_up_24_24.svg" alt="Collapse group" width="24" height="24" />
+                </span>
+                <span class="order-count">{{ rowData.orders?.length }} Orders</span>
+              </div>
+            </td>
+          </ng-container>
+
+
+          <!-- RIGHT COLUMNS -->
+          <ng-container *ngFor="let col of getGroupHeaderColumns('right')">
+            <td class="scrollable-col text-right groupheadercol">
+              <ng-container *ngIf="col.actionKeys?.length; else defaultGroupCell">
+                <ng-container
+                  *ngTemplateOutlet="actionButtonTemplate; context: { col: col, data: rowData, order: rowData.orders[0] }"></ng-container>
+              </ng-container>
+              <ng-template #defaultGroupCell>
+                <ng-container
+                  *ngTemplateOutlet="cellTemplate; context: { col: col, data: rowData, order: rowData.orders[0] }"></ng-container>
+              </ng-template>
+            </td>
+          </ng-container>
+
+        </tr>
+      </ng-container>
+    </ng-template>
+
+    <!-- BODY ROWS -->
+    <ng-template pTemplate="body" let-rowData let-tablerowindex="rowIndex">
+      <!-- SINGLE ORDER -->
+      <ng-container *ngIf="rowData.orders?.length === 1">
+        <tr [attr.data-rowIndex]="tablerowindex + 1" [attr.data-rowChildIndex]="0" class="tbody-row limit-singlerow"
+          (click)="onRowClick($event, rowData.orders[0],rowData[groupByField])"
+          (keypress)="onRowClick($event, rowData.orders[0], rowData[groupByField])"
+          (keydown)="onRowClick($event, rowData.orders[0], rowData[groupByField])"
+          (keyup)="onRowClick($event, rowData.orders[0], rowData[groupByField])" [ngClass]="[
+    hasIssueCountGreaterThanZero(rowData.orders[0]) ? 'error-row' : 'normal-row',
+    highlightedRow === rowData.orders[0] ? 'highlight-selected-row' : '',
+    rowData[groupByField] === highlightedGroupKey ? 'highlight-selected-group' : ''
+  ]">
+          <ng-container *ngFor="let col of columns">
+            <td class="scrollable-col {{ col.className }}" [ngClass]="{
+                  'highlight-group-header': hasIssueCountGreaterThanZero(rowData.orders[0]),
+                  'has-checkbox': col.isCheckbox,
+                  'datacell': !col.showInGroupHeader,
+                }">
+              <ng-container *ngIf="col.isCheckbox; else singleOrderDataCell">
+                <ng-container *ngTemplateOutlet="checkboxTemplate; context: { col: col, data: rowData }"></ng-container>
+              </ng-container>
+              <ng-template #singleOrderDataCell>
+                <ng-container *ngIf="col.actionKeys?.length; else singleOrderPlainCell">
+                  <ng-container
+                    *ngTemplateOutlet="actionButtonTemplate; context: { col: col, data: rowData, order: rowData.orders[0] }"></ng-container>
+                </ng-container>
+                <ng-template #singleOrderPlainCell>
+                  <ng-container
+                    *ngTemplateOutlet="cellTemplate; context: { col: col, data: rowData, order: rowData.orders[0] }"></ng-container>
+                </ng-template>
+              </ng-template>
+            </td>
+          </ng-container>
+        </tr>
+      </ng-container>
+
+      <!-- MULTIPLE ORDERS -->
+      <ng-container *ngIf="rowData.orders?.length > 1 && expandedGroupbyIds.has(rowData[groupByField])">
+        <ng-container *ngFor="let order of rowData.orders; let i = index">
+          <tr [attr.data-rowIndex]="tablerowindex + 1" [attr.data-rowChildIndex]="i"
+            (click)="onRowClick($event, order, rowData[groupByField])"
+            (keypress)="onRowClick($event, order, rowData[groupByField])"
+            (keydown)="onRowClick($event, order, rowData[groupByField])"
+            (keyup)="onRowClick($event, order, rowData[groupByField])" [ngClass]="[
+              'tbody-row',
+                i === 0 ? 'limit-singlerow' : 'limit-multirow',
+                hasIssueCountGreaterThanZero(order) ? 'error-row' : 'normal-row',
+                highlightedRow === order ? 'highlight-selected-row' : '',
+                i === 0 && rowData[groupByField] === highlightedGroupKey ? 'highlight-selected-group' : '']">
+            <ng-container *ngFor="let col of columns">
+              <!-- Rowspaned cell (only on first row) -->
+              <td *ngIf="col.showInGroupHeader && i === 0" [attr.rowspan]="rowData.orders.length"
+                class="scrollable-col groupheaderrowspancol {{ col.className }}">
+              </td>
+
+              <!-- Regular Data Cell -->
+              <td *ngIf="!col.showInGroupHeader" class="scrollable-col datacell {{ col.className }}">
+                <ng-container *ngIf="col.isCheckbox; else dataCell">
+                  <ng-container
+                    *ngTemplateOutlet="checkboxTemplate; context: { col: col, data: rowData }"></ng-container>
+                </ng-container>
+                <ng-template #dataCell>
+                  <ng-container *ngIf="col.actionKeys?.length; else plainCell">
+                    <ng-container
+                      *ngTemplateOutlet="actionButtonTemplate; context: { col: col, data: rowData, order: order }"></ng-container>
+                  </ng-container>
+                  <ng-template #plainCell>
+                    <ng-container
+                      *ngTemplateOutlet="cellTemplate; context: { col: col, data: rowData, order: order }"></ng-container>
+                  </ng-template>
+                </ng-template>
+              </td>
+            </ng-container>
+          </tr>
+        </ng-container>
+      </ng-container>
+    </ng-template>
+
+  </p-table>
+</div>
+
+<!-- FLATTENED VIEW -->
+<div class="table-wrapper" *ngIf="!isGroupedView">
+  <p-table [value]="displayFlattedData" [scrollable]="true" scrollHeight="flex" scrollDirection="both">
+    <ng-template pTemplate="header">
+      <tr>
+        <th scope="col" *ngFor="let col of columns">{{ col.columnName }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData>
+      <tr>
+        <td *ngFor="let col of columns">
+          <ng-container
+            *ngTemplateOutlet="cellTemplate; context: { col: col, data: rowData.rowData, order: rowData.orderData }"></ng-container>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- SHARED TEMPLATES -->
+
+<!-- Cell Template -->
+<ng-template #cellTemplate let-col="col" let-data="data" let-order="order">
+
+  <ng-container *ngIf="col.isStatus">
+    <div class="btn-group">
+      <img [src]="order?.finalorderStatus?.imgURL" [alt]="order?.finalorderStatus?.key" appInfoTooltip
+        tooltipTitle="Status Information"
+        tooltipContent="Cloud billing connector Created. This data will get visible under Status in next system update" />
+      <app-host-menu-wrapper></app-host-menu-wrapper>
+
+
+
+    </div>
+
+  </ng-container>
+  <ng-container *ngIf="!col.isStatus">
+    <ng-container *ngIf="col.pipe; else defaultCell">
+      <span [innerHTML]="col.valueGetter(data, order) | dynamicPipe: col.pipe : order : col.pipeArgs"></span>
+    </ng-container>
+    <ng-template #defaultCell>
+      {{ col.valueGetter(data, order) }}
+    </ng-template>
+  </ng-container>
+
+
+
+</ng-template>
+
+<!-- Checkbox Template -->
+<ng-template #checkboxTemplate let-col="col" let-data="data">
+  <div class="checkbox-inline-wrap">
+    <mat-checkbox class="checkboxcls" (click)="$event.stopPropagation()" (change)="toggleRow(data)"
+      [disabled]="isCheckboxDisabled(data)" [checked]="selection.isSelected(data)" [aria-label]="checkboxLabel(data)">
+    </mat-checkbox>
+    <span>
+      <ng-container
+        *ngTemplateOutlet="cellTemplate; context: { col: col, data: data, order: data.orders?.[0] || null }"></ng-container>
+    </span>
+  </div>
+</ng-template>
+
+<!-- Action Button Template -->
+<ng-template #actionButtonTemplate let-col="col" let-data="data" let-order="order">
+  <div class="data-table-action-container">
+    <app-action-button [actions]="getColumnActions(col, data, order)" [disabled]="isCheckboxDisabled(data)"
+      (clickedWithEvent)="onLineLevelAction($event.actionKey, order, $event.event)">
+    </app-action-button>
+    <app-host-menu-wrapper></app-host-menu-wrapper>
+
+  </div>
+</ng-template>

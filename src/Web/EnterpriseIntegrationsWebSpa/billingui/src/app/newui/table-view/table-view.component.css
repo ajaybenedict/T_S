@@ -1,0 +1,174 @@
+.table-wrapper {
+  height: 100%;
+}
+
+::ng-deep .header-divider th {
+  height: 30px !important;
+}
+
+/* === Header & Cell Styling === */
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
+  white-space: nowrap;
+  padding: 8px 12px;
+  font: 700 14px/150% Arial, sans-serif;
+  text-align: left;
+  vertical-align: middle;
+  color: #75716E;
+  background-color: #fff;
+  height: 48px;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+  white-space: normal;
+  border: 1px solid #E4E5E6;
+  vertical-align: top;
+  padding: 8px 12px;
+  background: #fff;
+  height: 48px;
+}
+
+::ng-deep .p-datatable-table {
+  border-collapse: separate !important;
+}
+
+.groupheaderrowspancol {
+  border-top: none !important;
+}
+
+.groupheadercol {
+  border-bottom: none !important;
+}
+
+.checkbox-inline-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.has-checkbox {
+  padding: 2px !important;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody {
+  position: relative;
+  outline: 1px solid #E4E5E6 !important;
+}
+
+/* Hover effect on non-group cells only */
+.error-row:hover .datacell {
+  background-color: #F2E4E7 !important;
+  transition: background-color 0.3s ease;
+}
+
+.normal-row:hover .datacell {
+  background-color: #EBEEEF !important;
+}
+
+/* === Column Widths === */
+.invoicetbl {
+  width: 12.05%;
+}
+
+.statuscol {
+  width: 3.59%;
+}
+
+.ordercountcol {
+  width: 3.37%;
+}
+
+.orderdtl {
+  width: 13.20%;
+}
+
+.fx {
+  width: 4.45%;
+}
+
+.vc,
+.rp {
+  width: 7.10%;
+}
+
+.enduser {
+  width: 13.77%;
+}
+
+.resellerdtl {
+  width: 17.22%;
+}
+
+.cs {
+  width: 3.37%;
+}
+
+.country {
+  width: 5.67%;
+}
+
+.action {
+  width: 9.11%;
+  padding: 4px 12px;
+}
+
+
+.invoicetbl,
+.statuscol,
+.ordercountcol,
+.orderdtl,
+.fx,
+.vc,
+.rp,
+.enduser,
+.resellerdtl,
+.cs,
+.country {
+  height: 48px;
+  padding: 8px 12px;
+}
+
+
+.data-table-action-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 24px;
+  margin-right: 8px;
+}
+
+.icon-group {
+  display: flex;
+  gap: 8px;
+}
+
+.order-count {
+  font-family: Arial, sans-serif;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 14px;
+  line-height: 150%;
+  letter-spacing: 0%;
+  text-align: center;
+  height: 21px;
+  opacity: 1;
+  color: #005758;
+}
+
+.order-toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 8px;
+
+  &:hover .order-icon svg {
+    background-color: #E4E5E6;
+  }
+}

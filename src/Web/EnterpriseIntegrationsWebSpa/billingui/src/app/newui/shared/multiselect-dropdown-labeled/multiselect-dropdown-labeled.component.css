@@ -1,0 +1,79 @@
+.select-container {
+    padding: 8px;
+    border: 1px solid #E4E5E6;   
+    height: 44px;
+    box-sizing: border-box;
+}
+
+.select-container:hover {
+    border: 1px solid #75716E;
+}
+
+.select-container:active, .select-container.active {
+    border: 1px solid #005758;
+}
+
+.option-label {
+    gap: 10px;
+}
+
+.custom-menu {    
+    width: 100%;
+}
+
+.dropdown-btn, .option-btn {
+    padding: 0px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+.option-img {
+   width: 24px; 
+   height: 24px;
+}
+
+::ng-deep .custom-menu.mat-mdc-menu-panel {       
+    box-sizing: border-box;
+    padding: 0 !important;
+}
+
+::ng-deep .custom-menu .mat-mdc-menu-item {
+    width: 100%;    
+    height: 40px;
+}
+
+::ng-deep .custom-menu .mdc-list-item__primary-text {
+    padding: 8px;
+    border-radius: 4px;
+    gap: 16px; 
+    display: flex;
+    align-items: center;
+}
+
+::ng-deep .custom-menu .option-btn span {
+    font-weight: 400;
+    font-size: 14px;
+    color: #262626;
+    line-height: 100%;
+}
+
+::ng-deep .custom-menu .mat-mdc-menu-content {
+    padding: 12px;
+}
+
+::ng-deep .mat-mdc-menu-panel {
+  max-width: 100% !important;
+}
+
+
+.selected-chip-holder {
+    gap: 8px;
+    padding: 8px;
+    flex-wrap: wrap;
+}
+
+::ng-deep .cdk-overlay-pane{
+    top: 320px; left: 1542px;
+    height: 200px;
+}

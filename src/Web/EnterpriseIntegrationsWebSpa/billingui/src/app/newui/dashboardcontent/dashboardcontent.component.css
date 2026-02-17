@@ -1,0 +1,39 @@
+.main-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.table-container {
+  width: 100%;
+  height: 100%;
+  transition: margin-right 0.3s ease;
+}
+
+.table-container.with-side-panel {
+  margin-right: 63%;
+}
+
+.sidenav-wrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 67%;
+  height: 100%;
+  border: 1px solid #E4E5E6;
+  border-radius: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.side-panel {
+  width: 100%;
+  height: 100%;
+  box-shadow: -3px 0 6px rgba(0, 0, 0, 0.2);
+  background: white;
+  border-left: 1px solid #E4E5E6;
+  border-radius: 8px 0 0 8px;
+}
+
+.sidenav-wrapper:hover {
+  border-color: #005758;
+}

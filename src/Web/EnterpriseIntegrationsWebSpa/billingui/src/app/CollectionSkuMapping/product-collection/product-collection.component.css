@@ -1,0 +1,7 @@
+::ng-deep .ngx-pagination a {
+  text-decoration: none !important;
+}
+::ng-deep .toast-top-custom-offset {
+  top: 70px !important;
+  right: 12px !important;
+}

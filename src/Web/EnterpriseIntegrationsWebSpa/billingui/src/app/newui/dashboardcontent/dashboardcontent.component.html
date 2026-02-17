@@ -1,0 +1,14 @@
+<div class="main-container" [ngClass]="{ 'side-open': isSidePanelOpen }">
+  <div class="table-container">
+    <app-table-view [SidePanelMiddleColspan]="isSidePanelOpen" (clickedRow)="onRowSelected($event)"
+      (ActionInformation)="invoiceAction($event)"></app-table-view>
+  </div>
+  <mat-sidenav-container class="sidenav-wrapper" *ngIf="isSidePanelOpen">
+    <mat-sidenav position="end" mode="side" opened="true" class="side-panel">
+      <app-data-modal (buttonAction)="invoiceAction($event)" (close)="closeSidePanel()"></app-data-modal>
+    </mat-sidenav>
+  </mat-sidenav-container>
+</div>
+
+<app-manage-tablecolumn [tabs]=tabs [columns]=columns></app-manage-tablecolumn>
+<app-download-panel [tabs]=downloadTabs></app-download-panel>

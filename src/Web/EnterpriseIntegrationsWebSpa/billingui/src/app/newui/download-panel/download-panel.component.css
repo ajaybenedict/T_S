@@ -1,0 +1,49 @@
+.downloadbtn {
+    width: 100%;
+    height: 44px;
+}
+
+.dropdown-holder {
+    font-size: 14px;
+    line-height: 150%;
+    color: #262626;
+    gap: 8px;
+}
+
+.panel-content-container{    
+    gap: 24px;
+}
+
+.panel-content-container .title {
+    font-weight: 700;
+}
+
+.panel-content-container .content {
+    font-weight: 400;
+}
+
+.hint-text {
+    font-size: 12px;
+    font-weight: 400;
+    color: #75716E;
+}
+
+.mandatory-star {
+    color: #CD163F;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.description-text {
+    font-weight: 400;   
+    font-size: 16px;
+    color: #262626;
+    line-height: 150%;
+    letter-spacing: 0%;
+}
+
+.downloadbtn:disabled {
+  background-color:  #E4E5E6 !important;
+  color: #888B8D !important;            
+  cursor: not-allowed;
+}

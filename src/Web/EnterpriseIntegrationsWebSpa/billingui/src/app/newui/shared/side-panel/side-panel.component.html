@@ -1,0 +1,29 @@
+<!-- Only show if panel is open -->
+<div class="overlay" *ngIf="isOpen">
+  <div class="panel" aria-modal="true">
+    <header class="panel-header">
+      <div class="header-text">{{ headername }}</div>
+      <div class="header-actions">
+        <button type="button" class="dismiss-btn" (click)="closepanel.emit()" aria-label="Dismiss">
+          <img src="/assets/dismiss_btn_24_24.svg" alt="Dismiss">
+        </button>
+      </div>
+    </header>
+    <div class="dynamic-content-holder">
+      <div class="panel-btn-holder">
+        <ng-content select="[panel-tabs]"></ng-content>
+      </div>
+      <div class="panel-content-holder">
+        <div class="panel-content">
+          <ng-content select="[panel-content]"></ng-content>
+        </div>
+      </div>
+    </div>
+    <!-- Footer -->
+    <div class="footer">
+      <div class="panel-footer">
+        <ng-content select="[panel-footer]"></ng-content>
+      </div>
+    </div>
+  </div>
+</div>

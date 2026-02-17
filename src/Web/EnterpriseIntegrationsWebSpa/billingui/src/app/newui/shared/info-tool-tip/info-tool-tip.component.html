@@ -1,0 +1,17 @@
+<div #popover class="popover" *ngIf="visible">
+  <div class="arrow-border" [ngStyle]="{ left: arrowLeft + 'px' }"></div>
+  <div class="arrow" [ngStyle]="{ left: arrowLeft + 'px' }"></div>
+
+  <div class="header">
+    <span>{{ title }}</span>
+    <button type="button" class="dismiss-btn" (click)="hide()" aria-label="Dismiss">
+      <img src="/assets/dismiss_btn_24_24.svg" alt="Dismiss">
+    </button>
+  </div>
+
+  <div class="content-wrapper">
+    <div class="content">
+      {{ content }}
+    </div>
+  </div>
+</div>

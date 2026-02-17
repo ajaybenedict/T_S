@@ -1,0 +1,55 @@
+<app-side-panel [isOpen]="(isOpen$ | async) || false" (closepanel)="closePanel()" [headername]="headername">
+  <div *ngIf="tabs.length" panel-tabs>
+    <app-filterbutton class="filterbutton" [buttonConfigs]="tabs" (buttonClicked)="filterButtonChange($event)">
+    </app-filterbutton>
+  </div>
+
+  <div panel-content>
+    <ng-container *ngTemplateOutlet="selectedTabTemplate"></ng-container>
+  </div>
+
+
+  <div panel-footer class="filter-footer">
+    <button class="btn primary downloadbtn" (click)="onDownload()"
+      [disabled]="negativeChargesForm.invalid && selectedTab === 'Negative Charges'">
+      Download
+    </button>
+  </div>
+
+
+</app-side-panel>
+
+<ng-template #positiveChargesTab>
+  <app-reorderable-button *ngFor="let option of tabOptions" [hasCheckboxButton]="true" [checkBoxData]="[option]">
+  </app-reorderable-button>
+</ng-template>
+
+<ng-template #negativeChargesTab>
+  <form [formGroup]="negativeChargesForm" class="panel-content-container d-flex flex-column">
+
+    <span class="description-text">
+      Please select at least one country and one vendor to download the negative charges data.
+    </span>
+
+    <!-- Country -->
+    <div class="dropdown-holder d-flex flex-column">
+      <div class="title">
+        Country <span class="mandatory-star">*</span>
+      </div>
+      <app-multiselect-dropdown-labeled [label]="'Choose Country'" [options]="countryOptions" formControlName="country"
+        [required]="true">
+      </app-multiselect-dropdown-labeled>
+    </div>
+
+    <!-- Vendor -->
+    <div class="dropdown-holder d-flex flex-column">
+      <div class="title">
+        Vendor <span class="mandatory-star">*</span>
+      </div>
+      <app-multiselect-dropdown-labeled [label]="'Choose Vendor'" [options]="vendorOptions" formControlName="vendor"
+        [required]="true">
+      </app-multiselect-dropdown-labeled>
+    </div>
+
+  </form>
+</ng-template>

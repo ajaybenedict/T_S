@@ -1,0 +1,75 @@
+.column-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 8px;
+  border: 1px solid #E4E5E6;
+  gap: 8px;
+  margin-bottom: 8px;
+  transition: transform 200ms ease, background-color 200ms ease, border-color 200ms ease;
+}
+
+.column-item:hover,
+.column-item:active {
+  background-color: #F8F8F8;
+}
+
+.column-item:hover .column-button,
+.column-item:active .column-button {
+  background-color: #F8F8F8;
+}
+
+.column-button {
+  background-color: #ffffff;
+  border: none;
+  margin-left: auto;
+}
+
+/* Drag icon */
+.drag-icon {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  cursor: grab;
+}
+
+.drag-icon img {
+  cursor: grab;
+  transition: content 200ms ease;
+  /* smooth hover swap if supported */
+}
+
+.drag-icon:hover img {
+  content: url('/assets/drag_handle_hover_icon_40_40.svg');
+}
+
+/* Button hover image swap */
+button img.default {
+  display: inline-block;
+}
+
+button img.hover {
+  display: none;
+}
+
+button:hover img.default {
+  display: none;
+}
+
+button:hover img.hover {
+  display: inline-block;
+}
+
+.checkbox-button {
+  width: 100% !important;
+}
+
+.checkbox-item {
+  height: 48px;
+}
+
+.checkbox-item:hover,
+.checkbox-item:active {
+  background-color: #ffffff;
+}

@@ -1,0 +1,27 @@
+<div class="dashboard-wrapper">
+  <section class="dashboard-container">
+    <div class="header-bar">
+      <app-header></app-header>
+    </div>
+
+    <div class="search-bar">
+      <app-searchbar>
+      </app-searchbar>
+    </div>
+
+    <div class="navigation-bar">
+      <app-navigationbar [hidden]="isAnySelectedOnPage" (typeChanged)="onTabTypeChange($event)"></app-navigationbar>
+    </div>
+
+    <div class="data-table-holder">
+      <app-dashboardcontent></app-dashboardcontent>
+    </div>
+    
+  </section>
+  <div class="pagination-holder">
+    <nav class="paginator" *ngIf="isPaginatorVisible" aria-label="Pagination">
+      <app-footer [inputData]="paginatorInput" [onPageChange]="handlePageChange.bind(this)">
+        ></app-footer>
+    </nav>
+  </div>
+</div>

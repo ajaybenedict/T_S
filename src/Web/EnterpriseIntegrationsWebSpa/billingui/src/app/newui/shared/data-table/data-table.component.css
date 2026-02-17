@@ -1,0 +1,156 @@
+::ng-deep .data-table tbody {
+  display: block;
+  max-height: 495px;
+  overflow-y: auto;
+ margin-top: 24px;
+}
+
+::ng-deep .data-table thead,
+::ng-deep .data-table tbody tr {
+  display: table !important;
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+
+
+/* === Table Headers === */
+th {
+  white-space: nowrap;
+  padding: 8px 12px;
+  border-bottom: none;
+  font: 700 14px/150% Arial;
+  text-align: left;
+  vertical-align: middle;
+  color: #75716E;
+}
+
+/* === Table Cells === */
+td {
+  white-space: wrap;
+  border: 1px solid #E4E5E6;
+  vertical-align: top;
+}
+
+/* === Column Width/Height/Spacing === */
+.cs {
+  width: 3.43%;
+}
+
+
+
+.orderdtl {
+  width: 17.86%;
+  border-left: none !important;
+}
+
+.resellerdtl {
+  width: 20.57%;
+}
+
+.invoicetbl {
+  width: 11.43%;
+}
+
+.country {
+  width: 5.86%;
+}
+
+.fx {
+  width: 5%;
+}
+
+.vc,
+.rp {
+  width: 9.29%;
+}
+
+.action {
+  width: 8.86%;
+  height: 48px;
+  padding: 4px 12px;
+}
+
+.cs,
+.checkbox-cell,
+.orderdtl,
+.resellerdtl,
+.invoicetbl,
+.country,
+.fx,
+.vc,
+.rp {
+  height: 48px;
+  padding: 8px 12px;
+}
+
+.error:hover .mat-mdc-cell {
+  background-color: #F2E4E7 !important;
+}
+
+.nrml:hover .mat-mdc-cell {
+  background-color: #F8F8F8 !important;
+}
+
+
+.data-table-action-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 24px;
+  margin-right: 8px;
+}
+
+.icon-group {
+  display: flex;
+  gap: 8px;
+}
+.checkbox-cell {
+  white-space: nowrap;
+  overflow: visible;
+  border-right: none !important;
+   width: 5.43%;
+   padding: 0px !important;
+}
+
+.checkbox-inline-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.cls {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  transform: scale(0.9);
+}
+
+
+
+.issue-count {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  font-size: 11px;
+  color: #d32f2f;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.mat-mdc-header-row.progress-bar-row {
+  height: 5px !important;
+}
+
+
+
+.mat-mdc-header-row {
+  border-bottom: 1px solid #005758
+}

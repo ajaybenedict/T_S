@@ -1,0 +1,120 @@
+{
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"version": 1,
+	"newProjectRoot": "projects",
+	"projects": {
+		"billingui": {
+			"projectType": "application",
+			"schematics": {},
+			"root": "",
+			"sourceRoot": "src",
+			"prefix": "app",
+			"architect": {
+				"build": {
+					"builder": "ngx-build-plus:browser",
+					"options": {	
+						"baseHref": "/cbc/",
+						"deployUrl": "/cbc/",					
+						"outputPath": "../wwwroot/cbc",
+						"index": "src/index.html",
+						"main": "src/main.ts",
+						"polyfills": [
+							"zone.js"
+						],
+						"tsConfig": "tsconfig.app.json",
+						"assets": [
+							"src/favicon.ico",
+							"src/assets"
+						],
+						"styles": [
+							{
+								"input": "node_modules/@progress/kendo-theme-bootstrap/dist/all.css"
+							},
+							"node_modules/bootstrap/dist/css/bootstrap.min.css",
+							"node_modules/bootstrap-icons/font/bootstrap-icons.css",
+							"node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+							"node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+  							"node_modules/primeng/resources/primeng.min.css",
+  							"node_modules/primeicons/primeicons.css",
+							"src/styles.css",
+							"node_modules/ngx-toastr/toastr.css"
+						],
+						"scripts": [						
+						],
+						"extraWebpackConfig": "webpack.config.js",
+						"commonChunk": false
+					},
+					"configurations": {
+						"production": {
+							
+							"outputHashing": "all",
+							"extraWebpackConfig": "webpack.prod.config.js"
+						},
+						"int": {
+							"optimization": true,
+							"outputHashing": "all"
+						},
+						"development": {
+							"buildOptimizer": false,
+							"optimization": false,
+							"vendorChunk": true,
+							"extractLicenses": false,
+							"sourceMap": true,
+							"namedChunks": true
+						}
+					},
+					"defaultConfiguration": "production"
+				},
+				"serve": {
+					"builder": "ngx-build-plus:dev-server",
+					"configurations": {
+						"production": {
+							"browserTarget": "billingui:build:production",
+							"extraWebpackConfig": "webpack.prod.config.js"
+						},
+						"int": {
+							"browserTarget": "billingui:build:int"
+						},
+						"development": {
+							"browserTarget": "billingui:build:development"
+						}
+					},
+					"defaultConfiguration": "development",
+					"options": {
+						"port": 4200,
+						"publicHost": "http://localhost:4200",
+						"extraWebpackConfig": "webpack.config.js"
+					}
+				},
+				"extract-i18n": {
+					"builder": "ngx-build-plus:extract-i18n",
+					"options": {
+						"browserTarget": "billingui:build",
+						"extraWebpackConfig": "webpack.config.js"
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"polyfills": [
+							"zone.js",
+							"zone.js/testing"
+						],
+						"tsConfig": "tsconfig.spec.json",
+						"assets": [
+							"src/favicon.ico",
+							"src/assets"
+						],
+						"styles": [
+							"src/styles.css"
+						],
+						"scripts": []
+					}
+				}
+			}
+		}
+	},
+	"cli": {
+		"analytics": "e45c1bcf-8c11-4c28-a420-7f2a2abede54"
+	}
+}

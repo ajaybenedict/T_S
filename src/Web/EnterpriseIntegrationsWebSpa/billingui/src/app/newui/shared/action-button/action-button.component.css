@@ -1,0 +1,74 @@
+:host {
+  display: contents;
+  /* ensures inline layout inherits from parent */
+}
+
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.action-icon {
+  width: 24px;
+  height: 24px;
+}
+
+
+
+.multiselect-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 1;
+  border-width: 1px;
+  padding: 8px 12px;
+  background: #F8F8F8;
+  border: 1px solid #E4E5E6 !important;
+  border: none;
+  height: 100%;
+}
+
+.orderdetailed-action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 1;
+  border-width: 1px;
+  padding: 8px 12px;
+  background: white;
+  border-right: 1px solid #E4E5E6 !important;
+  border: none;
+  height: 100%;
+}
+
+.dismiss-button{
+  padding: 8px !important;
+}
+
+.multiselect-button:hover, .orderdetailed-action-button:hover {
+  background: #E4E5E6;
+}
+
+.multiselect-button span, .orderdetailed-action-button span {
+  opacity: 1;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 14px;
+  line-height: 150%;
+  letter-spacing: 0%;
+  color: #75716E;
+  white-space: nowrap;
+}
+
+

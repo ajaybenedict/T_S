@@ -1,0 +1,27 @@
+.dashboard-wrapper {
+    height: 90vh !important;
+}
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: 100% !important;
+    padding: 24px 24px 0px 24px;
+    overflow: hidden;
+}
+.search-bar,
+.header-bar {
+    height: 40px;
+}
+.data-table-holder {
+    height: 100%;
+    opacity: 1;
+    overflow: hidden;
+}
+.pagination-holder {
+    margin-top: 10px;
+    height: 76px
+}
+.navigation-bar{
+    margin-bottom: -24px !important;
+}

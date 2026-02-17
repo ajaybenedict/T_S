@@ -1,0 +1,23 @@
+.tab-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.tab-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tab-icon-group {
+  height: 68px;
+}
+
+::ng-deep .tab-icon-group .btn-action {
+  height: 44px;
+  background-color: #EBEEEF !important
+}
+
+::ng-deep .tab-icon-group .static-button:hover {
+  background-color: #E4E5E6 !important
+}

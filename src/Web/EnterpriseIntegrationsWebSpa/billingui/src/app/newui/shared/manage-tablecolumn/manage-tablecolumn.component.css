@@ -1,0 +1,44 @@
+.group-header {
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 14px;
+  color: #000000;
+  padding-bottom: 20px;
+}
+
+.group-container {
+  padding: 16px 20px;
+}
+
+.group-container:not(:first-child) {
+  border-top: 1px solid #dcdcdc;
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+:host ::ng-deep .panel-content-holder {
+  padding: 0 !important;
+}
+
+.cdk-drag-preview {
+  background-color: #F8F8F8;
+  border: 1px dashed #00a0a0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.03);
+  cursor: grabbing !important;
+}
+
+.filter-footer {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.resetbtn {
+  width: 95px;
+}
+
+.applybtn {
+  width: 245px;
+}

@@ -1,0 +1,122 @@
+/* Fullscreen overlay background */
+.overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Sliding panel */
+.panel {
+  position: absolute;
+  top: 68px;
+  /* start below app header */
+  right: 0;
+  width: 375px;
+  height: calc(100vh - 78px);
+  /* take full remaining height */
+  background-color: #fff;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+  overflow-y: auto;
+}
+
+/* Slide-in animation */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Header */
+
+.header-text {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 150%;
+  color: #005758;
+  word-wrap: break-word;
+  overflow: auto;
+}
+
+/* Footer */
+.footer {
+  padding: 16px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer button {
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  background: #f0f0f0;
+}
+
+.footer button.primary {
+  background-color: #008060;
+  color: white;
+}
+
+.panel-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 16px 20px;
+  height: 56px;
+  border-bottom: 1px solid #E4E5E6;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.dynamic-content-holder {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: row;
+
+  .dismiss-btn {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    padding: 0px !important;
+  }
+}
+
+.dismiss-btn:hover img {
+  content: url('/assets/dismiss_btn_hover_red_24_24.svg');
+}
+
+.panel-content-holder {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding: 16px 20px;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.panel-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.panel-footer {
+ width: 100%;
+}

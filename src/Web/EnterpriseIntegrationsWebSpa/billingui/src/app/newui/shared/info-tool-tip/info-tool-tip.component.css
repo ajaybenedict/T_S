@@ -1,0 +1,86 @@
+.popover {
+  position: relative;
+  width: 240px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.arrow,
+.arrow-border {
+  left: 50%;
+  transform: translateX(-50%);
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+}
+
+.arrow-border {
+  top: -9px;
+  border-bottom: 9px solid #e0e0e0;
+}
+
+.arrow {
+  top: -6px;
+  border-bottom: 8px solid #fff;
+}
+
+.arrow-border.bottom {
+  top: auto;
+  bottom: -9px;
+  border-bottom: none;
+  border-top: 9px solid #e0e0e0;
+}
+
+.arrow.bottom {
+  top: auto;
+  bottom: -8px;
+  border-bottom: none;
+  border-top: 8px solid #fff;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eaeaea;
+  font-weight: 700;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.close {
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.content-wrapper {
+  padding: 12px;
+  border-radius: 0 0 8px 8px;
+}
+
+.content {
+  padding: 10px;
+  background: #f7f7f7;
+  font-size: 14px;
+  font-weight: 400;
+  color: #75716e;
+  line-height: 150%;
+}
+
+.dismiss-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  outline: none;
+  cursor: pointer;
+}
+
+.dismiss-btn:hover img {
+  content: url('/assets/dismiss_btn_hover_red_24_24.svg');
+}

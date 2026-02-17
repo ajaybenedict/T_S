@@ -1,0 +1,142 @@
+<div class="container" style="margin-top: 70px;">
+    <form class="row" [formGroup]="searchForm">
+        <div class="row morewidth" style="padding-bottom: 20px;">
+            <div class="col-md-2">
+                <div class="form-outline">
+                    <label class="form-label" for="form10Example3">View by ERP:</label>
+                    <select class="form-select" formControlName="viewperERP">
+                        <option *ngFor="let name of ERPNames" [value]="name.code">{{name.name}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-outline">
+                    <label class="form-label" for="form10Example3">View by Vendor:</label>
+                    <select class="form-select" formControlName="viewbyVendor">
+                        <option value="" disabled selected>-- Select</option>
+                        <option *ngFor="let option of vendors" [value]="option.vendorKey">
+                            {{option.vendorName}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-outline">
+                    <label class="form-label" for="form10Example2">Filter By:</label>
+                    <select class="form-select" formControlName="searchFor">
+                        <option value=0 disabled selected>-- Select</option>
+                        <option *ngFor="let search of searchForArray" [value]="search.searchKey">{{search.searchValue}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-outline">
+                    <label class="form-label" for="form10Example1">Search Text:</label>
+                    <input type="text" formControlName="searchValue" placeholder="Search..." class="form-control"
+                        aria-label="...">
+                </div>
+            </div>
+            <button class="btn btn-success col-md-1" [disabled]="isSearchButtonClicked" style="margin:31px 12px 0px 12px;" (click)="searchAndCSV(true)">
+                Search
+            </button>
+            <button class="btn btn-light col-md-1" style="margin:31px 0px 0px 12px;" (click)="clearInput()">
+                Clear</button>
+        </div>
+        <div class="row" style="margin:0px;">
+            <hr />
+        </div>
+        <div style="padding-bottom: 20px;">
+            <button class="btn btn-dark" style="margin-right: 10px;" (click)="addRow()"> Add New Row</button>
+            <button class="btn btn-dark" [disabled]="products.length == 0 || isExportButtonClicked" (click)="searchAndCSV(false)"> Export CSV
+            </button>
+        </div>
+    </form>
+    <form class="row" [formGroup]="valForm" *ngIf="products.length>0">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th style="width: 400px;">Product Description</th>
+                        <th style="width: 250px;">Collection Sku SC/EC</th>
+                        <th style="width: 250px;">Collection Sku FC</th>
+                        <th *ngIf="showPPARebateType" style="width: 250px;">PPA Rebate</th>
+                        <th style="width: 250px;">Country</th>
+                        <th style="width: 250px;">Vendor Name</th>
+                        <th style="width: 200px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        *ngFor="let option of products | paginate:{itemsPerPage:numberOfRecords, currentPage:p, totalItems:totalCount};let indexOfelement=index">
+                        <td>
+                            <textarea type="text" class="form-control" maxlength="250"
+                                [ngClass]="{'is-invalid':valForm.controls[option.recordId+option.productDescription].errors}"
+                                formControlName="{{option.recordId+option.productDescription}}" rows="3"></textarea>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" maxlength="50"
+                                [ngClass]="{'is-invalid':valForm.controls[option.erpProductId ? option.recordId+option.erpProductId : option.recordId+'SkuSCEC'].errors}"
+                                formControlName="{{option.erpProductId ? option.recordId+option.erpProductId : option.recordId+'SkuSCEC'}}">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" maxlength="50"
+                                formControlName="{{option.FcErpProductId ? option.recordId+option.FcErpProductId :option.recordId+'SkuFC'}}">
+                        </td>
+
+                        <td *ngIf="showPPARebateType">
+                            <input type="text" class="form-control" maxlength="50"
+                                formControlName="{{option.recordId + 'rebateType'}}">
+                        </td>
+
+                        <td>
+                            <select class="form-select" formControlName="{{option.recordId+'country'}}"
+                                [ngClass]="{'is-invalid':valForm.controls[option.recordId+'country'].errors}">
+                                <option selected>All</option>
+                                <option *ngFor="let option of contries" [value]="option.country">{{option.name}}
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-select" formControlName="{{option.recordId+'vendor'}}"
+                                [ngClass]="{'is-invalid':valForm.controls[option.recordId+'vendor'].errors}">
+                                <option *ngFor="let option of vendors" [value]="option.vendorKey">
+                                    {{option.vendorName}}</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button style="margin-right: 10px;" class="btn btn-sm btn-light mr-1" i-bs
+                                name="pencil-square" (click)="edit(option)">
+                            </button>
+                            <button [disabled]="valForm.controls[option.recordId+option.productDescription].errors || 
+                                    valForm.controls[option.erpProductId ? option.recordId+option.erpProductId : option.recordId+'SkuSCEC'].errors || 
+                                    valForm.controls[option.recordId+'vendor'].errors ||
+                                    valForm.controls[option.recordId+'country'].errors || 
+                                    valForm.controls[option.recordId + option.productDescription].disabled ? true : false"
+                                class="btn btn-sm btn-success" i-bs name="save" (click)="save(option)">
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="footer">
+                <div class="row">
+                    <div class="col-md-6">Displaying: {{fromRecord}} through {{thruoghRecord > totalCount ?
+                        totalCount: thruoghRecord}} of {{totalCount}}
+                    </div>
+                    <div class="col-md-6 d-flex flex-row-reverse bd-highlight">
+                        <pagination-controls previousLabel="Prev" nextLabel="Next"
+                            (pageChange)="onPageChange($event)">
+                        </pagination-controls>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row justify-content-center" *ngIf="products.length == 0 && !isRecordFound">
+        <div class="spinner-border text-muted"></div>
+    </div>
+    <div class="row text-center" *ngIf="isRecordFound == true">
+        <h4>No matching data found</h4>
+    </div>
+</div>
