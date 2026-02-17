@@ -1,0 +1,133 @@
+.panel {
+    border-left: 2px solid #D9D8D7;
+    background-color: #FFFFFF;
+    height: calc(100vh - 68px);
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    width: 310px;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 16px 20px;
+    height: 56px;
+    border-bottom: 1px solid #E4E5E6;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.dynamic-content-holder {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-btn-holder {
+  padding: 16px 20px;
+  border-bottom: 1px solid #E4E5E6;
+  flex-shrink: 0;
+}
+
+.header-text {
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 150%;
+    color: #005758;
+}
+
+.header-actions {
+    display: flex;
+    flex-direction: row;
+    .dismiss-btn {
+        border: none;
+        outline: none;
+        background-color: transparent;
+        padding: 0px !important;
+    }
+}
+
+.dismiss-btn:hover img {
+    content: url('/assets/dismiss_btn_hover_red_24_24.svg');
+}
+
+.panel-content-holder {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding: 16px 20px;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.panel-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.panel-search {    
+    height: 44px;
+}
+
+.top-border {
+    border-top: 1px solid #D9D8D7;
+    margin-top: 20px;
+    padding-top: 8px;
+}
+
+.panel-footer {
+    height: 76px;
+    padding: 16px 20px;
+    border-top: 1px solid #E4E5E6;
+    border-bottom: 1px solid #E4E5E6;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;  
+    flex-shrink: 0;
+}
+
+.reset-btn, .apply-btn {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 150%;
+    border-radius: 8px;
+}
+.reset-btn {    
+    color: #005758;
+    border: 1px solid #005758;
+    height: 44px;
+    width: 92px;
+    background-color: transparent;
+}
+
+.reset-btn:hover {
+    background-color: rgba(0, 87, 88, 0.1) !important;
+    cursor: pointer;
+}
+
+.reset-btn:active {
+    background-color: rgba(0, 87, 88, 0.2) !important;
+    cursor: pointer;
+}
+
+.apply-btn {
+    height: 44px;
+    width: 165px;
+    background-color: #005758;
+    color: #FFFFFF;
+    border-color: transparent;
+}
+
+.apply-btn:hover {
+    background-color: #337979 !important;
+}
+
+.apply-btn:active {
+    background-color: #004646 !important;
+    cursor: pointer !important;
+}

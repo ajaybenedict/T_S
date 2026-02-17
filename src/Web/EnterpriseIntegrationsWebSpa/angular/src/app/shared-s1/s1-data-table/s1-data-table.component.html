@@ -1,0 +1,124 @@
+<div class="s1-data-table-wrapper"
+  [class.warning-hover-enabled]="enableWarningHover"
+  [style.--selected-row-bg]="selectedRowBgColor"
+  [style.--selected-row-font-color]="selectedRowFontColor"
+  [style.--hover-row-bg]="hoverRowBgColor"
+  [style.--warning-hover-row-bg]="warningHoverRowBgColor">
+  <div class="s1-data-table" [style.--tbody-max-height]="tbodyMaxHeight">
+    <table mat-table [dataSource]="dataSource" matSort>
+      <!-- table header -->
+      <ng-container *ngFor="let column of tableColumns" [matColumnDef]="column.columnKey">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header
+          [ngStyle]="{'width': column.columnWidth ?? null, 'text-align': column.headerAlignment }"
+          class="s1-FW700 s1-FS14px s1-data-table-column-header s1-P-8-12-px s1-LH21px"
+          [ngClass]="{'sort-background': (isColumnSortedAsc(column.columnID) || isColumnSortedDesc(column.columnID)) && column.isSortable}">
+          <ng-container *ngIf="column.displayName; else noHeader">
+            <button *ngIf="column.isSortable; else noSortColumn" (click)="toggleSort(column)"
+              class="d-flex flex-row justify-content-between sortable-column" aria-label="SortableColumn">
+              <span class="s1-FW700 s1-FS14px s1-C-Stone">{{ column.displayName }}</span>
+              <span>
+                <img *ngIf="isColumnSortedAsc(column.columnID)" src="/assets/asc_icon_16_16.svg" alt="ASC">
+                <img *ngIf="isColumnSortedDesc(column.columnID)" src="/assets/desc_icon_16_16.svg" alt="DESC">
+                <img *ngIf="!isColumnSortedAsc(column.columnID) && !isColumnSortedDesc(column.columnID)"
+                  class="hover-icon" src="/assets/unsort_icon_16_16.svg" alt="NoSort">
+              </span>
+            </button>
+          </ng-container>
+          <ng-template #noSortColumn>{{ column.displayName }}</ng-template>
+          <ng-template #noHeader></ng-template>
+        </th>
+        <!-- table data -->
+        <td mat-cell (click)="column.isClickable && onRowClick($event, element)"
+          (keydown.enter)="column.isClickable && onRowClick($event, element)"
+          (keydown.space)="column.isClickable && onRowClick($event, element)"
+          class="s1-FW400 s1-FS14px s1-P-8-12-px s1-LH21px s1-Border-1px-NG2 s1-C-Charcoal" *matCellDef="let element"
+          [ngStyle]="{
+            'width': column.columnWidth ?? null,
+            'background-color': column.backgroundColor ?? null,
+            'text-align': column.cellAlignment
+          }" [ngClass]="{warning: (element['discontinued'] || element['restricted'])}">
+          <!-- Render content dynamically based on columnType -->
+          <ng-container [ngSwitch]="column.columnType">
+            <!-- Normal text cell -->
+            <ng-container *ngSwitchCase="'text'">
+              <span *ngIf="column.key">
+                {{ element[column.key] }}
+              </span>
+            </ng-container>
+            <ng-container *ngSwitchCase="'html'">
+              <div *ngIf="column.formatter" [innerHTML]="column.formatter(element)"></div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'btn'">
+              <div class="s1-data-table-action-btn">
+                <button *ngFor="let action of column.actions" (click)="onActionClick($event, action.emitKey, element)"
+                  [attr.class]="action.customClass ?? null">
+                  <img [src]="action.imgURL" [alt]="action.key">
+                </button>
+              </div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'dropdown'">
+              <div *ngIf="column.dropdown">
+                <app-s1-menu [inputData]="column.dropdown"
+                  (actionEmitter)="dropdownEventHandler($event, element)"></app-s1-menu>
+              </div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'dropdown-and-btn'">
+              <div class="d-flex align-items-center w-100">
+                <div class="left-actions">
+                  <div class="align-items-center justify-content-between left-actions-btn-holder" *ngIf="column.actions">
+                    <button *ngFor="let action of column.actions"
+                      (click)="onActionClick($event, action.emitKey, element)"
+                      [attr.class]="action.customClass ?? null">
+                      <img [src]="action.imgURL" [alt]="action.key">
+                    </button>
+                  </div>
+                </div>
+                <div class="right-dropdown" *ngIf="column.dropdown">
+                  <app-s1-menu [inputData]="column.dropdown" (actionEmitter)="dropdownEventHandler($event, element)">
+                  </app-s1-menu>
+                </div>
+              </div>
+            </ng-container>
+            <!-- Designed only for the C3 dashboard - NeedsApproval tab due to design limitation -->
+            <ng-container *ngSwitchCase="'statusInfo'">
+              <!-- discontinued will be boolean -->
+              <div *ngIf="showStatusInfoIcon(element)">
+                <img [src]="getStatusInfoIconSource(element)" statusTooltip [title]="getTooltipData(element, 'title')"
+                  [content]="getTooltipData(element, 'content')" alt="StatusInfo">
+              </div>
+            </ng-container>
+          </ng-container>
+        </td>
+      </ng-container>
+      <!-- Progress bar -->
+      <ng-container matColumnDef="header-row-progress-bar">
+        <th style="padding: 0px !important; border-color: transparent;" mat-header-cell *matHeaderCellDef
+          [attr.colspan]="displayedColumns.length">
+          <div class="progress-bar" *ngIf="showProgressBar">
+            <app-ppc-progress-bar [height]="'4px'"></app-ppc-progress-bar>
+          </div>
+        </th>
+      </ng-container>
+      <tr mat-header-row class="s1-H48px" *matHeaderRowDef="displayedColumns"></tr>
+      <tr class="progress-bar-row" mat-header-row *matHeaderRowDef="['header-row-progress-bar']"></tr>
+      <tr class="s1-H48px" mat-row *matRowDef="let row; columns: displayedColumns;" [class.row-selected]="selectedRow === row"></tr>
+      <div class="mat-row no-data-container" *matNoDataRow>
+        <div class="no-data-wrapper" *ngIf="hasNoDataImg; else noDataWithoutImg">
+          <img [src]="noDataImg" class="no-data-img" alt="NoData">
+          <div class="no-data-text-wrapper">
+            <div class="no-data-title">{{nodatatTitle}}</div>
+            <div class="no-data-content">{{noDataContext}}</div>
+          </div>
+        </div>
+        <ng-template #noDataWithoutImg>
+          <div class="no-data-wrapper-without-img">
+            <div class="no-data-text-wrapper">
+              <div class="no-data-title">{{nodatatTitle}}</div>
+              <div class="no-data-content">{{noDataContext}}</div>
+            </div>
+        </div>
+        </ng-template>
+      </div>
+    </table>
+  </div>
+</div>

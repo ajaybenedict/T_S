@@ -1,0 +1,17 @@
+.container-holder {
+    gap: 8px;
+}
+
+.container-title {
+    color: #75716E;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 150%;
+}
+
+.thread-list {
+    gap: 4px;
+    overflow-x: hidden;
+    overflow-y: auto;    
+    scroll-behavior: smooth;
+}

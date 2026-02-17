@@ -1,0 +1,50 @@
+export enum PermissionsEnum {
+    GlobalAdmin = 1,
+    PreProvisioningOrderApproval = 2,
+    IdentityUserManagement = 5,
+    PreProvisioningCredit = 10,
+    BillingConnector = 11,
+    IonProductSyncTool = 12,
+    AIAssistants = 13,
+    RuleViewer = 14,
+    RuleEditor = 15,
+    //Insights Permissions
+    MSGdap = 21,
+    MSFraudEvents = 22,
+    MSMfa = 23,
+    MSSubscriptionDetail = 24,
+    MSAzureReserverInstance = 25,
+    MSCustomers = 26,
+    MSOrders = 27,
+    MSCustomerTransfer = 28,
+    MSReconciliationFiles = 29,
+    IONBillingReconciliation = 30,
+    IONRevenue = 31,
+    IONChurnAnalysis = 32,
+    IONOrderData = 33,
+    ResellerChurn = 34,
+    PlatformSummaryV3 = 35, //ION-Regional-Overview
+    // CloudTools Permission
+    ESTManager = 51,
+    SandBoxCleanUp = 52,
+    PCRCleanUp = 53,
+};
+
+// Add the permissions for insight to this array always. This will decide the module to load or not while navigating.
+export const INSIGHTS_DASHBOARD_PERMISSIONS = [
+    PermissionsEnum.MSGdap,
+    PermissionsEnum.MSFraudEvents,
+    PermissionsEnum.MSMfa,
+    PermissionsEnum.MSSubscriptionDetail,
+    PermissionsEnum.MSAzureReserverInstance,
+    PermissionsEnum.MSCustomers,
+    PermissionsEnum.MSOrders,
+    PermissionsEnum.MSCustomerTransfer,
+    PermissionsEnum.MSReconciliationFiles,
+    PermissionsEnum.IONBillingReconciliation,
+    PermissionsEnum.IONRevenue,
+    PermissionsEnum.IONChurnAnalysis,
+    PermissionsEnum.IONOrderData,
+    PermissionsEnum.ResellerChurn,
+    PermissionsEnum.PlatformSummaryV3,
+];

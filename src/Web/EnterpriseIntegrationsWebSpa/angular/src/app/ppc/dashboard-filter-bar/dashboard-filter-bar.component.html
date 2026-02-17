@@ -1,0 +1,45 @@
+<section class="filter-container">
+    <div class="date-range-container">
+        <span class="date-range text">Date Range</span>
+        <div class="date-range-picker-holder">            
+            <app-s1-date-range-picker [formStartDate]="fromDate" [formEndDate]="toDate" (dateRangeChanged)="dateRangeEventHandler($event)" [minDays]="mindays"></app-s1-date-range-picker>
+        </div>
+    </div>
+    <div class="filter-btn-container">
+        <!-- [hidden] is used here instead of ngIf - because the directive to open panel will not work if elements are removed from DOM -->
+        <div class="dynamic-btn-container" [hidden]="!isPanelDismissed">
+            <!-- Reset Btn-->
+            <app-s1-filter-buttons                 
+                [hidden]="!(buttons.ApprovalType || buttons.Country || buttons.OrderValue)" 
+                [input]="resetBtn"                
+                (btnClick)="btnClickHandler($event)"
+            ></app-s1-filter-buttons>  
+            <!-- Approval type Btn-->
+            <app-s1-filter-buttons 
+                [hidden]="!buttons.ApprovalType" 
+                [input]="buttons.ApprovalType"
+                ppcFilterSidepanelTrigger
+                (btnClick)="btnClickHandler($event)"
+                (closeBtnClick)="closeBtnHandler($event)"
+            ></app-s1-filter-buttons>
+            <!-- Order Value Btn -->
+            <app-s1-filter-buttons 
+                [hidden]="!buttons.OrderValue" 
+                [input]="buttons.OrderValue"
+                ppcFilterSidepanelTrigger
+                (btnClick)="btnClickHandler($event)"
+                (closeBtnClick)="closeBtnHandler($event)"
+            ></app-s1-filter-buttons>
+            <!-- Country Btn -->
+            <app-s1-filter-buttons 
+                [hidden]="!buttons.Country" 
+                [input]="buttons.Country" 
+                ppcFilterSidepanelTrigger                
+                (btnClick)="btnClickHandler($event)"
+                (closeBtnClick)="closeBtnHandler($event)"                
+            ></app-s1-filter-buttons>
+        </div>
+        <!-- Add Filter Btn. id-anchorBtn will be used in the panel directive -->
+        <app-s1-filter-buttons id="anchorBtn" [input]="addfilterBtn" #anchorBtn ppcFilterSidepanelTrigger (btnClick)="btnClickHandler($event)"></app-s1-filter-buttons>
+    </div>
+</section>

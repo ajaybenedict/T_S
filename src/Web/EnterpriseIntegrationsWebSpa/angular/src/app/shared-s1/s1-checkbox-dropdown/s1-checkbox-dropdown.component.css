@@ -1,0 +1,27 @@
+.dropdown-label {       
+    height: 44px;        
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background: #EBEEEF;
+}
+
+.dropdown-label:hover {
+    cursor: pointer;
+    background-color: #E4E5E6;
+}
+
+.menu-holder {
+    padding: 16px 12px;
+    gap: 20px;
+}
+
+.checkbox-holder {
+    gap: 8px;
+}
+
+.checkbox-item {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    gap: 8px;
+}

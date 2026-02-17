@@ -1,0 +1,89 @@
+.ppc-sku-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid #E4E5E6;
+    border-radius: 4px;
+    background-color: #FFFFFF;
+    padding: 20px;
+}
+.ppc-sku-upload-wrapper {    
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;    
+    height: 36px;
+    width: 100%;
+}
+.ppc-sku-upload-instruction {    
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+    color: #005758;
+}
+.ppc-sku-upload-intruction-span {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;    
+}
+.ppc-sku-upload-btn {
+    width: 200px !important;    
+}
+.ppc-sku-upload-btn-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.ppc-sku-upload-file-info-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #e4e5e6;
+    padding: 8px;
+    border-radius: 4px;
+    height: 56px;
+    width: 100%;
+    gap: 40px;
+}
+.ppc-sku-upload-file-name {
+    width: 320px;
+    height: 36px;
+}
+.upload-file-loader-wrapper {
+    width: 90%;
+    height: 24px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+.upload-file-loader {
+    width: 100%;    
+}
+.upload-file-loader-txt {
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+    color: #005758;
+}
+.upload-file-loader-dismiss-btn {
+    border: none;
+    outline: none;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    background-image: url('/assets/dismiss-dialog.svg');
+    transition: background-image 1s ease-in-out;
+    background-repeat: no-repeat;
+}
+.upload-file-loader-dismiss-btn:hover {
+    background-image: url('/assets/dismiss-dialog_hover.svg');
+}
+.upload-file-error-wrapper {
+    width: 100%;
+}

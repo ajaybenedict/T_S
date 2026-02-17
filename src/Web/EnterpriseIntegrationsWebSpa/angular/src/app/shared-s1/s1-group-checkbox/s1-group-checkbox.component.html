@@ -1,0 +1,10 @@
+<div class="checkbox-container">
+    <div class="group-container">
+        <div class="title-checkbox">
+            <app-s1-checkbox *ngIf="groupTitle" [inputData]="groupTitle" (checked)="toggleGroup()"></app-s1-checkbox>
+        </div>
+    </div>
+    <div class="group-checkbox">
+        <app-s1-flat-checkbox [inputData]="inputData.checkboxes" (checked)="toggleCheckbox()"></app-s1-flat-checkbox>
+    </div>
+</div>

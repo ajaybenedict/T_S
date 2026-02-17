@@ -1,0 +1,40 @@
+.confirmation-dialog {
+  position: absolute;
+  bottom: 1px;
+  left: 0px;
+  width: 375px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  pointer-events: auto;
+}
+
+.dialog-header-wrapper {  
+  height: 72px;    
+  padding: 12px 20px;
+}
+
+
+.dialog-content-wrapper {   
+  height: 108px;
+  gap: 20px;
+  padding-top: 20px;
+  padding-right: 20px;
+  padding-bottom: 40px;
+  padding-left: 20px;
+}
+
+.dialog-action-wrapper {  
+  height: 75px;
+  gap: 10px;
+  padding-top: 16px;
+  padding-right: 20px;
+  padding-bottom: 16px;
+  padding-left: 20px;
+  border-top: 1px solid #E4E5E6;
+}
+
+.dialog-btn {
+  height: 44px !important;
+  width: 158px !important;
+}

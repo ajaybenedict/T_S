@@ -1,0 +1,5 @@
+:host ::ng-deep .report-container {
+    height: calc(100vh - 252px);       
+    overflow-y: auto;    
+    overflow-x: hidden;
+}

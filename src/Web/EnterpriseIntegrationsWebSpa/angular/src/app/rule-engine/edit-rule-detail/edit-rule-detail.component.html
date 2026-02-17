@@ -1,0 +1,95 @@
+<form [formGroup]="editForm">
+    <div class="d-flex flex-column justify-content-between page-holder">
+        <section class="rule-detail-container d-flex">
+            <div class="d-flex flex-column detail-container">
+                <div class="details d-flex flex-column border-bottom">
+                    <div class="details-holder d-flex flex-column">
+                        <div class="title">Name&nbsp;<span class="mandatory-star">*</span></div>
+                        <div class="content d-flex flex-column">
+                            <input type="text" formControlName="name" class="details-input s1-C-Stone" placeholder="Write the rules name">
+                            <span class="hint-text">Max 100 words</span>
+                        </div>
+                    </div>
+                    <div class="details-holder d-flex flex-column">
+                        <div class="title">Purpose&nbsp;<span class="mandatory-star">*</span></div>
+                        <div class="content d-flex flex-column">
+                            <input type="text" formControlName="purpose" class="details-input s1-C-Stone" placeholder="Write the purpose of the rules">
+                            <span class="hint-text">Max 250 words</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="details d-flex flex-column border-bottom">
+                   <div class="details-holder d-flex flex-column">
+                        <div class="title">Override level&nbsp;<span class="mandatory-star">*</span></div>
+                        <div class="content d-flex flex-column">
+                            <app-select-dropdown [label]="'Value'" formControlName="override" [options]="overrideData"></app-select-dropdown>
+                            <span *ngIf="selectedOverride == 'Reseller'" class="hint-text">The rule should contain either country or region.</span>
+                        </div>
+                    </div>
+                    <div class="details-holder d-flex flex-column" *ngIf="editForm.get('levelValue')">
+                        <div class="title">Criteria&nbsp;<span class="mandatory-star">*</span></div>
+                        <div class="content d-flex flex-column">
+                            <ng-container *ngIf="selectedOverride == 'CountryGroup' || selectedOverride == 'Country'">
+                                <app-select-dropdown
+                                    formControlName="countryRegion"
+                                    [options]="selectedOverride == 'CountryGroup' ? countryData.regions : countryData.countries"
+                                ></app-select-dropdown>
+                            </ng-container>
+                            <ng-container *ngIf="selectedOverride == 'Reseller'">
+                                <input
+                                    type="text"
+                                    appInputFilter="alphanumerichyphen"
+                                    formControlName="resellerInput"
+                                    class="details-input s1-C-Stone"
+                                    [maxlength]="MAX_RESELLER_LENGTH"
+                                    (keydown.enter)="addResellerValue()"
+                                    (keydown)="blockExtraTyping($event)"
+                                    (paste)="blockInvalidPaste($event)"                                    
+                                >
+                                <span class="hint-text">Max 50 chars. Type the reseller and press enter to add.</span>
+                            </ng-container>
+                        </div>
+                        <div class="d-flex chip-holder" *ngIf="editForm.get('levelValue')?.value?.length">
+                            <app-s1-chip
+                                *ngFor="let val of editForm.get('levelValue')?.value"
+                                [chipText]="val"
+                                (dismissClick)="chipDismissHandler($event)"
+                            ></app-s1-chip>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-column details">
+                    <div class="title">Alert Recipients</div>
+                    <div class="content d-flex flex-column">
+                        <input
+                            type="text"
+                            [formControlName]="formControlList.ALERT_RECIPIENT_INPUT"
+                            class="details-input s1-C-Stone"
+                            (keydown.enter)="addAlertRecipientValue(); $event.preventDefault()"
+                        >
+                        <span class="hint-text">Type the email and press enter to add. Allowed email domains - {{ allowedEmailList.join(', ') }}</span>
+                    </div>
+                    <div class="d-flex chip-holder" *ngIf="editForm.get(formControlList.ALERT_RECIPIENTS)?.value?.length">
+                        <app-s1-chip
+                            *ngFor="let email of editForm.get(formControlList.ALERT_RECIPIENTS)?.value"
+                            [chipText]="email"
+                            (dismissClick)="alertRecipientChipDismissHandler($event)"
+                        ></app-s1-chip>
+                    </div>
+                </div>
+            </div>
+            <div class="rule-container d-flex flex-column">
+                <app-validation-error [errorMsg]="apiErrorMsg" *ngIf="apiErrorMsg" [width]="'100%'" [imgSrc]="'/assets/validation_alert_icon_24_24.svg'"></app-validation-error>
+                <app-rule-edit [formControlName]="formControlList.CHILD_FORM"></app-rule-edit>
+            </div>
+        </section>
+        <footer class="footer-container d-flex justify-content-end" *ngIf="!isEditmode">
+            <button type="button" s1-button btnType="secondary" [disabled]="editForm.invalid" (click)="publishRule(true)">Save Draft</button>
+            <button type="button" s1-button btnType="primary" [disabled]="editForm.invalid" (click)="publishRule(false)">Publish</button>
+        </footer>
+        <footer class="footer-container d-flex justify-content-end" *ngIf="isEditmode">
+            <button type="button" s1-button btnType="secondary" [disabled]="editForm.invalid" (click)="discardChanges()">Discard Changes</button>
+            <button type="button" s1-button btnType="primary" [disabled]="editForm.invalid" (click)="saveChanges()">Save Changes</button>
+        </footer>
+    </div>
+</form>

@@ -1,0 +1,45 @@
+.dashboard-container {
+    gap: 24px;
+    padding: 20px;
+    height: calc(100vh - 115px);
+}
+.action-holder {
+    height: 44px;
+}
+.table-holder {
+    flex: 1;
+}
+.add-rule-btn {
+    border: none;
+    outline: none;    
+    height: 44px;
+    width: 111px;
+    padding: 12px 20px;
+    border-radius: 8px;
+}
+.data-table-container {
+    width: 100%;
+    display: flex;
+    transition: all 0.3s ease;
+
+    .data-table {
+        flex: 1;
+        transition: all 0.3s ease;
+    }
+
+    .details-card {
+        width: 400px;
+        margin-left: 16px;
+    }
+
+    &.details-open .data-table {
+        flex: 0 0 60%;
+    }
+}
+.table-details-holder {
+    gap: 20px;
+}
+.details-container {
+    flex: 1 1 100%;  /* makes it grow + take full width */
+    width: 100%;     /* ensures full width */
+}

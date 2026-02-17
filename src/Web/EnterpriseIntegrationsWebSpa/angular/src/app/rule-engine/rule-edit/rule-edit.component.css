@@ -1,0 +1,65 @@
+.rule-container {            
+    background-color: white;
+}
+
+.rule-editor {
+    padding: 20px;
+    border: 1px solid #E4E5E6;
+    gap: 20px;      
+}
+
+.action-container {
+    padding: 20px;
+    border-right: 1px solid #E4E5E6;
+    border-left: 1px solid #E4E5E6;
+    border-bottom: 1px solid #E4E5E6;
+    height: 84px;      
+}
+
+.first-row {
+    gap: 12px;
+}
+
+.dynamic-row {
+    gap: 12px;
+}
+
+.row-action-holder {
+    gap: 4px;
+}
+
+.add-btn {    
+    width: 153px;
+    height: 48px;    
+}
+
+.delete-btn:hover img {
+    content: url('/assets/delete_icon_hover_44_44.svg');
+}
+
+.value-input {
+    border: 1px solid #E4E5E6;
+    padding: 8px;
+    height: 44px;
+    width: 100%;
+    color: #75716E;
+}
+
+.value-input:hover {
+    border: 1px solid #75716E;
+    outline: none;
+}
+
+.value-input:focus {
+    border: 1px solid #005758;
+    outline: none;
+}
+
+.value-input::placeholder {
+    color: #75716E;
+    opacity: 1;
+}
+
+.expression-row-input {
+    width: 12vw;
+}

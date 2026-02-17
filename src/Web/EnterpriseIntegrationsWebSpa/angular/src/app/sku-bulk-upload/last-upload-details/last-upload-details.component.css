@@ -1,0 +1,51 @@
+.last-uploaded-details {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between; 
+    width: 100%;   
+    height: 36px;
+}
+.details-title {
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+    text-align: center;
+    color: #005758;
+}
+.file-wrapper, .user-name-wrapper, .dt-stamp-wrapper, .result-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;    
+    gap: 8px;
+}
+.file-wrapper {
+    width: 357px;
+    justify-content: space-between;
+}
+.user-name-wrapper {
+    width: 225px;
+    justify-content: flex-start;
+}
+.dt-stamp-wrapper {
+    width: 232px;
+}
+.result-wrapper {
+    width: 268px;
+}
+.user-name-value {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+    color: #75716E;
+}
+.result-value, .dt-stamp-value {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 30px;
+    color: #75716E;
+}
+.file-name {
+    width: 320px;
+    height: 36px;
+}

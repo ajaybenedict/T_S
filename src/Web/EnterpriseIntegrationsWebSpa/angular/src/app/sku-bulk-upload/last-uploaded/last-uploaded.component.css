@@ -1,0 +1,19 @@
+.last-uploaded-container {
+    height: 732px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    padding: 20px 20px 0px 20px;   
+    background-color: #FFFFFF;
+    border-top: 1px solid #E4E5E6;
+    border-right: 1px solid #E4E5E6;
+    border-left: 1px solid #E4E5E6;
+    border-radius: 8px 8px 0px 0px;
+    gap: 20px;
+}
+.flex-items {    
+    width: 100%;
+}
+.relative-container {
+    position: relative;
+}

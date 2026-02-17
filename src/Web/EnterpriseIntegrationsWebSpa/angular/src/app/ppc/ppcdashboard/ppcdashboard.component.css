@@ -1,0 +1,52 @@
+.ppc-dashboard-wrapper{
+    height: calc(100vh - 144px);
+}
+
+.ppc-dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;   
+    height: calc(100vh - 145px) !important; 
+    padding: 24px 24px 0px 24px;
+    overflow: hidden;
+}
+
+.search-bar {
+    height: 40px;
+}
+
+.data-table-holder {
+    height: calc(100vh - 305px) !important;
+    transition: height 420ms cubic-bezier(.25,.8,.25,1), transform 420ms;    
+}
+
+.data-table-holder.reduced {
+  flex: 1 1 auto;
+  overflow: auto;
+  transition: all 360ms cubic-bezier(.25,.8,.25,1);
+}
+
+/* AI summary box: animate opening via height & opacity */
+.ai-summary {   
+  transition: height 420ms cubic-bezier(.25,.8,.25,1), opacity 300ms;    
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);  
+}
+
+/* Expanded state — allow max-height to contain inner height */
+.ai-summary.expanded {
+  max-height: 400px; /* a bit larger than inner (320) to allow padding + breathing room */
+  height: 400px; /* a bit larger than inner (320) to allow padding + breathing room */
+  opacity: 1;
+}
+
+.ai-summary.minimized {
+  height: 65px; /* minimized height */
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+
+/* small responsiveness: if viewport is smaller, scale heights */
+@media (max-height: 800px) {
+  .data-table-holder { height: 520px !important; }
+  .data-table-holder.reduced { height: 260px !important; }
+  .ai-summary .ai-summary-inner { height: 260px; }  
+}

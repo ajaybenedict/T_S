@@ -1,0 +1,76 @@
+<div class="card-container">
+    <div class="card-holder">
+        <!-- container -->
+        <div class="card-title-holder">
+            <!-- title holder-->
+             <div class="card-title s1-FW700 s1-FS18px s1-LH27px">{{orderLines.endCustomerName}}</div>
+             <div class="card-title-info-container">
+                <div class="card-title-info-holder" *ngIf="unbilledTextDisplay">
+                    <div class="card-title-info s1-FW700 s1-FS14px s1-P-8-12-px">Unbilled Usage</div>               
+                    <app-s1-text-display [inputData]="unbilledTextDisplay"></app-s1-text-display>
+                </div>
+                <button s1-button [iconOnly]="true" class="card-dismiss-btn" (click)="dismissClick()" aria-label="Dismiss">
+                    <img src="/assets/dismiss_btn_44_44.svg" alt="Dismiss" class="default">
+                    <img src="/assets/dismiss_btn_hover_red_44_44.svg" alt="Dismiss" class="hover">
+                </button>            
+             </div>
+        </div>
+        <div class="address-contact-holder">
+            <app-s1-text-display [inputData]="addressTextDisplay"></app-s1-text-display>
+            <app-s1-text-display [inputData]="contactTextDisplay"></app-s1-text-display>
+        </div>
+        <div class="card-table">
+            <!-- table -->
+            <app-s1-data-table [tableColumns]="tableColumns" [tableData]="tableData" [hasNoDataImg]="false" [tbodyMaxHeight]="'calc(100vh - 750px)'"></app-s1-data-table>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="footer-summary">
+            <div class="s1-P-8-12-px s1-FW700 s1-FS14px s1-LH21px footer-total">
+                <span>Total</span>
+            </div>
+            <div class="s1-P-8-12-px s1-FW700 s1-FS14px s1-LH21px footer-curr">
+                <span>{{inputData.fx}}</span>
+            </div>
+            <div class="s1-P-8-12-px s1-FW700 s1-FS14px s1-LH21px footer-value">
+                <span>{{inputData.orderTotal}}</span>
+            </div>
+        </div>
+        <ng-container [ngSwitch]="inputData.tabType">
+            <ng-container *ngSwitchCase="tabTypeEnum.NeedsApproval">
+                <div class="d-flex align-items-center justify-content-end gap-3 s1-P-8-12-px w-100">
+                    <button class="btn-action-Decline action-btn" (click)="emitOutputAction(outputActionEnum.Decline)">
+                        <img src="/assets/Decline.svg" alt="Decline" class="default"> Decline                       
+                    </button>
+                    <button class="btn-action-Approve action-btn" (click)="emitOutputAction(outputActionEnum.Approve)">
+                        <img src="/assets/Approve.svg" alt="Approve" class="default"> Approve                      
+                    </button>                    
+                </div>
+            </ng-container>
+            <ng-container *ngSwitchCase="tabTypeEnum.Approved">
+                <ng-container *ngIf="approvedData as a">
+                    <div class="footer-actions s1-P-8-12-px">
+                        <div class="approval-type-holder">{{getApprovalTypeLetter(a.approvalType)}}</div>
+                        <div class="footer-actions-txt" [title]="a.updatedBy">{{a.updatedBy}}</div>
+                        <div class="footer-actions-date" [title]="getOrderDateTime(a.updatedOn, 'date')">{{getOrderDateTime(a.updatedOn, 'date')}}</div>
+                        <div class="footer-actions-separator"></div>
+                        <div class="footer-actions-time" [title]="getOrderDateTime(a.updatedOn, 'time')">{{getOrderDateTime(a.updatedOn, 'time')}}</div>                        
+                    </div>
+                </ng-container>
+            </ng-container>
+            <ng-container *ngSwitchCase="tabTypeEnum.Declined">
+                <ng-container *ngIf="approvedData as a">
+                    <div class="footer-actions s1-P-8-12-px">
+                        <div class="approval-type-holder">{{getApprovalTypeLetter(a.approvalType)}}</div>
+                        <div class="footer-actions-txt" [title]="a.updatedBy">{{a.updatedBy}}</div>
+                        <div class="footer-actions-date" [title]="getOrderDateTime(a.updatedOn, 'date')">{{getOrderDateTime(a.updatedOn, 'date')}}</div>
+                        <div class="footer-actions-separator"></div>
+                        <div class="footer-actions-time" [title]="getOrderDateTime(a.updatedOn, 'time')">{{getOrderDateTime(a.updatedOn, 'time')}}</div>
+                        <div class="footer-actions-separator"></div>
+                        <app-s1-menu *ngIf="inputData.tabType == tabTypeEnum.Declined" [inputData]="declinedFooterMenu" (actionEmitter)="menuActionHandler($event)"></app-s1-menu>
+                    </div>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+    </div>    
+</div>

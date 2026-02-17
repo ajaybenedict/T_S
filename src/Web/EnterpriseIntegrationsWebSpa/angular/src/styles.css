@@ -1,0 +1,413 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+* {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.report-class {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 118vh;
+} 
+
+.report-container {    
+    border: 1px solid #E4E5E6;
+}
+
+.report-tab-content {
+    gap: 24px;
+}
+
+/* PPC primary btn */  
+.mdc-button.mat-primary {
+    display: flex;
+    align-items: center;    
+    justify-content: center;
+    background-color: #005758 !important;
+    transition: background-color 1s ease-in-out;
+    color: #FFF !important;
+    height: 36px !important;
+    width: 111px !important;
+    border-radius: 4px;    
+    font-weight: 400 !important;
+    font-size: 14px !important;    
+    cursor: pointer !important;
+}
+
+.mdc-button.mat-primary:hover {
+    background-color: #337979 !important;
+}
+/* Button pressed state */
+.mdc-button.mat-primary:active {
+    background-color: #004646 !important;
+    cursor: pointer !important;
+}
+
+.mdc-button.mat-primary:disabled {
+    background-color: #E4E5E6 !important;
+    cursor: default;
+}
+
+/* PPC secondary button */
+.mdc-button.mat-secondary {
+    width: 160px;
+    height: 36px;
+    border-radius: 4px;
+    border: 1px solid #005768 !important;
+    background-color: #FFF !important;        
+    font-weight: 400;
+    font-size: 14px;
+    color: #005758 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 1s ease-in-out;
+}
+
+.mdc-button.mat-secondary:hover {
+    background-color: #DCE5E5 !important;
+}
+
+.mdc-button.mat-secondary:active {
+    background-color: #C4D5D6 !important;
+}
+
+.mdc-button.mat-secondary:disabled {
+    cursor: default;
+    border: 1px solid #888B8D !important;
+    color: #888B8D !important;
+}
+
+/* Renmove letter spacing in all mat btn */
+.mdc-button {
+    letter-spacing: normal !important;
+}
+
+/* Disable ripple effect fro all mat btn */
+.mdc-button .mat-mdc-button-ripple {
+    display: none !important;
+}
+
+/* Bold text */
+.ppc-bold-txt {
+    font-weight: 700 !important;    
+}
+
+/* font-size */
+.s1-FS12px {
+    font-size: 12px !important;
+}
+.s1-FS14px {    
+    font-size: 14px !important;
+}
+.s1-FS16px {
+    font-size: 16px !important;
+}
+.s1-FS18px {
+    font-size: 18px !important;
+}
+/* font-weight */
+.s1-FW700 {
+    font-weight: 700 !important;    
+}
+.s1-FW400 {
+    font-weight: 400 !important;    
+}
+/* line-height */
+.s1-LH27px {
+    line-height: 27px !important;
+}
+.s1-LH21px {
+    line-height: 21px !important;
+}
+.s1-LH20px {
+    line-height: 20px !important;
+}
+/* padding */
+.s1-P12px {
+    padding: 12px !important;
+}
+.s1-P24px {
+    padding: 24px !important;
+}
+.s1-P-8-12-px {
+    padding: 8px 12px !important;
+}
+.s1-P-4-8-px {
+    padding: 4px 8px !important;
+}
+.s1-P-L-10px {
+    padding-left: 10px !important;
+}
+.s1-P-16-20-px {
+    padding: 16px 20px !important;
+}
+/* margin */
+.s1-M-R-40px {
+    margin-right: 40px !important;
+}
+/* height */
+.s1-H48px {
+    height: 48px !important;
+}
+.s1-H692px {
+    height: 692px !important;
+}
+.s1-H432px {
+    height: 432px !important;
+}
+/* border */
+.s1-Border-1px-NG2 {
+    /* Border - Neutral Gray 2 */
+    border: 1px solid #E4E5E6;
+}
+/* Border radius */
+.s1-BR-4px {
+    border-radius: 4px !important;
+}
+.s1-BR-8px {
+    border-radius: 8px !important;
+}
+/* color */
+.s1-C-Charcoal {
+    color: #262626 !important;
+}
+.s1-C-CG10 {
+    /* Cool Gray 10 */
+    color: #63666A !important;
+}
+.s1-C-Stone {
+    color: #75716E !important;
+}
+.s1-C-Cherry {
+    color: #CD163F !important;
+}
+.s1-C-Teal {
+    color: #005758 !important;
+}
+.s1-C-Forest {
+    color: #38853C !important;
+}
+/* used for links */
+.s1-C-LegacyOcean {
+    color: #00558C !important;
+}
+.s1-no-underline {
+    text-decoration: none;
+}
+/* text-align */
+.s1-TA-Center {
+    text-align: center !important;
+}
+.s1-TA-Left {
+    text-align: right !important;
+}
+.s1-TA-Right {
+    text-align: left !important;
+}
+/* s1-background-color */
+.s1-BG-NG1 { 
+    /* Neutral Gray 1 */
+    background-color: #F8F8F8 !important;
+}
+.s1-BG-Forest {
+    background-color: #DEE7DE !important;
+}
+.s1-BG-Cherry {
+    background-color: #F2E4E7 !important;
+}
+.s1-BG-LegacyOcean {
+    background-color: #E2E9ED !important;
+}
+/* s1-data-table */
+.s1-data-table-column-header {
+    border-bottom: 1px solid #005758;              
+    color: #75716E;
+    height: 48px !important;
+}
+/* s1-data-table-actioner (approve/decline) related styles*/
+.actioner-details-container {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+}
+.approval-type-holder {
+    border-radius: 4px;
+    padding: 4px 8px;
+    width: 28px;
+    height: 30px;
+    background-color: #D9D8D7;
+}
+.approval-type-text {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 16px;
+    color: #63666A;
+}
+.actioner-details, .action-date, .action-time {
+    height: 30px;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 30px;
+}
+.action-divider {
+    height: 16px;
+    border-left: 1px solid #E4E5E6;
+}
+/* s1-data-table reseller details */
+.reseller-details-container {
+    display: flex;
+    flex-direction: column;
+}
+/* s1-data-table: action btn hover & selected functionalities */
+.btn-action-Approve:hover img {
+    content: url('/assets/approve_hover.svg');
+}
+.btn-action-Decline:hover img {
+    content: url('/assets/decline_hover.svg');
+}
+.btn-action-Approve:active img {
+    content: url('/assets/approve_pressed.svg');
+}
+.btn-action-Decline:active img {
+    content: url('/assets/decline_pressed.svg');
+}
+.btn-action-force-stop:hover img {
+    content: url('/assets/force_stop_icon_hover_40_40.svg');
+}
+.btn-action-delete:hover img  {
+    content: url('/assets/delete_icon_hover_44_44.svg');
+}
+/* Global changes to override default material progress bar */
+mat-progress-bar {         
+    --mdc-linear-progress-active-indicator-color: #005758 !important;    
+}
+/* Button Styles defined for 's1-button' directive */
+.s1-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 12px 20px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.s1-btn.s1-disabled {
+  background: #E4E5E6;
+  color: #888B8D;
+  cursor: not-allowed;
+  pointer-events: none;
+  border: none;
+}
+
+.s1-btn-primary {
+  background: #005758;
+  color: #FFFFFF;
+}
+
+.s1-btn-primary:hover {
+    background: 
+        linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)),
+        linear-gradient(0deg, rgba(0, 87, 88, 1), rgba(0, 87, 88, 1));
+}
+
+.s1-btn-primary:active {
+    background: 
+        linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+        linear-gradient(0deg, rgba(0, 87, 88, 1), rgba(0, 87, 88, 1));
+}
+
+.s1-btn-secondary {
+    background: #FFFFFF;
+    color: #005758;
+    border: 1px solid #005758;
+}
+
+.s1-btn-secondary:hover, .s1-btn-tertiary:hover {
+    background: rgba(0, 87, 88, 0.1);
+}
+
+.s1-btn-secondary:active, .s1-btn-tertiary:active {
+    background: rgba(0, 87, 88, 0.2);
+}
+
+.s1-btn-secondary-filled {
+    background: 
+        linear-gradient(0deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+        linear-gradient(0deg, #005758, #005758);
+    color: #005758;
+}
+
+.s1-btn-secondary-filled:hover {
+    background: 
+        linear-gradient(0deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
+        linear-gradient(0deg, #005758, #005758);
+}
+
+.s1-btn-secondary-filled:active {
+    background: 
+        linear-gradient(0deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),
+        linear-gradient(0deg, #005758, #005758);
+}
+
+.s1-btn-tertiary {
+    background-color: #ffffff;
+    color: #005758;
+}
+
+.s1-btn.s1-btn-tertiary.s1-disabled {
+    columns: #888B8D;
+    background-color: #ffffff;
+    cursor: not-allowed;
+    pointer-events: none;
+    border: none;
+}
+
+.s1-btn-full {
+  width: 100%;
+}
+
+/* Icon-only buttons */
+.s1-btn-icon {
+  padding: 0px !important;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.s1-btn-icon img.default {
+  display: block;
+}
+
+.s1-btn-icon img.hover {
+  display: none;
+}
+
+.s1-btn-icon:hover img.default {
+  display: none;
+}
+
+.s1-btn-icon:hover img.hover {
+  display: block;
+}
+/* Button style ends */
+/* Footer disclaimer text */
+.footer-disclaimer-text {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 150%;
+}
+/* ------ */
+/* Qualtrics field */
+.qsi-user-context {
+  display: none !important;
+}
+/* --------------- */

@@ -1,0 +1,23 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.shell-container {
+    background-color: white; 
+    height: 100%;
+}
+.shell-holder {
+    padding: 20px;
+    gap: 24px;  
+    width: 100%;
+}
+.dismiss-btn {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    padding: 0px !important;
+}
+.dismiss-btn:hover img {
+    content: url('/assets/dismiss_btn_hover_red_44_44.svg');
+}

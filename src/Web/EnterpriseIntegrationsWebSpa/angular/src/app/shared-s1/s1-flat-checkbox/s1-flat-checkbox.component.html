@@ -1,0 +1,3 @@
+<div class="checkbox-container" *ngIf="inputData?.length">
+    <app-s1-checkbox *ngFor="let item of inputData" [inputData]="item" (checked)="toggle($event)"></app-s1-checkbox>
+</div>

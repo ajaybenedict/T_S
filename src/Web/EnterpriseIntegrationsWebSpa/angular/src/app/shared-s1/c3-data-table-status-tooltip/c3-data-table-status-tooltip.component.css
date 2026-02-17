@@ -1,0 +1,25 @@
+.tooltip-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    width: 280px;
+    height: 124px;
+    background-color: #FFFFFF;
+    border-radius: 6px;
+    border: 1px solid #6C757D;
+}
+
+.tooltip-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.75);
+    line-height: 150%;
+}
+
+.tooltip-content {
+    font-weight: 400;
+    font-size: 14px;
+    color: #75716E;
+    line-height: 150%;
+}

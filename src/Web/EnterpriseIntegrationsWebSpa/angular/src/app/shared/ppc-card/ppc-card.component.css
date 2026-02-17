@@ -1,0 +1,104 @@
+.ppc-cursor-pointer {
+    cursor: pointer;
+}
+
+.ppc-card-coming-soon-text {
+    width: 135px;
+    height: 40px;
+    padding: 8px 16px 8px 16px;
+    border-radius: 8px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 24px;
+    color: #2D9F88;
+    background: #2D9F8840;
+    float: right;
+}
+
+.ppc-card {
+    height: 288px !important;
+    width: 320px !important;
+    border-radius: 8px !important;
+    border: 2px solid #D9D8D7 !important;
+    padding: 24px !important;
+    transition: background-color 1.2s ease-in-out, border 1.2s ease-in-out;
+    background-color: #FFF;
+    flex: 0 0 320px;
+    box-sizing: border-box;
+}
+
+.ppc-card-divider {
+    width: 272px !important;    
+    border-top: 1px solid #D9D8D7;
+    border-bottom: 1px solid #D9D8D7;
+    color: #D9D8D7;
+    margin: 16px 0px !important;
+}
+
+.ppc-card-header-img {
+    height: 64px;
+    width: 64px;
+}
+
+.ppc-card-content-wrapper {
+    padding: 0px !important;
+}
+
+.ppc-card-content-header {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #005758;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.ppc-card-content-desc {
+    font-size: 13px;
+    font-weight: 400;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 16px 0px !important;
+}
+
+.ppc-card-action-wrapper-animate {
+    position: relative;
+}
+
+.ppc-card-action-arrow {
+    position: absolute;
+    top: 0;
+    left: 0;    
+    transition: transform 1s ease-in-out;
+    transform: translateX(0px);
+}
+
+.ppc-card-action-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 1s ease-in-out, text-decoration 1s ease-in-out;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #005758;
+    margin-top: 7px !important;
+    line-height: 24px;
+}    
+
+.ppc-card:hover .ppc-card-action-text {
+    opacity: 1;
+}
+
+.ppc-card-action-text:hover {
+    text-decoration: underline;
+}
+
+.ppc-card:hover .ppc-card-action-arrow {
+    cursor: pointer;
+    transform: translateX(240px);
+}
+
+.ppc-card:hover {
+    border: 2px solid #003031 !important;
+    background-color: #F8F8F8;
+}

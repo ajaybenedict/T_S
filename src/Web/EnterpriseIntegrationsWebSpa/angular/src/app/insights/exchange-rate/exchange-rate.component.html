@@ -1,0 +1,10 @@
+<ng-container *ngIf="embedConfig">
+  <div class="s1-P24px">
+    <div class="report-tab-content d-flex flex-column">
+      <app-s1-action-bar [inputData]="actionbarData" (btnClick)="resetAllFilters($event)"></app-s1-action-bar>
+      <div class="report-container" *ngIf="embedConfig">
+        <app-powerbi-report-wrapper [embedConfig]="embedConfig" [reportCommand$]="reportCommand$"></app-powerbi-report-wrapper>
+      </div>
+    </div>
+  </div>
+</ng-container>

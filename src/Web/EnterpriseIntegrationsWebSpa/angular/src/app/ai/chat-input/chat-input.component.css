@@ -1,0 +1,65 @@
+.input-container {
+    padding: 5px;
+    border: 1px solid #E4E5E6;    
+}
+
+.input-container textarea {
+    background-color: transparent;
+    outline: none;
+    border: none;
+    color: black;
+    resize: none;
+    min-height: 24px;          /* ensure it starts small */
+    max-height: 65px;         /* stop growing beyond this */
+    overflow-y: auto;          /* show scroll after max height */
+    line-height: 1.5;          /* cleaner alignment */
+}
+
+.input-inner {
+    gap: 12px;                 /* spacing between icon and textarea */
+}
+
+.submit-btn {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  padding: 0px;
+}
+
+.user-info-container {
+    border-radius: 8px 8px 0px 0px;
+    background-color: #EBEEEF;
+    height: 40px;
+    padding: 2px 12px;    
+    color: #005758;
+    font-weight: 400;
+}
+
+.info-txt, .count-txt {
+    font-size: 14px;
+    line-height: 17px;
+}
+
+.link {
+    font-size: 16px;
+    line-height: 150%;
+}
+
+.link-btn {
+    padding: 0px;
+    border: none;
+    outline: none;
+    background-color: transparent;    
+    color: #005758 !important;
+}
+
+.link:hover .link-btn {
+    text-decoration: underline;
+}
+
+@media only screen and (max-width: 1000px) {
+    .vertical-center {
+        display: flex;
+        align-items: center;
+    }
+}

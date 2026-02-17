@@ -1,0 +1,22 @@
+.panel-container {
+    background-color: #FFFFFF;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #D9D8D7;
+    height: calc(100vh - 68px);
+    width: 375px;
+}
+
+.panel-header {
+    height: 56px;    
+    border-bottom: 1px solid #E4E5E6;
+}
+
+.details-side-panel-tab-holder {    
+    border-bottom: 1px solid #E4E5E6;
+    flex-shrink: 0;
+}
+
+.details-side-panel-tab-content-holder {
+    flex: 1 1 auto;
+    overflow-y: auto;
+}

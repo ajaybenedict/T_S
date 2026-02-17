@@ -1,0 +1,19 @@
+<div class="ppc-dashboard-wrapper">
+    <app-ppc-overlay [show]="orderAPIInProgress"></app-ppc-overlay>
+    <section class="ppc-dashboard-container">
+        <app-dashboard-filter-bar></app-dashboard-filter-bar>
+        <div class="search-bar d-flex flex-row align-items center justify-content-between">
+            <app-s1-search-bar [inputData]="searchBarData" (outputData)="searchEventHandler($event)"></app-s1-search-bar>
+            <button type="button" s1-button [btnType]="'tertiary'" style="padding: 12px !important;" (click)="toggleAISummary()" [disabled]="showAISummary">AI Summary</button>
+        </div>
+        <div class="ai-summary" *ngIf="showAISummary" [class.expanded]="showAISummary" [class.minimized]="isAISummaryMinimized" #aiSummary>
+            <!-- Placeholder for the AI summary panel which will be inserted in DOM dynamically -->
+        </div>
+        <div class="data-table-holder" [class.reduced]="showAISummary">
+            <app-dashboard [activeTab]="activeTabId"></app-dashboard>
+        </div>
+    </section>
+    <nav class="paginator" *ngIf="isPaginatorVisible" aria-label="Pagination">
+        <app-ppc-paginator></app-ppc-paginator>
+    </nav>
+</div>

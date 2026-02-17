@@ -1,0 +1,134 @@
+<div *ngIf="_data.type === 'FileName' || _data.type === 'ValidationError'">
+    <div class="ppc-confirm-dialog-container">
+        <div class="ppc-confirm-dialog-header-wrapper">
+            <div class="ppc-confirm-dialog-header-txt">
+                {{_data.header}}
+            </div>
+            <button type="button" class="ppc-confirm-dialog-dismiss-btn" mat-dialog-close
+                (click)="emitFalse()"></button>
+        </div>
+        <div class="ppc-confirm-dialog-content-wrapper" *ngIf="_data.type === 'FileName'">
+            <div class="ppc-confirm-dialog-content-file-name">
+                <app-file-name [fileName]="_data.fileName"></app-file-name>
+            </div>
+            <div class="ppc-confirm-dialog-content">
+                {{_data.content}}
+            </div>
+        </div>
+        <div class="ppc-confirm-dialog-content-wrapper" *ngIf="_data.type === 'ValidationError' && _data.loadErrorMsg">
+            <div class="ppc-confirm-dialog-validation-error">
+                <app-validation-error [errorMsg]="_data.loadErrorMsg"></app-validation-error>
+            </div>
+            <div class="ppc-confirm-dialog-content">
+                {{_data.content}}
+            </div>
+        </div>
+        <div class="ppc-confirm-dialog-action-wrapper">
+            <button mat-flat-button color="secondary" class="ppc-confirm-dialog-secondary-btn" type="button"
+                mat-dialog-close
+                (click)="emitAction(_data.secondaryBtnAction || '')">{{_data.secondaryBtnName}}</button>
+            <button mat-flat-button color="primary" [ngClass]="{
+        'ppc-confirm-dialog-primary-btn-error': _data.type === 'ValidationError',
+        'ppc-confirm-dialog-primary-btn': !_data.type || (_data.type !== 'ValidationError')
+     }" type="button" mat-dialog-close
+                (click)="emitAction(_data.primaryBtnAction || '')">{{_data.primaryBtnName}}</button>
+        </div>
+    </div>
+</div>
+
+<!-- Loader or LoadError or PermissionError Only-->
+<div *ngIf="_data.type == 'Loader' || _data.type == 'LoadError' || _data.type == 'PermissionError' || _data.type == 'UserNotFound' || _data.type == 'UserDeactivated' || _data.type == 'InternalServerError' || _data.type == 'NoCountryRegionAccess' || _data.type == 'SessionExpired'">
+    <div class="header" *ngIf="_data.type != 'Loader' && _data.header">
+        <div class="title">{{_data.header}}</div>
+        <button class="dismiss-icon" (click)="emitFalse()" (keydown.enter)="emitFalse()" (keydown.space)="emitFalse()">
+            <img src="/assets/dismiss-dialog.svg" alt="Dismiss">
+        </button>
+    </div>
+    <div class="load-dialog-content-wrapper">
+        <div *ngIf="(_data.type == 'LoadError' || 'PermissionError') && _data.loadErrorMsg" class="load-dialog-error">
+            <app-validation-error [errorMsg]="_data.loadErrorMsg"></app-validation-error>
+        </div>
+        <div class="load-dialog-content" [innerHTML]="getSanitizedContent(_data.content)"></div>
+        <div *ngIf="_data.type == 'Loader'">
+            <div class="load-dialog-loader-wrapper">
+                <div class="load-dialog-loader-text">{{_data.loadingText}}</div>
+                <div class="load-dialog-loader">
+                    <app-ppc-progress-bar [borderRadius]="'8px'" [mode]="'indeterminate'"></app-ppc-progress-bar>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="load-dialog-error-action-wrapper" *ngIf="_data.type == 'LoadError' && _data.primaryBtnName">
+        <button mat-flat-button color="primary" class="ppc-confirm-dialog-primary-btn load-error-btn" type="button" mat-dialog-close (click)="emitAction(_data.primaryBtnAction || '')">{{_data.primaryBtnName}}</button>
+    </div>
+</div>
+
+<!-- Confirmation (Thread Delete) -->
+<div *ngIf="_data.type == 'Confirmation'">
+    <div class="confirm-dialog-header-wrapper d-flex align-items-center">
+        <div class="confirm-dialog-header-txt">
+            {{_data.header}}
+        </div>
+        <button type="button" class="confirm-dialog-dismiss-btn" mat-dialog-close (click)="emitFalse()">
+            <img src="/assets/dismiss_btn_24_24.svg" alt="Dismiss">
+        </button>
+    </div>
+    <div class="confirm-dialog-content">
+        <span [innerHTML]="getSanitizedContent(_data.content)"></span>
+    </div>
+    <div class="ppc-confirm-dialog-action-wrapper">
+        <button
+            mat-flat-button color="secondary"
+            class="ppc-confirm-dialog-secondary-btn"
+            type="button"
+            mat-dialog-close
+            (click)="emitAction(_data.secondaryBtnAction || '')"
+        >{{_data.secondaryBtnName}}</button>
+        <button
+            mat-flat-button color="primary"
+            class="ppc-confirm-dialog-primary-btn"
+            type="button"
+            mat-dialog-close
+            (click)="emitAction(_data.primaryBtnAction || '')"
+        >{{_data.primaryBtnName}}</button>
+    </div>
+</div>
+
+<!-- RuleEngine Confirmation dialog - Designed to load at bottom with full width -->
+<ng-container *ngIf="_data.type == 'RuleEngineConfirmation' || _data.type == 'RuleEngineConfirmationWithRadioBtn'">
+    <div class="re-confirm-dialog-header d-flex align-items-center justify-content-between">
+        <span class="re-confirm-dialog-heder-text">{{_data.header}}</span>
+        <button type="button" mat-dialog-close (click)="emitFalse()" s1-button [iconOnly]="true">
+            <img src="/assets/dismiss_btn_44_44.svg" alt="Dismiss" class="default">
+            <img src="/assets/dismiss_btn_hover_red_44_44.svg" alt="Dismiss" class="hover">
+        </button>
+    </div>
+    <div class="re-confirm-dialog-content d-flex flex-column">
+        <span [innerHTML]="getSanitizedContent(_data.content)"></span>
+        <ng-container *ngIf="_data.type == 'RuleEngineConfirmationWithRadioBtn'">
+            <div class="d-flex align-items-stretch">
+                <div class="re-confirm-dialog-radio re-radio-label d-flex align-items-center" *ngIf="_data.radioLabel">
+                    <span [innerHTML]="getSanitizedContent(_data.radioLabel)"></span>
+                </div>
+                <div class="re-confirm-dialog-radio re-radio-btn d-flex align-items-center" *ngIf="_data.radioGroup">
+                    <mat-radio-group [(ngModel)]="selectedRERadio">
+                        <mat-radio-button [disableRipple]="true" *ngFor="let item of _data.radioGroup; let i = index"
+                            [value]="item.value">{{item.displayName}}</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+    <ng-container *ngIf="_data.type == 'RuleEngineConfirmation'; else radioFooter">
+        <div class="re-confirm-dialog-action-wrapper d-flex align-items-center justify-content-end">
+            <button type="button" s1-button [btnType]="'secondary'" mat-dialog-close (click)="emitAction(_data.secondaryBtnAction || '')">{{_data.secondaryBtnName}}</button>
+            <button type="button" s1-button [btnType]="'primary'" mat-dialog-close (click)="emitAction(_data.primaryBtnAction || '')">{{_data.primaryBtnName}}</button>
+        </div>
+    </ng-container>
+    <ng-template #radioFooter>
+        <div class="re-confirm-dialog-action-wrapper d-flex align-items-center justify-content-end">
+            <button type="button" [disabled]="!selectedRERadio" s1-button [btnType]="'primary'" mat-dialog-close (click)="radioEmit()">{{_data.primaryBtnName}}</button>
+        </div>
+    </ng-template>
+</ng-container>
+

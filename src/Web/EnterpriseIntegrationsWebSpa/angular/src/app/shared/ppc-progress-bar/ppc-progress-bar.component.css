@@ -1,0 +1,6 @@
+.ppc-sku-progress-bar {
+    width: 100%;      
+}
+mat-progress-bar {         
+    --mdc-linear-progress-active-indicator-color: #005758 !important;    
+}

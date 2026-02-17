@@ -1,0 +1,9 @@
+.ppc-sku-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;    
+    gap: 24px;
+    background-color: #f8f8f8;
+    padding: 24px 48px;
+}
+  

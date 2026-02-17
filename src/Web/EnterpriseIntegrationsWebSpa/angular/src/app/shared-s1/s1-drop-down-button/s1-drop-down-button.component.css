@@ -1,0 +1,34 @@
+.menu-container {
+  padding: 16px 12px;
+}
+
+.menu-row {  
+  gap: 8px;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.menu-row:hover {
+  background-color: #F8F8F8;
+}
+
+.menu-row button {
+  outline: none;
+  border: none;
+  background: transparent;
+}
+
+.menu-title {
+  flex: 1;
+  min-width: 0;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+  text-align: left;
+}
+
+.menu-tag {
+  margin-left: auto;
+  display: inline-flex;
+  align-self: center;
+}

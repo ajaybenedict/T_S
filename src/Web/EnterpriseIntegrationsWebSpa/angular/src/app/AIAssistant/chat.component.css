@@ -1,0 +1,692 @@
+@import "~bootstrap/dist/css/bootstrap.css";
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: white;
+  margin: 0;
+}
+
+.navbar {
+  min-height: 48px; /* Adjust this value as needed */
+  display: block;
+  margin-bottom: 0 !important;
+}
+
+.navbar-brand, .navbar-nav .nav-link {
+  padding: 0 15px;
+  /* Ensure navbar elements align with the fixed navbar height */
+  display: flex;
+  align-items: center; /* This helps vertically center the content */
+}
+
+/* Adjust the top row's padding and margin as needed */
+.top-row {
+  padding: 0; /* Example adjustment */
+  margin: 0; /* Example adjustment */
+}
+
+.nav-right-menu {
+  z-index: 10;
+}
+
+.container-fluid .chat-window {
+  display: flex;
+  flex-direction: column;
+  /* Full viewport height */
+  /* Prevents overflow caused by the navbar */
+}
+
+.chat-window-row {
+  display: flex;
+  flex-grow: 1; /* Prevents overflow outside the flex container */
+}
+
+
+.side-nav, .content {
+  box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.1);
+  height: 93vh;
+  /* Adds scrollbar to these elements independently */
+}
+
+  .side-nav i {
+    margin-right: 10px;
+  }
+
+/*.content {
+  background-color: white;
+  margin: 0px;
+  box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.1);*/
+/*height: 100vh;*/
+/*}*/
+
+.chat-btn {
+  border: 1px solid rgb(96, 95, 95);
+  height: 40px;
+  border-radius: 5px;
+  background-color: #0a558c;
+  color: white;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 5px;
+}
+
+.api-key {
+  border: 1px solid rgb(96, 95, 95);
+  height: 40px;
+  border-radius: 5px;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+  justify-content: center !important;
+  align-items: center !important;
+  display: flex;
+}
+
+.chat-btn:hover {
+  /*    background-color: #0a558c;
+    transition: background-color 0.5s ease;*/
+}
+
+.gpt-model {
+  background-color: #1f2123;
+}
+
+.gpt-temperature {
+  background-color: #1f2123;
+}
+
+input[type="range"] {
+  width: 80%;
+}
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 3px;
+    margin: 10px 0;
+    width: 100%;
+    background: #c5c5d2;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    box-shadow: 0px 0px 0px #000000;
+    border: 1px solid #ffffff;
+    height: 18px;
+    width: 18px;
+    border-radius: 25px;
+    background: #ffffff;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -7px;
+  }
+
+.side-nav ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.side-nav li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+  .side-nav li:hover {
+    /*background-color: #495057;*/
+  }
+
+
+.chat-content-area {
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-top: 20px;
+}
+/*
+.page-content {
+  overflow-y: auto;
+  overflow-x:hidden;
+  height:100%;
+  position:relative;
+  margin-top:10px;
+}*/
+/* Adjust the bottom margin for small devices */
+/*@media (max-width: 767px) {
+  .chat-content-area {
+    margin-bottom: 60px;*/ /* Adjust as needed for small screens */
+/*height: 73vh;
+  }
+}*/
+/* Adjust the bottom margin for medium devices */
+/*@media (min-width: 768px) and (max-width: 800px) {
+  .chat-content-area {
+    margin-bottom: 80px;*/ /* Adjust as needed for medium screens */
+/*height: 85vh;
+  }
+}*/
+/* Adjust the bottom margin for large devices */
+/*@media (min-width: 901px) and (max-width: 992px) {
+/*@media (min-width: 901px) and (max-width: 992px) {
+  .chat-content-area {
+    margin-bottom: 100px;*/ /* Adjust as needed for large screens */
+/*height: 85vh;
+  }
+}*/
+.chat-inputs-container {
+  background-color: #F2F2F2;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.1);
+  position: fixed; /* Fixed to the viewport */
+  bottom: 0.1px; /* Margin from the bottom */
+  /* Starting point horizontally, adjusted to not underlap the sidebar */
+
+  right: 0; /* Extends to the right of the viewport */
+  z-index: 100; /* Ensures it stays above other content */
+  transition: margin-left 0.25s ease-out;
+  margin-left: 20px !important;
+  margin-right: 10px !important;
+}
+
+  .chat-inputs-container textarea {
+    background-color: transparent;
+    outline: none;
+    border: none;
+    color: black;
+    resize: none;
+  }
+
+.chat-inputs-area-inner {
+  padding-top: 30px;
+  padding-left: 40px;
+  padding-right: 40px;
+  padding-bottom: 20px;
+}
+
+.fa-paper-plane {
+  color: black;
+  cursor: pointer;
+}
+
+.chatgpt-icon {
+  width: 40px;
+}
+
+.user-chat-box {
+  color: black;
+}
+
+.form-select {
+  border: 1px solid rgb(96, 95, 95);
+  height: 40px;
+  border-radius: 5px;
+}
+
+small {
+  font-size: 11px;
+  padding: 12px;
+  display: block;
+}
+
+.gpt-chat-box {
+  background-color: #F2F2F2;
+  color: black;
+}
+
+.chat-icon {
+  margin-right: 20px;
+}
+
+.chat-txt {
+  display: flex;
+  flex-direction: column; /* This will make the child elements stack vertically */
+  align-items: flex-start; /* Align children horizontally to the left */
+  justify-content: center; /* Vertically center the content within the container */
+  text-align: left; /* Ensure the text within the child divs is aligned to the left */
+}
+
+footer {
+  background-color: white;
+  color: black;
+  height: 30px;
+  font-size: 11px;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+/* Track */
+:: -webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  background: #565869;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+.bordered-item {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 5px;
+  background-color: white;
+}
+
+@media only screen and (max-width: 1000px) {
+  .user-chat-box {
+  }
+
+  .gpt-chat-box {
+  }
+
+  .chat-inputs-area-inner {
+    padding-left: 50px;
+    padding-right: 54px;
+    margin-bottom: 30px;
+  }
+
+  .vertical-center {
+    display: flex;
+    align-items: center;
+    /*height: 100%;*/ /* Set a height or min-height if necessary */
+    /*min-height: 100px;*/ /* Example initial minimum height */
+    /*overflow: hidden;*/ /* Adjust as needed */
+  }
+
+  /*.scrollable {
+    overflow-y: auto;*/ /* Enables vertical scrolling if content overflows */
+  /*height: 100vh;*/ /* Adjust the height as needed */
+  /*}*/
+
+  /* Optional: Adjust if you're not using Bootstrap's grid system */
+  /*.col-2, .col-10 {
+    height: 100vh;*/ /* Ensure columns take full viewport height */
+  /*}*/
+
+  /* table*/
+  table {
+    width: 100%;
+  }
+
+  .mat-elevation-z8 {
+    overflow: auto;
+  }
+
+  /* Adjust these values as needed to make the table more compact */
+  .mat-cell, .mat-header-cell {
+    padding: 4px 8px;
+  }
+
+  .mat-row, .mat-header-row {
+    height: 18px;
+  }
+}
+
+/* Typing container styling */
+/*.typing-container {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  padding: 20px 10px;
+  justify-content: center;
+  background: var(--outgoing-chat-bg);
+  border-top: 1px solid var(--incoming-chat-border);
+}*/
+
+.typing-container .typing-content {
+  display: flex;
+  max-width: 950px;
+  width: 100%;
+  align-items: flex-end;
+}
+
+.typing-container .typing-textarea {
+  width: 100%;
+  display: flex;
+  position: relative;
+}
+/*
+.typing-textarea textarea {
+  resize: none;
+  height: 55px;
+  width: 100%;
+  border: none;
+  padding: 15px 45px 15px 20px;
+  color: var(--text-color);
+  font-size: 1rem;
+  border-radius: 4px;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: silver;
+  outline: 1px solid var(--incoming-chat-border);
+}*/
+
+/* .typing-textarea textarea::placeholder {
+    color: var(--placeholder-color);
+  }
+
+.typing-content span {
+  width: 55px;
+  height: 55px;
+  display: flex;
+  border-radius: 4px;
+  font-size: 1.35rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--icon-color);
+}
+
+.typing-textarea span {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  visibility: hidden;
+}
+
+.typing-textarea textarea:valid ~ span {
+  visibility: visible;
+}
+*/
+.thread-list {
+  overflow-y: auto;
+  height: 80vh;
+}
+
+.thread-item {
+  cursor: pointer;
+  border-bottom: 1px solid #ccc;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+  .thread-item:hover .delete-icon {
+    visibility: visible;
+  }
+
+.delete-icon {
+  visibility: hidden;
+  color: gray; /* Bootstrap danger color for example, adjust as needed */
+  cursor: pointer;
+}
+
+.thread-item:hover .thread-tooltip {
+  display: block;
+}
+
+.thread-tooltip {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding: 5px;
+  margin: 5px;
+  background-color: black;
+  color: white;
+  border-radius: 5px;
+  white-space: wrap;
+  width: auto; /* Adjust based on your content or container size */
+  z-index: 100; /* Ensure the tooltip is above other content */
+}
+
+  .thread-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 20px; /* Adjust this to position the arrow correctly */
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+  }
+
+.thread-item:hover {
+  background-color: #f0f0f0; /* Optional: highlight item on hover */
+}
+
+  .thread-item:hover .dropdown .fas {
+    visibility: visible;
+  }
+
+.dropdown .fas {
+  visibility: hidden;
+}
+
+
+.active-thread {
+  background-color: #f0f0f0; /* Bootstrap primary color for example */
+  font-weight: 500;
+}
+
+.tooltip-summary, .tooltip-date {
+  display: block; /* Ensure they appear on separate lines */
+}
+
+.tooltip-date {
+  margin-top: 5px; /* Add a little space between the summary and the date */
+}
+
+pre {
+  font-family: Roboto, sans-serif; /* Specify your default font family */
+  font-size: 14px; /* Specify your default font size */
+  white-space: pre-line; /* Optional: to wrap long lines */
+  margin: 0px !important;
+  padding: 0px !important; /* Removes the default padding */
+}
+
+table {
+  width: 100%;
+}
+/*
+.mat-column-productDetails {
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 28% !important;
+  width: 40% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}*/
+
+
+.mdc-data-table__cell, .mdc-data-table__header-cell {
+  padding: 0 8px 0px 8px !important;
+  font-size: 13px;
+}
+
+
+.chat-bubble {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  font-size: 16px;
+  text-align: center;
+  line-height: 60px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+  .chat-bubble:hover {
+    background-color: #0056b3;
+  }
+
+/* Adjusting button position for small screens */
+@media (max-width: 576px) {
+  .chat-bubble {
+    bottom: 10px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    font-size: 20px;
+  }
+}
+
+.domain-logo {
+  font-family: 'Roboto Mono', monospace;
+  color: #333; /* Dark gray, matching your theme */
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+}
+
+  .domain-logo i {
+    margin-right: 5px; /* Creates space between the icon and text */
+    /* Adjust the icon size if needed, depending on your design requirements */
+  }
+
+  .domain-logo span {
+    letter-spacing: 1px; /* Increases spacing between letters for a logo-like look */
+    font-weight: 600; /* Bold text */
+    background-color: transparent;
+  }
+
+
+.sidebar-toggler-icon {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+  background-image: var(--bs-navbar-toggler-icon-bg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%;
+}
+
+
+/* theme*/
+#wrapper {
+  overflow-x: hidden;
+}
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  margin-left: -15rem;
+  -webkit-transition: margin .25s ease-out;
+  -moz-transition: margin .25s ease-out;
+  -o-transition: margin .25s ease-out;
+  transition: margin .25s ease-out;
+}
+
+  #sidebar-wrapper .sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    font-size: 1.2rem;
+  }
+
+  #sidebar-wrapper .list-group {
+    width: 15rem;
+  }
+
+#page-content-wrapper {
+  min-width: 100vw;
+}
+
+body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
+  margin-left: 0;
+}
+
+@media (min-width: 1050px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+
+  #page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+  }
+
+  body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
+    margin-left: -15rem;
+  }
+}
+
+
+/* Animations*/
+.animation-container {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  padding: 20px; /* Adjust based on content */
+  background-color: white; /* Deep blue background */
+  color: black; /* White text */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  border-radius: 8px; /* Optional: softens the box edges */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: adds depth */
+  font-size: 16px; /* Adjust based on preference */
+  border: 1px solid silver;
+}
+
+
+.animation-content {
+  text-align: center; /* Center the text horizontally */
+}
+
+.animation-text {
+  font-size: 20px; /* Large enough to be readable */
+  color: #333; /* Dark text color for readability */
+  margin-top: 20px; /* Space between the spinner and the text */
+}
+
+.sidebar-toggler2 {
+  padding: var(--bs-navbar-toggler-padding-y) var(--bs-navbar-toggler-padding-x);
+  font-size: var(--bs-navbar-toggler-font-size);
+  line-height: 1;
+  color: var(--bs-navbar-color);
+  background-color: transparent;
+  border: var(--bs-border-width) solid var(--bs-navbar-toggler-border-color);
+  border-radius: var(--bs-navbar-toggler-border-radius);
+  transition: var(--bs-navbar-toggler-transition);
+}
+
+.protype_img {
+  width: 100% !important; /* Responsive image size */
+  max-width: 950px; /* Maximum width */
+  height: auto; /* Maintain aspect ratio */
+  border: 5px solid #009688; /* Custom solid border */
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  border-radius: 15px; /* Rounded corners */
+  transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
+}
+
+  .protype_img:hover {
+    transform: scale(1.1); /* Slightly enlarge on hover */
+  }
+
+.line-break {
+  margin-bottom: 10px; /* Adds a margin below each line break */
+  display: block; /* Ensures the span takes full width like a div */
+}
+
+/* Custom offcanvas width */
+.custom-offcanvas {
+  width: 75% !important; /* Adjust the percentage as needed */
+}
+
+@media (min-width: 768px) {
+  .custom-offcanvas {
+    width: 50% !important; /* Adjust the percentage for larger screens if needed */
+  }
+}

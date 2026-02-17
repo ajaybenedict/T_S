@@ -1,0 +1,63 @@
+<div class="page-container">
+  <div class="header-container">
+    <div class="logo-container">
+      <div class="tdsynx-logo-wrapper" [ngClass]="{'disable-logo-transition': (currentURL == landingPage || currentURL == qaloginPage)}">
+        <div class="tdsynx-logo" (mouseover)="toggleLogo(true)" (mouseout)="toggleLogo(false)"
+          (click)="redirectToLandingPage()">
+          <img [src]="logoPath" alt="TDSYNNEX">
+        </div>
+        <div class="tdsynx-txt-img">
+          <img src="/assets/tdsynx_txt_img_24_24.svg" alt="TDSYNNEX">
+        </div>
+      </div>
+      <div class="logo-divider"></div>
+      <div class="streamone-logo-wrapper" *ngIf="(currentURL == landingPage || currentURL == qaloginPage ||!currentURL); else dropdownBlock">
+        <img src="/assets/streamoneLogoHub.svg" alt="StreamOne">
+      </div>
+      <ng-template #dropdownBlock>
+        <div class="dropdown-wrapper" [ppcMastheadDropdownTrigger]="dropdown"
+          (dropdownStatus)="dropdownClosedHandler($event)">
+          <div class="dropdown-txt">{{moduleName}}</div>
+          <div class="dropdown-arrow-btn" [ngClass]="{'rotated': isDropdownOpen}">
+            <img src="/assets/down_arrow_dropdown_btn_24_24.svg" alt="DownArrow">
+          </div>
+          <app-ppc-masthead-dropdown #dropdown [configList]="dropdownData"
+            [currentURL]="currentURL"></app-ppc-masthead-dropdown>
+        </div>
+      </ng-template>
+    </div>
+    <div class="widget-container">
+      <div class="widget-icon-holder" *ngIf="isUserGuideEnabled">
+        <button type="button" s1-button [iconOnly]="true" aria-label="HelpGuide" (click)="downloadUserGuide()">
+          <img src="/assets/help_icon_44_44.svg" alt="HelpGuide" class="default">
+          <img src="/assets/help_icon_hover_44_44.svg" alt="HelpGuide" class="hover">
+        </button>
+      </div>
+      <div class="widget-icon-holder">
+        <div class="ai-icon" *ngIf="isAIAccess">
+          <button type="button" class="ai-icon-button" aria-label="OpenAiAssistant" aiPanelTrigger>
+            <img src="/assets/ai_icon_44_44.svg" alt="OpenAiAssistant">
+          </button>
+        </div>
+        <div class="rule-engine-icon" *ngIf="isRuleEditorEnabled">
+          <button type="button" s1-button [iconOnly]="true" aria-label="RuleEngineIcon" ruleEnginePanelTrigger>
+            <img src="/assets/rule_engine_icon_44_44.svg" alt="RuleEngineIcon" class="default">
+            <img src="/assets/rule_engine_icon_hover_44_44.svg" alt="RuleEngineIcon" class="hover">
+          </button>
+        </div>
+      </div>
+      <div class="username-container" *ngIf="firstname">
+        <div class="username-icon" (click)="logout()">
+          <img src="/assets/userIcon.svg" alt="UserIcon">
+        </div>
+        <div class="username-txt">{{firstname | titlecase }}</div>
+      </div>
+    </div>
+  </div>
+  <div [@routeAnimations]="prepareRoute(outlet)"> <!-- Added to enable animation on page navigation -->
+    <router-outlet #outlet="outlet"></router-outlet>
+  </div>
+</div>
+<!-- For Qualtrics Survey. Do not remove! -->
+ <span class="user-email qsi-user-context"  aria-hidden="true">{{userEmail}}</span>
+<!-- ------------ -->

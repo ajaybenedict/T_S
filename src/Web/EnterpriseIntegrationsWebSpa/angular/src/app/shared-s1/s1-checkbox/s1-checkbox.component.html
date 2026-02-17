@@ -1,0 +1,26 @@
+<div 
+    class="custom-checkbox" 
+    (click)="toggleCheck()" 
+    (keydown.enter)="toggleCheck()"
+    (keydown.space)="toggleCheck()"
+    [ngClass]="{'disabled': inputData.disabled}"
+    [attr.aria-checked]="inputData.checked"
+    [attr.aria-disabled]="inputData.disabled"
+    *ngIf="inputData"
+>    
+    <div class="checkmark-holder">
+        <span class="checkmark" [ngClass]="{'checked': inputData.checked, 'disabled': inputData.disabled}" *ngIf="!inputData.indeterminate; else indeterminateBlock">
+            <svg class="checkmark-icon" viewBox="0 0 24 24">
+                <path fill="none" stroke="white" stroke-width="3" d="M4 12l6 6L20 6"></path>
+            </svg>
+        </span>
+        <ng-template #indeterminateBlock>
+            <span class="checkmark">
+                <svg class="indeterminate-icon" viewBox="0 0 24 24">
+                    <line x1="5" y1="12" x2="19" y2="12" stroke="white" stroke-width="3"></line>
+                </svg>
+            </span>
+        </ng-template>
+    </div>
+    <span class="label">{{ inputData.displayName }}</span>
+</div>  

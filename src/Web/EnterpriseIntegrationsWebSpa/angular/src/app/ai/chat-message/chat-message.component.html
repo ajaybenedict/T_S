@@ -1,0 +1,52 @@
+<div *ngIf="messages && messages.length > 0">
+    <div *ngFor="let item of messages; let i = index" class="mb-4">
+        <!-- User Chat -->
+        <div class="d-flex flex-column flex-sm-row justify-content-end align-items-center" *ngIf="item.role === 'user'">
+            <div class="chat-txt user-chat-box p-3 br-8 me-4">
+                <div>
+                    {{item.content[0].text.value}}
+                </div>
+            </div>
+            <div class="mr-3 flex-shrink mb-2 mb-sm-0">
+                <img src="/assets/userIcon.svg" alt="UserIcon">
+            </div>
+        </div>
+        <!-- GPT Chat -->
+        <div class="d-flex flex-column flex-sm-row gap-20" *ngIf=" (item.role === 'assistant' || item.role === 'tool')"
+            style="overflow-x:auto;">
+            <div class="gpt-icon">
+                <img src="/assets/gpt_icon_round_40_40.svg " alt="GPTIcon">
+            </div>
+            <div class="gpt-chat-box p-3 br-8 d-flex flex-column" [style.width]="gptChatWidth">
+                <div class="chat-txt">
+                    <div *ngIf="!item.openAiResult" [style.max-height]=" 'auto'" style="overflow-y:auto;">
+                        <markdown *ngIf="item.content[0].text.value"
+                            [data]="item.content[0].text.value | extractTextBeforeJson"></markdown>
+                    </div>
+                    <div *ngIf="item.openAiResult" [style.max-height]="'auto'" style="overflow-y:auto; ">
+                        <!-- below line will act as a subscribe to openAiResult in the doSendRequestToAi(). do not alter this!!! -->
+                        <markdown [data]="item.openAiResult | async"></markdown>
+                    </div>
+                    <app-chart *ngIf="item.content[0].text.value && item.content[0].text.value != ''"
+                        [chartData]="item.content[0].text.value | extractChartJsonObject"></app-chart>
+                    <div style="margin-left:10px; margin-top:10px;" *ngIf="item.components ">
+                        <div *ngFor="let component of item.components" class="mb-2">
+                            <ndc-dynamic [ndcDynamicComponent]="component.outputComponent"
+                                [ndcDynamicInputs]="component.compInputs"
+                                [ndcDynamicOutputs]="component.compOutputs"></ndc-dynamic>
+                        </div>
+                    </div>
+                </div>
+                <mat-progress-bar *ngIf="showLoader && i === messages.length - 1 && (item.role === 'assistant' || item.role === 'tool')"class="mt-1" mode="indeterminate" style="width: 100%;"></mat-progress-bar>                
+            </div>
+        </div>
+    </div>
+    <div *ngIf="systemMessage">
+        <div class="chat-icon col-1 text-red">&nbsp;&nbsp;</div>
+        <div class="col-11 m-1  mat-mdc-form-field-error">
+            {{
+            systemMessage
+            }}
+        </div>
+    </div>
+</div>

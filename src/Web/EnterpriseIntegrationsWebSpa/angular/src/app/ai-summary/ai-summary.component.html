@@ -1,0 +1,29 @@
+<div class="ai-summary-wrapper d-flex flex-column gap-1">
+    <div>
+        <div class="ai-summary-header d-flex flex-row align-items-center justify-content-between">
+            <div class="title-wrapper d-flex flex-row gap-2 align-items-center">
+                <button type="button" s1-button [iconOnly]="true" (click)="toggleArrowBtn()" *ngIf="isPanelMinimized" >
+                    <img src="/assets/down_arrow_icon_44_44.svg" alt="DownArrow" class="default">
+                    <img src="/assets/down_arrow_icon_hover_44_44.svg" alt="DownArrow" class="hover">
+                </button>
+                <button type="button" s1-button [iconOnly]="true" (click)="toggleArrowBtn()" *ngIf="!isPanelMinimized" >
+                    <img src="/assets/up_arrow_icon_44_44.svg" alt="UpArrow" class="default">
+                    <img src="/assets/up_arrow_icon_hover_44_44.svg" alt="UpArrow" class="hover">
+                </button>
+                <span class="s1-FW600 s1-FS-18px s1-C-Charcoal">AI Summary</span>
+            </div>
+            <button type="button" s1-button [iconOnly]="true" (click)="dismissBtnHandler()">
+                <img src="/assets/dismiss_btn_44_44.svg" alt="Dismiss" class="default">
+                <img src="/assets/dismiss_btn_hover_red_44_44.svg" alt="Dismiss" class="hover">
+            </button>
+        </div>
+        <app-ppc-progress-bar [height]="'4px'" *ngIf="showProgressbar"></app-ppc-progress-bar>
+    </div>
+    <div class="ai-summary-container" style="overflow: auto;">
+        <markdown [data]="summaryResponse" class="s1-FS-14px"></markdown>
+    </div>
+    <div class="d-flex gap-2 align-items-center justify-content-center s1-C-Stone ai-summary-disclaimer" *ngIf="!isPanelMinimized">
+        <img src="/assets/info_icon_16_16.svg" alt="info">
+        <span>{{disclaimerText}}</span>
+    </div>
+</div>

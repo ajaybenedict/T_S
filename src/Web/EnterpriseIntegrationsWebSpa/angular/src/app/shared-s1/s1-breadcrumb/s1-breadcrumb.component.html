@@ -1,0 +1,10 @@
+<ng-container *ngIf="crumbList">
+    <div class="breadcrumb-container">
+        <ng-container *ngFor="let item of crumbList; let i = index">
+            <button class="item" [ngClass]="{'last-item': i == upperBound}" [attr.aria-label]="item">
+                {{item}}
+            </button>
+            <img *ngIf="i != upperBound" src="/assets/breadcrumb_divider_icon_16_16.svg" alt="BreadcrumbDivider" width="16px" height="16px">            
+        </ng-container>
+    </div>
+</ng-container>

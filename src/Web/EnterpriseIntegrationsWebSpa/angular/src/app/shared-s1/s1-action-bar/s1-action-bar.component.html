@@ -1,0 +1,15 @@
+<div class="d-flex justify-content-between action-bar-container" *ngIf="inputData">
+    <div class="d-flex text-bar-container">
+        <div class="text-container d-flex align-items-center">
+            <div class="title-text">{{inputData.title}}</div>
+        </div>
+    </div>
+    <div class="actions-btn-container d-flex align-items-center">        
+         <ng-container *ngFor="let btn of inputData.buttons">
+             <button class="action-btn d-flex align-items-center" [style]="btn.width ?? '120px'" (click)="btnClickHandler(btn.onClickEmitValue)">
+                 <img [src]="btn.iconSrc" [alt]="btn.imgAlt">
+                 <span class="action-text">{{btn.displayName ?? 'Action'}}</span>
+             </button>        
+         </ng-container>
+    </div>
+</div>

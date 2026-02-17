@@ -1,0 +1,93 @@
+::ng-deep tbody {
+    height: 473px;
+    overflow-y: auto;
+    display: block;
+}
+
+::ng-deep thead, ::ng-deep tbody tr {
+    display: table !important;
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+
+.table-wrapper {
+    height: 607px;    
+}
+
+.mat-mdc-header-row {
+    height: 37px !important;    
+}
+
+.mat-mdc-header-row.progress-bar-row {
+    height: 5px !important;
+}
+
+.mat-mdc-header-cell {
+    border-bottom: 0.75px solid #005758;
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+    color: #75716E;
+}
+
+.mat-mdc-cell {
+    padding: 8px 12px;
+    line-height: 21px;
+    font-weight: 400;
+    font-size: 14px;
+    color: #262626;
+    border: 1px solid #E4E5E6;
+}
+
+.mat-mdc-row {
+    border-top: 1px solid #E4E5E6;
+    border-bottom: 1px solid #E4E5E6;    
+}
+
+/* To have gap between tbody & thead in mat-table */
+:host ::ng-deep tbody::before {    
+  content: '_';
+  color: white;
+  display: block;
+}
+
+/* Overriding styles - should be at last */
+::ng-deep table tbody tr td:first-child{
+    color: #75716E !important;
+}
+
+::ng-deep table tbody tr td:nth-child(2) {
+    font-weight: 700 !important;    
+}
+
+::ng-deep table tbody tr td:nth-child(3) a {
+    color: #00558C !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+}
+
+.no-data-wrapper {
+    margin-top: 122px;
+    margin-left: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 337px;
+    height: 246px;  
+    gap: 40px;  
+}
+.no-data-title {
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 27px;
+    height: 27px;
+    text-align: center;
+}
+.no-data-content {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    height: 24px;
+    text-align: center;
+}

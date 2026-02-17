@@ -1,0 +1,19 @@
+.popup-wrapper {
+    height: 600px;
+    width: 700px;    
+    padding: 16px;
+}
+
+.popup-header {
+    height: 48px;    
+}
+
+.popup-content-title {    
+
+    height: 30px;    
+    padding: 10px;
+}
+
+.popup-content-body, .dropdown-holder {
+    height: 44px;
+}

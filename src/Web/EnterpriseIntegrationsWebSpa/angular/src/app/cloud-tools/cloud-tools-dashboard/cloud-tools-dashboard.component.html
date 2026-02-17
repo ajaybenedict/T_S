@@ -1,0 +1,103 @@
+<div class="dashboard-holder">
+  <div class="dashboard-wrapper">
+    <app-ppc-overlay [show]="showOverlay"></app-ppc-overlay>
+    <section class="dashboard-container d-flex flex-column">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-4">
+          <span>Date Range</span>
+          <div class="d-flex align-items-center gap-2">
+            <app-s1-date-range-picker (dateRangeChanged)="dateRangeEventHandler($event)"></app-s1-date-range-picker>
+            <app-s1-search-bar [inputData]="searchBarData" (outputData)="searchEventHandler($event)" [inputFilter]="'alphanumerichyphen'"></app-s1-search-bar>
+          </div>
+        </div>
+        <div class="d-flex align-items-center">
+          <s1-drop-down-button *ngIf="cloudToolsButtonData" [inputData]="cloudToolsButtonData" (actionEmitter)="showUploadPanel($event)"></s1-drop-down-button>           
+        </div>
+      </div>
+      <div>
+        <app-ppc-nav-tabs [tabs]="navTabs" [selectedIndex]="activeTab"
+          (tabChange)="tabChangeHandler($event)">
+          <s1-checkbox-dropdown *ngIf="canShowTaskTypeFilter()" [inputData]="cloudToolOperations" tabHeaderAction (outputData)="onOperationDropdownChange($event)"></s1-checkbox-dropdown>
+        </app-ppc-nav-tabs>
+        <ng-template #successTab>
+          <div class="cloudtools-nav-tab-container" [ngClass]="{'details-card-open': isCardDetailsVisible}">
+            <div class="cloudtools-data-table">
+              <app-s1-data-table
+                [tableColumns]="successColumnData"
+                [tableData]="tableData"
+                [showProgressBar]="showTableProgressBar"
+                [clearSelectionRowTrigger]="clearSelectedRowTrigger"
+                (rowEmitter)="tableRowClickHandler($event)"
+              ></app-s1-data-table>
+            </div>
+            <!-- details card -->
+            <div class="details-card" *ngIf="isCardDetailsVisible">
+              <!-- Loader -->
+              <div class="details-loader" *ngIf="isTransactionDetailsAPIInProgress"></div>
+              <!-- Content -->
+              <div class="details-content" *ngIf="!isTransactionDetailsAPIInProgress && detailsCardInputData">
+                <app-cloud-tools-card-details [inputData]="detailsCardInputData" [activeTabId]="activeTab"
+                  (dismissEvent)="detailsCardDismissEventHandler()" (showOverlayInParent)="detailsCardParentOverlayEventHandler($event)" ></app-cloud-tools-card-details>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template #inProgressTab>
+          <div class="cloudtools-nav-tab-container" [ngClass]="{'details-card-open': isCardDetailsVisible}">
+            <div class="cloudtools-data-table">
+              <app-s1-data-table
+                [tableColumns]="inProgressColumnData"
+                [tableData]="tableData"
+                [showProgressBar]="showTableProgressBar"
+                [clearSelectionRowTrigger]="clearSelectedRowTrigger"
+                (rowEmitter)="tableRowClickHandler($event)"
+              ></app-s1-data-table>
+            </div>
+            <!-- details card -->
+            <div class="details-card" *ngIf="isCardDetailsVisible">
+              <!-- Loader -->
+              <div class="details-loader" *ngIf="isTransactionDetailsAPIInProgress"></div>
+              <!-- Content -->
+              <div class="details-content" *ngIf="!isTransactionDetailsAPIInProgress && detailsCardInputData">
+                <app-cloud-tools-card-details [inputData]="detailsCardInputData" [activeTabId]="activeTab"
+                  (dismissEvent)="detailsCardDismissEventHandler()" (showOverlayInParent)="detailsCardParentOverlayEventHandler($event)" ></app-cloud-tools-card-details>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template #failedTab>
+          <div class="cloudtools-nav-tab-container" [ngClass]="{'details-card-open': isCardDetailsVisible}">
+            <div class="cloudtools-data-table">
+              <app-s1-data-table
+                [tableColumns]="failedColumnData"
+                [tableData]="tableData"
+                [showProgressBar]="showTableProgressBar"
+                [clearSelectionRowTrigger]="clearSelectedRowTrigger"
+                (rowEmitter)="tableRowClickHandler($event)"
+              ></app-s1-data-table>
+            </div>
+            <!-- details card -->
+            <div class="details-card" *ngIf="isCardDetailsVisible">
+              <!-- Loader -->
+              <div class="details-loader" *ngIf="isTransactionDetailsAPIInProgress"></div>
+              <!-- Content -->
+              <div class="details-content" *ngIf="!isTransactionDetailsAPIInProgress && detailsCardInputData">
+                <app-cloud-tools-card-details [inputData]="detailsCardInputData" [activeTabId]="activeTab"
+                  (dismissEvent)="detailsCardDismissEventHandler()" (showOverlayInParent)="detailsCardParentOverlayEventHandler($event)" ></app-cloud-tools-card-details>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </section>
+  </div>
+  <nav aria-label="Pagination" *ngIf="isPaginatorVisible">
+    <app-ppc-paginator></app-ppc-paginator>
+  </nav>
+</div>
+<!-- Template for the 'Request Access' tag in the 'Tools' dropdown -->
+<ng-template #requestAccess>
+  <span class="request-access-tag">
+    REQUEST ACCESS
+  </span>
+</ng-template>

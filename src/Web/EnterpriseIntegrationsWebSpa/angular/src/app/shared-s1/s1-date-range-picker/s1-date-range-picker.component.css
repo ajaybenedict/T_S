@@ -1,0 +1,74 @@
+/* mat-calendar size */
+::ng-deep .mat-datepicker-content .mat-calendar {
+    width: 380px !important;
+    height: 515px !important;
+}
+/* date picker icon color */
+mat-datepicker-toggle {
+    color: #005758 !important;
+}
+/* start & end date bg color after selection */
+::ng-deep .mat-calendar-body-selected {
+    background-color: #005758 !important;
+}
+/* Selected date range bg color */
+::ng-deep .mat-calendar-body-in-range::before {
+    background-color: #EBEEEF !important;
+}
+/* calendar definitions - below header part */
+::ng-deep .mat-calendar-content {
+    padding: 16px 20px !important;
+}
+/* Date picker input field bg color */
+::ng-deep .mat-mdc-form-field-has-icon-suffix .mat-mdc-text-field-wrapper {
+    background-color: #F8F8F8 !important;
+}
+/* week days in the header */
+::ng-deep .mat-calendar-table-header {
+    color: #262626 !important;
+    th {
+        font-weight: 400 !important;
+        font-size: 14px !important;
+        line-height: 150% !important;
+    }
+}
+/* month name at the left side of the calendar-body */
+::ng-deep .mat-calendar-body-label {
+    visibility: hidden;
+}
+/* mouse hover bg color of a date & bg color of today date when picker is opened */
+::ng-deep .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover>.mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical),
+::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+    background-color: #EBEEEF !important;
+}
+/* hide the auto generated hint div with mat form field */
+::ng-deep .mat-mdc-form-field .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+/* form field normal border color */
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
+    border-color: #E4E5E6 !important;
+}
+/* form field hover border color */
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-notched-outline .mdc-notched-outline__leading,
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-notched-outline .mdc-notched-outline__notch,
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-notched-outline .mdc-notched-outline__trailing {
+    border-color: #005758 !important;
+}
+/* form field focused border color */
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__leading,
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__notch,
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__trailing {
+    border-color: #005758 !important;
+}
+/* height of the date picker */
+::ng-deep .mat-mdc-text-field-wrapper, ::ng-deep .mat-mdc-form-field-flex {
+    height: 44px !important;
+}
+/* adjust the text inside the mat form field to match the above height */
+::ng-deep .mat-mdc-form-field-infix {
+    padding-top: 10px !important;
+    padding-bottom: 0px !important;
+}

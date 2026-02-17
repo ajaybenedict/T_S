@@ -1,0 +1,34 @@
+<button type="button" s1-button [btnType]="'primary'" [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger"
+  (click)="$event.stopPropagation()">
+  <div class="d-flex align-items-center gap-2">
+    <img *ngIf="inputData.hasIcon && inputData.iconURL" [src]="inputData.iconURL" [alt]="inputData.title?.toLowerCase()">
+    <span *ngIf="inputData.hasTitle && inputData.title">{{inputData.title}}</span>
+    <img src="/assets/down_arrow_white_24_24.svg" alt="DownArrow">
+  </div>
+</button>
+<mat-menu #menu="matMenu" class="s1-menu">
+    <div class="menu-container">
+        <ng-container *ngFor="let item of inputData.subMenu">
+            <!-- NORMAL BUTTON (with optional icon + optional tag) -->
+            <div class="menu-row" *ngIf="!item.isS1Btn">                
+                <button type="button" class="d-flex align-items-center justify-content-between gap-2 s1-FW400 s1-FS14px s1-C-Charcoal" (click)="menuClickHandler(item.onClickEmit)">
+                    <img *ngIf="item.hasIcon && item.iconURL" [src]="item.iconURL" [alt]="item.displayName"
+                        class="menu-icon" />
+                    <span class="menu-title">
+                        {{ item.displayName }}
+                    </span>
+                    <!-- PROJECTED TAG -->
+                    <span class="menu-tag" *ngIf="item.tagTemplate">
+                        <ng-container *ngTemplateOutlet="item.tagTemplate"></ng-container>
+                    </span>
+                </button>
+            </div>
+            <!-- S1 BUTTON (NO TAG) -->
+            <div class="menu-row" *ngIf="item.isS1Btn">
+                <button *ngIf="item.isS1Btn && item.s1BtnType" type="button" s1-button [btnType]="item.s1BtnType" (click)="menuClickHandler(item.onClickEmit)">
+                    {{ item.displayName }}
+                </button>
+            </div>
+        </ng-container>
+    </div>
+</mat-menu>

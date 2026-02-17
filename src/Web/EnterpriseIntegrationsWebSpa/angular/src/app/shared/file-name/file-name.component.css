@@ -1,0 +1,33 @@
+.ppc-file-name-container {
+    display: flex;
+    flex-direction: row; 
+    gap: 10px;   
+    width: 100% !important;
+    height: 100% !important;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 4px;
+    border: 1px solid #E4E5E6;
+    padding: 10px 16px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    background-color: #f8f8f8;
+}
+.ppc-file-name-wrapper {
+    width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.ppc-file-name-and-img-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px
+}
+.ppc-file-name-download-img-wrapper {
+    cursor: pointer;
+}

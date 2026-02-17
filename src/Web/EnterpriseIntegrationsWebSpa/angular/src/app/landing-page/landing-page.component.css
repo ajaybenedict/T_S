@@ -1,0 +1,63 @@
+.ppc-welcome-text-wrapper {
+    width: 1040px !important;
+    height: 116px !important;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 128px;
+    margin-bottom: 82px;
+}
+
+.ppc-welcome-text {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 40px;
+    font-weight: 400;
+}
+
+.ppc-welcome-desc {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 23px;
+    padding-top: 10px !important;
+}
+
+.ppc-card-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    width: 1040px !important;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 128px;
+}
+
+.ppc-apptype-container {
+    display: flex;
+    align-items: center;
+    margin-top: 12px;
+    width: 1040px;
+    height: 30px;
+    gap: 40px;
+}
+
+.ppc-apptype-devider {
+    width: 905px;
+    height: 0px;
+    gap: 0px;
+    border: 2px solid #D9D8D7
+}
+
+.ppc-apptype-value{
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 30px;
+    text-align: left;
+    color: #005758;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.landing-page-holder {
+    height: calc(100vh - 68px);
+    overflow: auto;
+}

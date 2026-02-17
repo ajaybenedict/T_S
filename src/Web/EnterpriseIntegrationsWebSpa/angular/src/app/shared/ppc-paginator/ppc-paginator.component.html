@@ -1,0 +1,26 @@
+<div class="ppc-paginator-outer-container" *ngIf="inputData">
+    <div class="ppc-paginator-details-wrapper">{{startIndex}}<span *ngIf="inputData.total > dropdownTitle"> - {{endIndex}}</span> out of {{inputData.total}}</div>
+    <div class="ppc-paginator-action-wrapper">
+        <ngb-pagination 
+            class="d-flex justify-content-center" 
+            [page]="inputData.page"
+            [collectionSize]="inputData.total" 
+            [pageSize]="inputData.pageSize" 
+            [maxSize]="3" 
+            [ellipses]="true" 
+            [rotate]="true" 
+            (pageChange)="pageChangeEvent($event)"
+        />
+    </div>
+    <div class="ppc-paginator-selector-wrapper">
+        <span>Items per page</span>
+        <div ngbDropdown class="d-inline-block">
+			<button type="button" [disabled]="inputData.total < 25" class="ppc-dropdown-btn" id="dropdownBasic1" ngbDropdownToggle>
+				{{dropdownTitle}}
+			</button>
+			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+				<button ngbDropdownItem *ngFor="let item of pageSizeOptions" (click)="getItemsPerPage($event)">{{item}}</button>				
+			</div>
+		</div>
+    </div>
+</div>

@@ -1,0 +1,9 @@
+<!-- Do not use add / reset btn in this. Only for filter buttons-->
+<div class="btn-container"> 
+    <app-s1-filter-buttons 
+        *ngFor="let btn of btnList" 
+        [input]="btn" 
+        (btnClick)="btnClickHandler(btn)"
+        (closeBtnClick)="emitOutput($event)"
+    ></app-s1-filter-buttons>
+</div>

@@ -1,0 +1,17 @@
+<aside class="d-flex flex-column panel-container">
+    <header class="d-flex justify-content-between align-items-center panel-header s1-P-16-20-px">
+        <span class="s1-C-Teal s1-FW700 s1-FS16px">{{data.title}}</span>
+        <button type="button" s1-button [iconOnly]="true" (click)="closeHandler()">
+            <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss" class="default">
+            <img src="/assets/dismiss_btn_hover_red_24_24.svg" alt="dismiss" class="hover">
+        </button>
+    </header>
+    <div class="details-side-panel-tab-holder s1-P-16-20-px">
+        <app-s1-filter-button-container [btnList]="tabList"
+            (btnClick)="btnContainerClickEventHandler($event)"></app-s1-filter-button-container>
+    </div>
+    <div class="details-side-panel-tab-content-holder d-flex flex-column s1-P-16-20-px"
+        *ngFor="let item of data.panelContent">
+        <app-side-panel-forms-tab *ngIf="item.tabType == 'form'" [data]="item.rows"></app-side-panel-forms-tab>
+    </div>
+</aside>

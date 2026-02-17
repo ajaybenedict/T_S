@@ -1,0 +1,46 @@
+<aside class="d-flex flex-column upload-panel-container">
+  <header class="d-flex justify-content-between align-items-center panel-header s1-P-16-20-px">
+    <span class="s1-C-Teal s1-FW700 s1-FS16px">{{panelTitle}}</span>
+    <button type="button" s1-button [iconOnly]="true" (click)="closeHandler()">
+      <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss" class="default">
+      <img src="/assets/dismiss_btn_hover_red_24_24.svg" alt="dismiss" class="hover">
+    </button>
+  </header>
+  <div class="content-container d-flex flex-column s1-P-16-20-px">
+    <app-ppc-overlay [show]="showOverlay"></app-ppc-overlay>
+    <span class="s1-C-Teal s1-FW700 s1-FS16px">Upload Template</span>
+    <app-file-upload (fileSelected)="onFileReceived($event)" (fileError)="onFileError($event)"
+      [clearFileTrigger]="clearFileTrigger">
+    </app-file-upload>
+
+    <ng-container *ngFor="let error of uploadErrors">
+      <app-validation-error [errorMsg]="error" [width]="'100%'" [height]="'100%'">
+      </app-validation-error>
+    </ng-container>
+
+    <app-validation-error [errorMsg]="warningMessage" [width]="'100%'" [height]="'112px'" ,
+      [imgSrc]="'/assets/alert_orange_24_24.svg'" [validationClass]="'warning-validation-error-container'">
+    </app-validation-error>
+  </div>
+
+  <div class="panel-footer">
+    <div *ngIf="showConfirmDialog" class="panel-overlay"></div>
+
+    <app-confirmation-dialog *ngIf="showConfirmDialog" [headerText]="header" [contentText]="content"
+      (cancelAction)="onCancel()" (confirmAction)="onConfirm()">
+    </app-confirmation-dialog>
+
+    <div class="d-flex flex-row align-items-center justify-content-between template-container s1-P-16-20-px">
+      <span class="s1-FW700 s1-FS14px">Download Template</span>
+      <button type="button" s1-button [iconOnly]="true" (click)="downloadTemplate()">
+        <img src="/assets/download_black_icon_40_40.svg" alt="Download" class="default">
+        <img src="/assets/download_black_icon_hover_40_40.svg" alt="Download" class="hover">
+      </button>
+    </div>
+
+    <div class="d-flex flex-row align-items-center justify-content-center footer-container s1-P-16-20-px">
+      <button type="button" s1-button btnType="primary" [customClass]="'footer-btn'" [disabled]="!isButtonValid"
+        (click)="processFile()">Proceed</button>
+    </div>
+  </div>
+</aside>

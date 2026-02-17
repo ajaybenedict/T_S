@@ -1,0 +1,32 @@
+<div class="landing-page-holder">
+  <div class="ppc-welcome-text-wrapper">
+    <div class="ppc-welcome-text">
+      <span>{{greetingText}} {{firstname | titlecase }},</span>
+    </div>
+    <div class="ppc-welcome-desc">
+      <span>{{greetingDesc}}</span>
+    </div>
+  </div>
+  <div class="ppc-card-wrapper">
+    <ng-container *ngFor="let category of categories">
+      <div class="ppc-apptype-container" *ngIf="category != enumCategory.General">
+        <div class="ppc-apptype-value">{{category}}</div>
+        <mat-divider class="ppc-apptype-devider"></mat-divider>
+      </div>
+      <ng-container *ngFor="let config of configList">
+        <div *ngIf="config.applicationType === category">
+          <app-ppc-card
+          [headerImgSrc]="config.headerImgSrc" 
+          [comingSoonText]="config.comingSoonText"
+          [isActive]="config.isActive"
+          [contentHeader]="config.contentHeader"
+          [contentDesc]="config.contentDesc"
+          [actionText]="config.actionText"
+          [actionImgSrc]="config.actionImgSrc"
+          [navigateURL]="config.navigateURL"
+        ></app-ppc-card>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

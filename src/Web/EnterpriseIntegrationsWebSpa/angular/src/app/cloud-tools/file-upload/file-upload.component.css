@@ -1,0 +1,28 @@
+.upload-box {
+  text-align: center;
+  cursor: pointer;
+  height: 93px;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  border: 1px dashed #E4E5E6;
+}
+
+.file-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  max-width: 350px;
+}
+
+.file-name {
+  flex: 1;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

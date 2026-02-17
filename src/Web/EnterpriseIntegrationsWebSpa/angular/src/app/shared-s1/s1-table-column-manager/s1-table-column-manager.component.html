@@ -1,0 +1,32 @@
+<div class="column-panel" cdkDropList (cdkDropListDropped)="drop($event)" [@slideInOut]="visible ? 'in' : 'out'">
+    <div class="panel-header">
+        <span class="s1-C-Teal s1-FW700 s1-FS16px">Manage Columns</span>
+        <button type="button" s1-button [iconOnly]="true" (click)="closePanel()">
+            <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss" class="default">
+            <img src="/assets/dismiss_btn_hover_red_24_24.svg" alt="dismiss" class="hover">
+        </button>
+    </div>
+    <div class="panel-content">
+        <div class="s1-FS14px s1-FW400">Rearrange columns by dragging and dropping.</div>
+        <div class="column-list">
+            <div class="column-item" *ngFor="let col of tempColumns; trackBy: trackByColumn" cdkDrag>
+                <button type="button" class="drag-icon" cdkDragHandle>
+                    <img src="/assets/drag_handle_icon_40_40.svg" alt="drag">                    
+                </button>
+                <span class="s1-FW400 s1-FS14px s1-C-Teal">{{ col.displayName }}</span>
+                <button type="button" s1-button [iconOnly]="true" *ngIf="col.visible" (click)="toggleVisibility(col)" >
+                    <img src="/assets/column_show_icon_40_40.svg" alt="ColumnVisibility" class="default">
+                    <img src="/assets/column_show_hover_icon_40_40.svg" alt="ColumnVisibility" class="hover">
+                </button>
+                <button type="button" s1-button [iconOnly]="true" *ngIf="!col.visible" (click)="toggleVisibility(col)" >
+                    <img src="/assets/column_hide_icon_40_40.svg" alt="ColumnVisibility" class="default">
+                    <img src="/assets/column_hide_hover_icon_40_40.svg" alt="ColumnVisibility" class="hover">
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="panel-actions">
+        <button type="button" s1-button [btnType]="'secondary'" style="width: 79px;" (click)="resetToDefault()">Default</button>
+        <button type="button" s1-button [btnType]="'primary'" style="width: 153px;" (click)="applyChanges()">Apply</button>
+    </div>
+</div>

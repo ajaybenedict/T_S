@@ -1,0 +1,14 @@
+<div class="ppc-nav-container" *ngIf="showNavTab" >
+    <mat-tab-group (selectedIndexChange)="tabChange.emit($event)" [selectedIndex]="selectedIndex" dynamicHeight
+        animationDuration="0ms">
+        <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
+            <ng-template [ngIf]="tab.tabContent" matTabContent>
+                <ng-container *ngTemplateOutlet="tab.tabContent"></ng-container>
+            </ng-template>
+        </mat-tab>
+    </mat-tab-group>    
+    <!-- Optional projected header actions -->
+    <div class="tab-header-actions">
+        <ng-content select="[tabHeaderAction]"></ng-content>
+    </div>
+</div>

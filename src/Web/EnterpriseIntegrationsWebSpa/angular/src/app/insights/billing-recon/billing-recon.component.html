@@ -1,0 +1,16 @@
+<ng-container>
+    <div class="d-flex flex-column s1-P24px">
+        <app-ppc-nav-tabs [tabs]="navTabs" [selectedIndex]="activeTab" (tabChange)="tabChangeEventHandler($event)"></app-ppc-nav-tabs>        
+        <ng-template #report>
+            <div class="report-tab-content d-flex flex-column">
+                <app-s1-action-bar [inputData]="actionbarData" (btnClick)="resetAllFilters($event)"></app-s1-action-bar>
+                <div class="report-container" *ngIf="embedConfig">
+                    <app-powerbi-report-wrapper 
+                        [embedConfig]="embedConfig"
+                        [reportCommand$]="reportCommand$"                        
+                    ></app-powerbi-report-wrapper>
+                </div>
+            </div>
+        </ng-template>        
+    </div>
+</ng-container>

@@ -1,0 +1,108 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.chat-layout-container {
+    height: 100%;
+    width: 100%;
+    padding: 20px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+.breadcrumb-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 44px;
+}
+
+.dismiss-btn {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    padding: 0px !important;
+}
+
+.dismiss-btn:hover img {
+    content: url('/assets/dismiss_btn_hover_red_24_24.svg');
+}
+
+.chat-layout {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    min-height: 0;
+}
+
+.chat-history-container {
+    border: 1px solid #E4E5E6;
+    width: 240px;
+    height: 100%;
+    padding: 20px;
+    flex-shrink: 0;
+    gap: 40px;
+}
+
+.chat-convo-container {
+    border-top: 1px solid #E4E5E6;
+    border-right: 1px solid #E4E5E6;
+    border-bottom: 1px solid #E4E5E6;
+    height: 100%;
+    width: calc(90vw - 280px);
+    flex-shrink: 0;
+    display: flex;
+    padding: 20px;
+}
+
+.new-chat-btn {
+    height: 44px;
+    width: 100%;
+    background-color: #005758;
+    color: #FFFFFF;
+    border-color: transparent;
+    border-radius: 8px;
+}
+
+.new-chat-btn:hover {
+    background-color: #337979 !important;
+}
+
+.new-chat-btn:active {
+    background-color: #004646 !important;
+    cursor: pointer !important;
+}
+
+.gap-20 {
+    gap: 20px;
+}
+
+.gpt-chat-box {
+    background-color: #F2F2F2;
+    color: black;
+}
+
+.br-8 {
+    border-radius: 8px;
+}
+
+.chat-content-area {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: calc(100vh - 285px);    
+    scroll-behavior: smooth;
+}
+
+.chat-inputs-container {  
+  position: fixed;
+  bottom: 45px;
+  right: 42px;
+  z-index: 100;
+  transition: margin-left 0.25s ease-out;  
+}

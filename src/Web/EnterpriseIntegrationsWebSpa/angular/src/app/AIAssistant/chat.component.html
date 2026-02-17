@@ -1,0 +1,254 @@
+<!--<div class="container mt-1 mb-1">
+    <div class="form-group me-2 mb-2">
+      <label for="assistantType" class="mb-2">Assistant Type:</label>
+      <select id="programType" class="form-select form-select-sm" [(ngModel)]="assistantService.assistanId" name="assistantSelectionId" (change)="reloadPageWithNewRoute()">
+        <option value="asst_0yeESUiA8vHOuAt4K9wVdeu1">ION Revenue Assistant</option>
+      </select>
+    </div>-->
+
+    <!-- Submit Button -->
+    <!--<div class="form-group mb-2" style="margin-top: 30px;">
+      <button type="submit" class="btn btn-sm btn-primary">
+        <i class="fas fa-search"></i> Submit
+      </button>
+    </div>
+</div>-->
+<div class="d-flex" id="wrapper">
+  <!-- Sidebar-->
+  <div class="border-end bg-white" id="sidebar-wrapper">
+    <div class="chat-btn p-2" (click)="createThread()">
+      <span>+ New Chat</span>
+
+    </div>
+
+    <div class="list-group list-group-flush">
+      <div class="thread-list mt-2 " *ngIf="assistantService.userThreads && assistantService.userThreads.length > 0 ">
+
+        <div *ngFor="let thread of assistantService.userThreads" class="list-group-item list-group-item-action list-group-item-light p-2 thread-item" [class.active-thread]="thread.id === assistantService.threadId">
+          <!--{{ thread.created_at * 1000 | date:'medium' }}-->
+
+          <span (click)="onThreadClick(thread.id)">
+            {{ thread.summary ? getFirstThreeWords(thread.summary) : (thread.created_at * 1000 | date:'medium') }}
+            <mat-progress-bar *ngIf="showLoader && thread.id == assistantService.threadId" class="mt-1" mode="indeterminate"></mat-progress-bar>
+
+          </span>
+
+          <input *ngIf="editingThreadId === thread.id" [(ngModel)]="tempSummary"
+                 type="text" class="form-control form-control-sm"
+                 (blur)="saveEdit(thread.id)" autofocus>
+
+          <!--<i *ngIf="thread.id === assistantService.threadId" class="fas fa-arrow-right text-secondary"></i>--> <!-- Replace with your icon -->
+
+          <div class="thread-tooltip" *ngIf="thread.summary != null && thread.summary !=''">
+            <span class="tooltip-summary">{{ thread.summary || '' }}</span>
+            <span class="tooltip-date">{{ thread.created_at * 1000 | date:'medium' }}</span>
+          </div>
+          <!--<i *ngIf="!(thread.id === assistantService.threadId)" class="fas fa-trash delete-icon" (click)="$event.stopPropagation(); deleteThread(thread.id)"></i>-->
+
+          <div class="dropdown">
+            <i class="fas fa-ellipsis-v text-secondary" id="dropdownMenuButton{{thread.id}}" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.stopPropagation();"></i>
+            <ul class="dropdown-menu" [attr.aria-labelledby]="'dropdownMenuButton' + thread.id">
+              <li *ngIf="!(thread.id === assistantService.threadId)"><a class="dropdown-item" (click)="deleteThread(thread.id)"><i class="fas fa-trash"></i> Delete</a></li>
+              <li><a class="dropdown-item" (click)="startEditing(thread.id, thread.summary)"><i class="fas fa-edit"></i> Rename</a></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+
+    </div>
+
+    <div class="p-3 d-flex align-items-center justify-content-center mt-auto flex-grow-0">
+      <div class="api-key p-2 mb-2" *ngIf="assistantService.isIon" data-bs-toggle="modal" data-bs-target="#apiKeyModal">
+        Provide ION Api Token
+      </div>
+    </div>
+  </div>
+
+
+  <div id="page-content-wrapper">
+    <!-- Page content-->
+    
+    <div class="container-fluid  d-flex flex-column" style="">
+     
+      <div class="chat-content-area " style="margin-bottom:100px;">
+        <div class="d-flex align-items-center">
+          <div class="form-group me-2 mb-2 d-flex align-items-center">
+            <label for="assistantType" class="me-2">Choose Assistant</label>
+            <select id="assistantType" class="form-select form-select-sm" [(ngModel)]="assistantService.assistanId" name="assistantSelectionId" (change)="reloadPageWithNewRoute()">
+              <!--<option value="asst_0yeESUiA8vHOuAt4K9wVdeu1">ION Cloud Data Assistant</option>
+  <option value="asst_nwtVcw8HA2DigwzvkU7dZBee">ADO Data Discovery Assistant</option>
+  <option value="asst_pfeJc8dTC4O2FsD6GhpcjHH3">ION Ecommerce Assistant</option>
+  <option value="asst_6YVWwOymaMeATpZACxsJqULo">EBC Data Discovery Assistant</option>-->
+
+              <option value="asst_cS1NDS38FmKLd1cbMLes3X6P">ION Cloud Data Assistant</option>
+              <option value="asst_yR9Jj0aOKqtkKsdUqxV4PWC2">EBC Data Discovery Assistant</option>
+              <!--<option value="asst_3yF8uqOZJadcL19H12f496VJ">ADO Data Discovery Assistant</option>-->
+              <option value="asst_Ch8CEc5m1Gy7aeSeRmc9Qr6f">ION Ecommerce Assistant</option>
+            </select>
+          </div>
+
+          <!-- Submit Button -->
+          <!--<div class="form-group mb-2" style="">
+            <button type="button" class="btn btn-sm btn-primary" (click)="reloadPageWithNewRoute()">
+              <i class="fas fa-search"></i> Submit
+            </button>
+          </div>-->
+        </div>
+          <div class="d-flex flex-column flex-sm-row gpt-chat-box p-3">
+
+            <div class="chat-icon flex-shrink mb-2 mb-sm-0">
+              <img class="chatgpt-icon" src="../../assets/images/chatgpt-icon.png" />
+            </div>
+            <div class="chat-txt" *ngIf="assistant">
+              <div class="col-12 d-flex justify-content-end">
+                <i id="toggleIcon" class="fas fa-eye me-2   text-primary" title="Toggle Prompts" (click)="togglePrompts();"></i>
+              </div>
+
+              <div class="mb-1">
+                <markdown *ngIf="apiDataService " [data]="assistant.initialWelcomeText"></markdown>
+              </div>
+              <div class="mb-1" *ngIf="assistantService.showPrompts">
+                <div *ngIf="!assistantService.isIon">
+                  <markdown>Here are categories and sample prompts for retrieving real time data using natural language. Once the data is returned, you can continue to interact with AI to explore further and ask questions.</markdown>
+                </div>
+                <div *ngIf="assistant.prompts.length > 0">
+                  
+                  <div *ngIf="assistant.prompts.length > 1" class="row row-cols-2 row-cols-md-4 g-2 text-sm-start mb-3 mt-2">
+                    <div class="col" *ngFor="let func of assistant.prompts; let i = index">
+                      <button type="button"
+                              class="btn btn-sm shadow-none w-100"
+                              [ngClass]="{'btn-primary-light': selectedFunction === i, 'btn-light': selectedFunction !== i}"
+                              (click)="selectFunction(i)">
+                        {{ func.name }}
+                      </button>
+                    </div>
+                  </div>
+                  <div *ngIf="selectedFunction !== null">
+                    <div class="row row-cols-1 row-cols-md-4 g-2 text-sm-start" style="font-size:12px !important; padding:-1px;">
+                      <div class="col" style="cursor: pointer;" (click)="loadPrompt(item.prompt)" *ngFor="let item of getLimitedPrompts(assistant.prompts[selectedFunction].prompts)">
+                        <div class="card h-100">
+                          <div class="card-body p-1">
+                            <p class="card-text" style="font-size:13px;">{{ item.prompt }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="assistant.prompts[selectedFunction].prompts.length > promptsLength">
+                      <a href="#" (click)="toggleShowMore($event)">{{ showMore ? 'Show less' : 'Show more' }}</a>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <div *ngIf="messages && messages.length > 0">
+
+            <div *ngFor="let item of messages">
+              <!--{{item|json}}
+    <!-- START USER CHAT -->
+              <div class="d-flex flex-column flex-sm-row user-chat-box  p-2" *ngIf="item.role === 'user'">
+                <div class="chat-icon flex-shrink mb-2 mb-sm-0">
+                  <img class="chatgpt-icon" src="../../assets/images/user-icon.png" />
+                </div>
+                <div class="chat-txt">
+                  <div>
+                    {{item.content[0].text.value}}
+
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- START GPT CHAT -->
+              <div class="d-flex flex-column flex-sm-row gpt-chat-box p-2" *ngIf=" (item.role === 'assistant' || item.role === 'tool')  " style="overflow-x:auto;">
+                <div class="chat-icon flex-shrink mb-2 mb-sm-0">
+                  <img class="chatgpt-icon" src="../../assets/images/chatgpt-icon.png" />
+                </div>
+                <div class="chat-txt">
+
+                  <!--<mat-progress-bar *ngIf="item.showLoader | async" class="mt-1" mode="indeterminate" style="width: 100%;"></mat-progress-bar>-->
+                  <!-- && item.content && item.content.length > 0 && item.content[0].text.value && item.content[0].text.value != '' && !item.content[0].text.value.startsWith('{{DataFromApi}}')"-->
+                  <div *ngIf="!item.openAiResult" [style.max-height]=" 'auto'" style="overflow-y:auto;">
+
+                    <markdown [data]="item.content[0].text.value | extractTextBeforeJson"></markdown>
+
+                  </div>
+                  <div *ngIf="item.openAiResult" [style.max-height]="'auto'" style="overflow-y:auto; ">
+
+                    <markdown [data]="item.openAiResult | async"></markdown>
+
+                  </div>
+                  <!--{{item.content[0].text.value | extractChartJsonObject | json}}-->
+                  <app-chart *ngIf="item.content[0].text.value && item.content[0].text.value != ''" [chartData]="item.content[0].text.value | extractChartJsonObject"></app-chart>
+
+                  <div style="margin-left:10px; margin-top:10px;" *ngIf="item.components ">
+                    <div *ngFor="let component of item.components" class="mb-2">
+                      <ndc-dynamic [ndcDynamicComponent]="component.outputComponent" [ndcDynamicInputs]="component.compInputs" [ndcDynamicOutputs]="component.compOutputs"></ndc-dynamic>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            <mat-progress-bar *ngIf="showLoader" class="mt-1" mode="indeterminate" style="width: 100%;"></mat-progress-bar>
+
+            <div *ngIf="systemMessage">
+              <div class="chat-icon col-1 text-red">&nbsp;&nbsp;</div><div class="col-11 m-1  mat-mdc-form-field-error">
+                {{
+systemMessage
+                }}
+              </div>
+            </div>
+          </div>
+          <div [ngStyle]="{'left': isSidebarToggled || isPhoneScreen ? '0' : '15rem', 'right': '0'}" [ngClass]="{'sidebar-toggled': isSidebarToggled }" class="chat-inputs-container m-3 d-flex align-items-center mt-auto ">
+            <div class="p-2" style="font-size: 22px; cursor: pointer;" (click)="toggleListening()">
+              <i class="fas" [class.fa-microphone]="isListening" [class.fa-microphone-slash]="!isListening"></i>
+            </div>
+            <div class="vertical-center  flex-grow-1 ps-2">
+              <textarea name="message" id="message" class="w-100" [(ngModel)]="message" #textareaRef="ngModel" (input)="adjustTextareaHeight($event)"
+                        required placeholder="You can speak or type a message"
+                        (keydown)="checkForEnter($event)"></textarea>
+            </div>
+            <div class="ms-auto p-2" style="font-size: 20px;  cursor: pointer;" (click)="submitMessage()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-send-arrow-down" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M15.854.146a.5.5 0 0 1 .11.54l-2.8 7a.5.5 0 1 1-.928-.372l1.895-4.738-7.494 7.494 1.376 2.162a.5.5 0 1 1-.844.537l-1.531-2.407L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM5.93 9.363l7.494-7.494L1.591 6.602z"></path>
+              <path fill-rule="evenodd" d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.354-1.646a.5.5 0 0 1-.722-.016l-1.149-1.25a.5.5 0 1 1 .737-.676l.28.305V11a.5.5 0 0 1 1 0v1.793l.396-.397a.5.5 0 0 1 .708.708z"></path>
+            </svg>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    <!--<div class="row ms-3" *ngIf="systemMessage">
+      <div class="chat-icon col-1 text-red">&nbsp;&nbsp;</div><div class="col-11 m-1  mat-mdc-form-field-error">
+        {{
+systemMessage
+        }}
+      </div>
+    </div>-->
+
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="apiKeyModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" #apiKeyModal>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLabel">ION API Token</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" *ngIf="apiDataService">
+        <input type="text" class="form-control" [(ngModel)]="apiDataService.ionApiKey" placeholder="">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" (click)="setKey()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>

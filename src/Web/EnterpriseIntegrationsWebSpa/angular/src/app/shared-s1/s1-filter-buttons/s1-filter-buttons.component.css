@@ -1,0 +1,92 @@
+/* Filter button */
+
+.filter-btn-container {
+    height: 44px;
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    background-color: #F8F8F8;
+    border: 1px solid transparent;
+    outline: none;
+    align-items: center;
+    gap: 8px;
+}
+.filter-btn-container:hover {
+    cursor: pointer;
+    background-color: #E4E5E6 !important;    
+}
+.filter-btn-text-holder {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 150%;
+    color: #262626;
+}
+.filter-btn-container.filter-btn-selected {
+    background-color: #EBEEEF !important;
+    .filter-btn-text-holder {
+        color: #005758 !important;
+        font-weight: 700;
+    }
+}
+.filter-btn-container.filter-btn-selected:hover {
+    border: 1px solid #005758 !important;
+}
+.filter-close-btn {   
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+.filter-btn-container.filter-btn-selected .filter-close-btn:hover img {
+    content: url('/assets/dismiss_btn_hover_red_selected_24_24.svg');
+}
+.filter-close-btn:hover img{
+    content: url('/assets/dismiss_btn_hover_red_24_24.svg');
+}
+/* Add Filter button */
+.add-filter-btn {
+    width: 118px;
+    height: 44px;
+    border: 1px solid #005758;
+    background-color: transparent;
+}
+.add-filter-btn:hover {
+    background-color: rgba(0, 87, 88, 0.1) !important;
+    cursor: pointer;
+}
+.add-filter-btn:active {
+    background-color: rgba(0, 87, 88, 0.2) !important;
+    cursor: pointer;
+}
+/* Reset filter button */
+.reset-filter-btn {
+    width: 137px;
+    height: 44px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    
+}
+.reset-filter-btn:hover {
+    cursor: pointer;
+    background-color: rgba(0, 87, 88, 0.1) !important;
+}
+.reset-filter-btn:active {
+    cursor: pointer;
+    background-color: rgba(0, 87, 88, 0.2) !important;
+}
+/* Common btn text bold */
+.btn-common {
+    color: #005758;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 150%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 8px;
+    padding: 12px 20px;
+}

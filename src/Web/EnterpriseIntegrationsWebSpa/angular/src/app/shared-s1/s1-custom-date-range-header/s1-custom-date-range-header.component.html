@@ -1,0 +1,31 @@
+<!-- Custom btn for quick selection of date ranges as per business req. -->
+<div class="header-container">
+    <button 
+        class="button" 
+        *ngFor="let button of buttonsList" 
+        [ngStyle]="{'width': button.width}" 
+        [ngClass]="{'selected': button.selected}" 
+        (click)="btnClickHandler(button)"
+        [attr.aria-label]="'Select ' + button.ariaLabel + ' range'"
+        [attr.aria-selected]="button.selected"
+        tabindex="0"
+    >
+        {{button.displayName}}
+    </button>    
+</div>
+<!-- Do not modify the below part. Used to navigate the year & month in calendar header -->
+<div class="nav-container">
+    <button class="nav-btn" (click)="previousHandler('year')" [attr.aria-label]="'Previous Year'"> <!---->
+        <img src="/assets/arrow_left_double_16_16.svg" alt="Previous Year">
+    </button>
+    <button class="nav-btn" (click)="previousHandler('month')" [attr.aria-label]="'Previous Month'"> <!---->
+        <img src="/assets/arrow_left_16_16.svg" alt="Previous Month">
+    </button>
+    <div class="nav-label">{{periodLabel}}</div>
+    <button class="nav-btn" (click)="nextHandler('month')" [attr.aria-label]="'Next Month'"> <!---->
+        <img src="/assets/arrow_right_16_16.svg" alt="Next Month">
+    </button>
+    <button class="nav-btn" (click)="nextHandler('year')" [attr.aria-label]="'Next Year'"> <!---->
+        <img src="/assets/arrow_right_double_16_16.svg" alt="Next Year">
+    </button>
+</div>

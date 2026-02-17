@@ -1,0 +1,53 @@
+<div class="filter-container">
+    <div class="title-container">{{inputData.description}}</div>
+    <div class="min-container">
+        <div class="min-title">{{inputData.minTitle}}</div>
+        <div class="min-holder">
+            <div class="input-wrapper" [ngClass]="{'input-wrapper-active': isMinFocused, 'input-wrapper-warning': enableValidation}">
+                <div class="input-container">
+                    <input 
+                        class="input-field" 
+                        type="number" 
+                        [(ngModel)]="min" 
+                        (focus)="focusHandler('min', true)"
+                        (blur)="focusHandler('min', false)" 
+                        (keyup)="keyUpHandler('min')"
+                        [placeholder]="inputData.minPlaceholder"
+                    />
+                </div>
+                <button class="clear-btn-holder" *ngIf="minClearBtn && !enableValidation" (click)="clearBtnHandler('min')" (keydown.enter)="clearBtnHandler('min')" (keydown.space)="clearBtnHandler('min')">
+                    <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss">
+                </button>
+                <div class="warning-holder" *ngIf="enableValidation">
+                    <img src="/assets/warning_icon_validation_16_16.svg" alt="warning">
+                </div>
+            </div>
+        </div>
+        <div *ngIf="enableValidation && !min" class="validation-error">Minimum value is required.</div>
+    </div>
+    <div class="max-container">
+        <div class="max-title">{{inputData.maxTitle}}</div>
+        <div class="max-holder">
+            <div class="input-wrapper" [ngClass]="{'input-wrapper-active': isMaxFocused, 'input-wrapper-warning': enableValidation}">
+                <div class="input-container">
+                    <input 
+                        class="input-field" 
+                        type="number" 
+                        [(ngModel)]="max" 
+                        (focus)="focusHandler('max', true)" 
+                        (blur)="focusHandler('max', false)"
+                        (keyup)="keyUpHandler('max')" 
+                        [placeholder]="inputData.maxPlaceholder"
+                    />
+                </div>
+                <button class="clear-btn-holder" *ngIf="maxClearBtn && !enableValidation" (click)="clearBtnHandler('max')" (keydown.enter)="clearBtnHandler('max')" (keydown.space)="clearBtnHandler('max')">
+                    <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss">
+                </button>
+                <div class="warning-holder" *ngIf="enableValidation">
+                    <img src="/assets/warning_icon_validation_16_16.svg" alt="warning">
+                </div>                             
+            </div>
+        </div>
+        <div *ngIf="enableValidation" class="validation-error">Value should be greater than the minimum value.</div>
+    </div>
+</div>

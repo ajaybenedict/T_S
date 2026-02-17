@@ -1,0 +1,77 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light" style="padding-left: 40px; padding-bottom: 0px !important;">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto custom-text-decoration d-flex justify-content-between" style="gap: 28px;">
+            <li class="nav-item">
+                <a style="cursor: pointer" class="nav-link custom-text-decoration"
+                    (click)="selectLink('Needs Approval')" [class.selected]="selectedLink === 'Needs Approval'">Needs
+                    Approval</a>
+            </li>
+            <li class="nav-item">
+                <a style="cursor: pointer" class="nav-link custom-text-decoration" (click)="selectLink('Approved')"
+                    [class.selected]="selectedLink === 'Approved'">Approved</a>
+            </li>
+            <li class="nav-item">
+                <a style="cursor: pointer" class="nav-link custom-text-decoration" (click)="selectLink('Declined')"
+                    [class.selected]="selectedLink === 'Declined'">Declined</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container-fluid" [formGroup]="filterForm">
+    <div class="row col-md-12">
+        <div class="input-group col-md-4">
+            <div class="form-group has-search">
+                <i class="bi bi-search form-control-feedback"></i>
+                <input type="text" class="form-control" placeholder="Search Sales Order Number" formControlName="search">
+            </div>
+        </div>
+        <div class="col-md-8 d-flex justify-content-end" style="margin-left: auto">
+                
+            <button *ngIf="selectedCountries?.length > 0 || selectedDate"
+                class="col-md-2 btn btn-link btn-outline-secondary clearall-btn" type="button" (click)="clearAll()">
+                Clear All
+            </button>
+            <button class="col-md-1 btn btn-link filter-button" type="button" (click)="hideFilter(isFilterVisible)">
+                <img src="../assets/filterIcon.svg" alt="SVG Icon" style="width: 16px;height: 18px;"> FILTER
+            </button>
+            <div class="dropdown col-md-1.5 custom-dropdown d-flex justify-content-end" *ngIf="isFilterVisible">
+                <span *ngIf="showdate" class="count-text">{{this.datepickCount}}</span>
+                <button class="btn btn-outline-secondary dropdown-toggle dropdown-text" type="button"
+                    id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    DATE PICK
+                </button>
+                <ul class="dropdown-menu custom-list" aria-labelledby="dropdownMenuButton1">
+                    <label class="dropdown-item" *ngFor="let item of datepickData">
+                        <input type="radio" [value]="item.value" (click)="selectDate(item)"
+                            (mousedown)="preventClose($event)" formControlName="datePick">
+                        {{ item.value }}
+                    </label>
+                    <li class="dropdown-divider"></li>
+                    <li class="dropdown-item d-flex justify-content-end botton-area">
+                        <button class="btn clear-button" (click)="clearDate()">CLEAR</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="dropdown col-md-1.5 custom-dropdown d-flex justify-content-end" *ngIf="isFilterVisible">
+            <span *ngIf="showCountryCount" class="count-text">{{this.countryCount}}</span>
+                <button class="btn btn-outline-secondary dropdown-toggle dropdown-text" type="button"
+                    id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    COUNTRY
+                </button>
+                <ul class="dropdown-menu " aria-labelledby="dropdownMenuButton1">                    
+                    <div class="custom-list"  formArrayName="country">
+                    <label class="dropdown-item" *ngFor="let item of countries; let i = index">
+                        <input type="checkbox" [formControlName]="i" (change)="onCheckboxChange(i,item)">
+                        {{ item.name }}
+                    </label>
+                    <li class="dropdown-divider"></li>
+                    <li class="dropdown-item d-flex justify-content-end botton-area">
+                        <button class="btn clear-button" (click)="clearCheckboxes()">CLEAR</button>
+                    </li>
+                </div>
+                </ul>
+            </div>
+            
+        </div>
+    </div>
+</div>

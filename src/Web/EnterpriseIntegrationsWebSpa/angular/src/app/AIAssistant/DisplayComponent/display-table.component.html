@@ -1,0 +1,47 @@
+
+<div  *ngIf="displayedColumns && displayedColumns.length >0 && configuration">
+  <table mat-table [dataSource]="dataSourceTable"  class="mat-elevation-z8">
+
+    <!-- Dynamically create table columns based on the JSON data -->
+    <ng-container *ngFor="let column of configuration.columns" [matColumnDef]="column.id">
+      <th mat-header-cell *matHeaderCellDef > {{ column.name }} </th>
+      <td mat-cell *matCellDef="let element">
+        <span *ngIf="column.markdown">
+          <markdown>
+            {{ column.markdown | fieldTransform: element }}
+          </markdown>
+        </span>
+
+        <div *ngIf="!column.markdown" [innerHtml]="(column.type && column.type == 'date') ? (element[column.id] | date:'medium')  : element[column.id]">
+
+        </div>
+      </td>
+
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <div class="d-flex justify-content-end mt-2"  *ngIf="displayedColumns && displayedColumns.length >0 && pagination">
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <!-- Previous Page Button -->
+        <li class="page-item" style="margin-right:10px;" [class.disabled]="pageTokens.length <= 1">
+          <a class="page-link" href="#" (click)="loadPreviousPage(); $event.preventDefault()" aria-label="Previous">
+            <span aria-hidden="true">&laquo; Previous</span>
+          </a>
+        </li>
+
+        <!-- Next Page Button -->
+        <li class="page-item" [class.disabled]="!pagination.nextPageToken">
+          <a class="page-link" href="#" (click)="loadNextPage(); $event.preventDefault()" aria-label="Next">
+            <span aria-hidden="true">Next &raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+
+</div>

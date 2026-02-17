@@ -1,0 +1,65 @@
+.thread-wrapper {
+    height: 40px;
+    border-radius: 4px;
+    padding: 8px;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 100%;
+    color: #262626;
+}
+
+.thread-wrapper.active {
+    background-color: #F8F8F8;
+}
+
+.thread-wrapper:hover {
+    background-color: #F8F8F8;
+    cursor: pointer;    
+}
+
+.more-icon {
+    display: none;
+    border: none;
+    outline: none;
+    padding: 0px;
+    background-color: transparent;
+}
+
+.thread-wrapper:hover .more-icon {
+    display: block;
+}
+
+.thread-wrapper.active .more-icon {
+    display: block;
+}
+
+.thread-wrapper.edit-mode {
+    border: 1px solid #005758;
+    background-color: #F8F8F8;
+}
+
+.input-field {
+    border: none;
+    outline: none;
+    background-color: #F8F8F8;
+    font-weight: 400;
+    font-size: 16px;
+}
+
+/* alter the menu styles for thread component */
+::ng-deep .mat-mdc-menu-content {
+    padding: 10px !important;
+}
+
+::ng-deep .mat-mdc-menu-item {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+.more-icon:hover ::ng-deep .s1-menu-btn img {
+    content: url('/assets/thread_more_icon_hover_24_24.svg');
+}
+
+.thread-wrapper.active .more-icon ::ng-deep .s1-menu-btn img {
+    content: url('/assets/thread_more_icon_hover_24_24.svg');
+}

@@ -1,0 +1,21 @@
+.snack-bar-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background-color: #262626;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+.snack-bar-content {
+    font-weight: 400;
+    color: #FFFFFF;
+    font-size: 16px;
+    line-height: 21px;
+}
+.snack-bar-btn {
+    border: none;
+    outline: none;
+    background-color: transparent;
+}

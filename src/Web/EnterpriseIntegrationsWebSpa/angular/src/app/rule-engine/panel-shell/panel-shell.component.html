@@ -1,0 +1,17 @@
+<div class="shell-container" *ngIf="panelVisible" @slideInOut (@slideInOut.done)="onAnimationDone()">
+    <ng-container>
+        <section class="shell-holder d-flex flex-column">
+            <div class="shell-header d-flex justify-content-between align-items-center">
+                <app-s1-breadcrumb [inputData]="breadCrumbData"></app-s1-breadcrumb>
+                <button type="button" class="dismiss-btn" aria-label='Dismiss' (click)="dismissPanel()">
+                    <img src="/assets/dismiss_btn_44_44.svg" alt="Dismiss">
+                </button>
+            </div>
+        </section>
+        <router-outlet name="ruleEngineOutlet"></router-outlet>
+    </ng-container>    
+    <div class="mt-2 d-flex gap-2 align-items-center justify-content-center footer-disclaimer-text s1-C-Stone">
+        <img src="/assets/info_icon_16_16.svg" alt="info">
+        <span>{{disclaimerText}}</span>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+<!-- Filter button -->
+ <ng-container *ngIf="input">
+     <button 
+         type="button" 
+         class="filter-btn-container" 
+         *ngIf="input.type == 'filter' && input.onClickEvent" 
+         [ngClass]="{'filter-btn-selected': input.selected}" 
+         [attr.aria-selected]="input.selected" 
+         [attr.aria-label]="input.displayName"
+         (click)="btnClickHandler(input.onClickEvent)"
+         tabindex="0"
+     >
+         <div class="filter-btn-text-holder">
+             <div class="filter-btn-text">{{input.displayName}}</div>
+             <div class="filter-btn-number" *ngIf="input.selectedCount">&nbsp;{{'(' + input.selectedCount + ')'}}</div>
+         </div>
+         <div 
+             class="filter-close-btn" 
+             *ngIf="input.hasCloseBtn" 
+             (click)="dismissBtnHandler($event)"
+             (keydown.enter)="dismissBtnHandler($event)"
+             (keydown.space)="dismissBtnHandler($event)"        
+         >
+             <img src="/assets/dismiss_btn_24_24.svg" alt="Dismiss">
+         </div>
+     </button>
+     <!-- Reset filter button -->
+     <button 
+         type="button" 
+         *ngIf="input.type == 'reset'"
+         class="reset-filter-btn btn-common"
+         [attr.aria-label]="'Reset Filters'"
+         (click)="btnClickHandler('ResetFilter')"
+     >
+         Reset Filters
+     </button>
+     <!-- Add filter button -->
+     <button 
+         type="button" 
+         *ngIf="input.type == 'add'"
+         class="add-filter-btn btn-common"
+         [attr.aria-label]="'Add Filter'"
+         (click)="btnClickHandler('AddFilter')"
+     >
+         Add Filter
+     </button>
+ </ng-container>

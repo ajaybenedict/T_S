@@ -1,0 +1,15 @@
+<div class="ppc-file-name-container">
+    <div class="ppc-file-name-and-img-wrapper">
+        <img src="/assets/filename.svg" width="24" height="24" alt="FileName">
+        <div #el class="ppc-file-name-wrapper" [matTooltip]="_fileName ?? ''" [matTooltipPosition]="'above'">
+            <span>{{_fileName}}</span>                                       
+        </div>
+    </div>
+    <div class="ppc-file-name-download-img-wrapper" *ngIf="isDownloadable">
+        <img src="/assets/download_arrow_16_16.svg" alt="DownloadArrow" (click)="downloadClick()">
+    </div>
+    <button type="button" s1-button [iconOnly]="true" *ngIf="isClosable" (click)="dismissClicked.emit()">
+        <img src="/assets/dismiss_btn_24_24.svg" class="default" alt="Dismiss">
+        <img src="/assets/dismiss_btn_hover_red_24_24.svg" class="hover" alt="Dismiss">        
+    </button>
+</div>

@@ -1,0 +1,65 @@
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    gap: 8px;
+}
+.custom-checkbox.disabled {
+    cursor: not-allowed !important;
+}
+.checkmark-holder {
+    width: 24px;
+    height: 24px;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.custom-checkbox:hover .checkmark-holder:not(.custom-checkbox.disabled .checkmark-holder) {
+    background-color: rgba(0, 87, 88, 0.1);
+}
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #005758;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+.checkmark.checked {
+    background-color: #005758;
+}
+.checkmark.disabled {
+    border-color: #888B8D !important;    
+}
+.checkmark.checked.disabled {
+    background-color: #888B8D !important;
+}
+.checkmark-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.checkmark.checked .checkmark-icon {
+    opacity: 1;
+}
+.checkmark .indeterminate-icon {
+    background-color: #005758;
+}
+.indeterminate-icon {
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+    width: 14px;
+    height: 14px;
+}
+.label {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 150%;
+    color: #262626;
+}

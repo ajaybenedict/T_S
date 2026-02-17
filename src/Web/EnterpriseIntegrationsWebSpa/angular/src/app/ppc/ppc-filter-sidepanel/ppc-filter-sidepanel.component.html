@@ -1,0 +1,33 @@
+<section class="panel">
+    <header class="panel-header">
+        <div class="header-text">Filters</div>
+        <div class="header-actions">
+            <button type="button" class="dismiss-btn" (click)="dismissPanel()" aria-label="Dismiss">
+                <img src="/assets/dismiss_btn_24_24.svg" alt="Dismiss">
+            </button>
+        </div>
+    </header>
+    <div class="dynamic-content-holder"> <!--This div is a workaround to hold elements correctly-->
+        <div class="panel-btn-holder">
+            <app-s1-filter-button-container [btnList]="btnList" (btnClick)="btnContainerClickEventHandler($event)"></app-s1-filter-button-container>
+        </div>
+        <div class="panel-content-holder">       
+            <div class="panel-content" [ngSwitch]="selectedFilter">
+                <!-- Order Value -->
+                <app-s1-filter-numeric-field *ngSwitchCase="filterConfigData[filterEnum.OrderValue].onClickEvent" [inputData]="orderValueData" (minMaxFilterOutput)="orderValueEventHandler($event)"></app-s1-filter-numeric-field>
+                <!-- Country/Region -->
+                <ng-container *ngSwitchCase="filterConfigData[filterEnum.Country].onClickEvent">
+                    <div [ngClass]="{'top-border': i!=0 }" *ngFor="let checkbox of countryRegionCheckbox; let i = index;">
+                        <app-s1-group-checkbox [inputData]="checkbox" (checked)="regionCountryEventHandler($event)"></app-s1-group-checkbox>
+                    </div>
+                </ng-container>
+                <!-- Approval Type -->
+                <app-s1-description-checkbox *ngSwitchCase="filterConfigData[filterEnum.ApprovalType].onClickEvent" [inputData]="approvalTypeCheckbox" (checked)="approvalTypeEventHandler($event)"></app-s1-description-checkbox>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <button type="button" class="reset-btn" (click)="reset()" aria-label="Reset">Reset All</button>
+        <button type="button" class="apply-btn" (click)="applyFilter()" aria-label="Apply">Apply</button>
+    </div>
+</section>

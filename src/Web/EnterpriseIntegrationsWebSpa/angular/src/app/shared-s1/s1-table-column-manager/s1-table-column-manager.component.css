@@ -1,0 +1,120 @@
+.column-panel {
+  position: fixed;
+  top: 68px; /* below header */
+  right: 0;
+  width: 280px;
+  height: calc(100% - 68px); /* fill remaining height */
+  background: #fff;  
+  border: 1px solid #D9D8D7;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #E4E5E6;
+}
+
+.panel-content {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  flex: 1;
+  gap: 20px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.column-list {  
+  overflow-y: auto;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.column-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border: 1px solid #E4E5E6;  
+  gap: 8px;
+  transition: transform 200ms ease, background-color 200ms ease, border-color 200ms ease;
+}
+
+.column-item:hover, .column-item:active {
+  background-color: #F8F8F8;
+}
+
+.panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid #E4E5E6;
+  height: 76px;
+}
+
+/* Placeholder */
+.cdk-drag-placeholder {
+  border: 2px dashed #E4E5E6;
+  min-height: 40px;
+  opacity: 0.6;
+}
+
+/* Dragging item in the list (original) */
+.column-item.cdk-drag-dragging {
+  background-color: #F8F8F8;   /* light teal background */
+  border: 1px dashed #00a0a0; /* dashed border */
+  opacity: 0.5;
+  cursor: grabbing !important;
+  transition: none;
+}
+
+.column-item.cdk-drag-dragging .drag-icon {
+  cursor: grabbing;
+}
+
+.drag-icon {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding: 0px;
+}
+
+.drag-icon:hover img {
+  content: url('/assets/drag_handle_hover_icon_40_40.svg');  
+}
+
+
+/* Ensure the handle always shows grab/grabbing */
+.drag-icon,
+.drag-icon img {
+  cursor: grab;
+}
+.column-item.cdk-drag-dragging .drag-icon,
+.column-item.cdk-drag-dragging .drag-icon img {
+  cursor: grabbing !important;
+}
+
+/* Floating preview (the one that follows the mouse) */
+.cdk-drag-preview {
+  background-color: #F8F8F8;  /* match the dragged style */
+  border: 1px dashed #00a0a0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.03);
+  cursor: grabbing !important;
+}
+
+/* While dragging, force hover icon */
+.column-item.cdk-drag-dragging .drag-icon img,
+.cdk-drag-preview .drag-icon img {
+  content: url('/assets/drag_handle_hover_icon_40_40.svg') !important;
+  cursor: grabbing !important;
+}

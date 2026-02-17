@@ -1,0 +1,33 @@
+<section class="rule-expression-holder" *ngIf="expressions.length">
+    <div class="rule-expression-container d-flex flex-column">
+        <div class="rule-row d-flex justify-content-around align-items-center">
+            <span class="fw-bold s1-C-Charcoal">If</span>
+            <div class="rule-input-holder d-flex">
+                <div class="expression">{{getAttributeString(firstRow) | normalizeString}}</div>
+                <div class="expression">{{firstRow.operator}}</div>
+                <div class="expression">{{getValueString(firstRow) | normalizeString}}</div>
+            </div>
+        </div>
+        <div class="other-row-holder d-flex" *ngIf="otherRows.length">
+            <div class="ms-3 d-flex flex-column gap-4">
+                <ng-container *ngFor="let row of otherRows">
+                    <div class="rule-row d-flex gap-3 align-items-center justify-content-between">
+                        <span class="fw-bold s1-C-Charcoal">{{row.logicalOperator?.name}}</span>
+                        <div class="row-input-holder d-flex">
+                            <div class="expression">{{getAttributeString(row) | normalizeString}}</div>
+                            <div class="expression">{{row.operator}}</div>
+                            <div class="expression">{{getValueString(row) | normalizeString}}</div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <div class="rule-action-container d-flex justify-content-between">
+        <span class="fw-bold s1-C-Charcoal">Then</span>
+        <div class="expression d-flex gap-2">
+            <img *ngIf="actionImg" [src]="actionImg" [alt]="action ? action.toLowerCase() : null">
+            <span *ngIf="action">{{action}}</span>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,167 @@
+<!-- dynamic-chart.component.html -->
+<div *ngIf="chartData" style="display: block;width: 800px; height: 100%; background-color:white;" class="mt-2 p-2">
+
+  <!-- Bar Vertical Chart -->
+  <ngx-charts-bar-vertical *ngIf="chartData.chartType === 'bar-vertical'"
+                           [view]="chartData.view"
+                           [scheme]="colorScheme"
+                           [results]="chartData.chartData"
+                           [gradient]="chartData.gradient"
+                           [xAxis]="chartData.showXAxis"
+                           [yAxis]="chartData.showYAxis"
+                           [legend]="chartData.showLegend"
+                           [showXAxisLabel]="chartData.showXAxisLabel"
+                           [showYAxisLabel]="chartData.showYAxisLabel"
+                           [xAxisLabel]="chartData.xAxisLabel"
+                           [yAxisLabel]="chartData.yAxisLabel"
+                           >
+  </ngx-charts-bar-vertical>
+
+  <!-- Line Chart -->
+  <ngx-charts-line-chart *ngIf="chartData.chartType === 'line-chart'"
+                         [view]="chartData.view"
+                         [scheme]="colorScheme"
+                         [results]="chartData.chartData"
+                         [gradient]="chartData.gradient"
+                         [xAxis]="chartData.showXAxis"
+                         [yAxis]="chartData.showYAxis"
+                         [legend]="chartData.showLegend"
+                         [showXAxisLabel]="chartData.showXAxisLabel"
+                         [showYAxisLabel]="chartData.showYAxisLabel"
+                         [xAxisLabel]="chartData.xAxisLabel"
+                         [yAxisLabel]="chartData.yAxisLabel"
+                         >
+  </ngx-charts-line-chart>
+
+  <!-- Pie Chart -->
+  <ngx-charts-pie-chart *ngIf="chartData.chartType === 'pie-chart'"
+                        [view]="chartData.view"
+                        [scheme]="colorScheme"
+                        [results]="chartData.chartData"
+                        [gradient]="chartData.gradient"
+                        [legend]="chartData.showLegend"
+                        [labels]="chartData.showXAxisLabel"
+                        >
+  </ngx-charts-pie-chart>
+
+  <!-- Bar Horizontal Chart -->
+  <ngx-charts-bar-horizontal *ngIf="chartData.chartType === 'bar-horizontal'"
+                             [view]="chartData.view"
+                             [scheme]="colorScheme"
+                             [results]="chartData.chartData"
+                             [gradient]="chartData.gradient"
+                             [xAxis]="chartData.showXAxis"
+                             [yAxis]="chartData.showYAxis"
+                             [legend]="chartData.showLegend"
+                             [showXAxisLabel]="chartData.showXAxisLabel"
+                             [showYAxisLabel]="chartData.showYAxisLabel"
+                             [xAxisLabel]="chartData.xAxisLabel"
+                             [yAxisLabel]="chartData.yAxisLabel"
+                             >
+  </ngx-charts-bar-horizontal>
+
+  <!-- Stacked Vertical Bar Chart -->
+  <ngx-charts-bar-vertical-stacked *ngIf="chartData.chartType === 'bar-vertical-stacked'"
+                                   [view]="chartData.view"
+                                   [scheme]="colorScheme"
+                                   [results]="chartData.chartData"
+                                   [gradient]="chartData.gradient"
+                                   [xAxis]="chartData.showXAxis"
+                                   [yAxis]="chartData.showYAxis"
+                                   [legend]="chartData.showLegend"
+                                   [showXAxisLabel]="chartData.showXAxisLabel"
+                                   [showYAxisLabel]="chartData.showYAxisLabel"
+                                   [xAxisLabel]="chartData.xAxisLabel"
+                                   [yAxisLabel]="chartData.yAxisLabel"
+                                   >
+  </ngx-charts-bar-vertical-stacked>
+
+  <!-- Stacked Horizontal Bar Chart -->
+  <ngx-charts-bar-horizontal-stacked *ngIf="chartData.chartType === 'bar-horizontal-stacked'"
+                                     [view]="chartData.view"
+                                     [scheme]="colorScheme"
+                                     [results]="chartData.chartData"
+                                     [gradient]="chartData.gradient"
+                                     [xAxis]="chartData.showXAxis"
+                                     [yAxis]="chartData.showYAxis"
+                                     [legend]="chartData.showLegend"
+                                     [showXAxisLabel]="chartData.showXAxisLabel"
+                                     [showYAxisLabel]="chartData.showYAxisLabel"
+                                     [xAxisLabel]="chartData.xAxisLabel"
+                                     [yAxisLabel]="chartData.yAxisLabel"
+                                     >
+  </ngx-charts-bar-horizontal-stacked>
+
+  <!-- Area Chart -->
+  <ngx-charts-area-chart *ngIf="chartData.chartType === 'area-chart'"
+                         [view]="chartData.view"
+                         [scheme]="colorScheme"
+                         [results]="chartData.chartData"
+                         [gradient]="chartData.gradient"
+                         [xAxis]="chartData.showXAxis"
+                         [yAxis]="chartData.showYAxis"
+                         [legend]="chartData.showLegend"
+                         [showXAxisLabel]="chartData.showXAxisLabel"
+                         [showYAxisLabel]="chartData.showYAxisLabel"
+                         [xAxisLabel]="chartData.xAxisLabel"
+                         [yAxisLabel]="chartData.yAxisLabel"
+                         >
+  </ngx-charts-area-chart>
+
+  <!-- Advanced Pie Chart -->
+  <!--<ngx-charts-pie-chart-advanced *ngIf="chartData.chartType === 'advanced-pie-chart'"
+                                 [view]="chartData.view"
+                                 [scheme]="colorScheme"
+                                 [results]="chartData.chartData"
+                                 [gradient]="chartData.gradient"
+                                 [legend]="chartData.showLegend"
+                                 >
+  </ngx-charts-pie-chart-advanced>-->
+
+  <!-- Gauge Chart -->
+  <ngx-charts-gauge *ngIf="chartData.chartType === 'gauge-chart'"
+                    [view]="chartData.view"
+                    [scheme]="colorScheme"
+                    [results]="chartData.chartData"
+                    [angleSpan]="chartData.angleSpan"
+                    [startAngle]="chartData.startAngle"
+                    [units]="chartData.units"
+                    [legend]="chartData.showLegend"
+                    >
+  </ngx-charts-gauge>
+
+  <!-- Number Card -->
+  <!--<ngx-charts-number-card *ngIf="chartData.chartType === 'number-card'"
+                          [view]="chartData.view"
+                          [scheme]="colorScheme"
+                          [results]="chartData.chartData"
+                          [legend]="chartData.showLegend"
+                          >
+  </ngx-charts-number-card>-->
+
+  <!-- Heat Map -->
+  <ngx-charts-heat-map *ngIf="chartData.chartType === 'heat-map'"
+                       [view]="chartData.view"
+                       [scheme]="colorScheme"
+                       [results]="chartData.chartData"
+                       [gradient]="chartData.gradient"
+                       [xAxis]="chartData.showXAxis"
+                       [yAxis]="chartData.showYAxis"
+                       [legend]="chartData.showLegend"
+                       [showXAxisLabel]="chartData.showXAxisLabel"
+                       [showYAxisLabel]="chartData.showYAxisLabel"
+                       [xAxisLabel]="chartData.xAxisLabel"
+                       [yAxisLabel]="chartData.yAxisLabel"
+                       >
+  </ngx-charts-heat-map>
+
+  <!-- Tree Map -->
+  <!--<ngx-charts-tree-map *ngIf="chartData.chartType === 'tree-map'"
+                       [view]="chartData.view"
+                       [scheme]="colorScheme"
+                       [results]="chartData.chartData"
+                       [legend]="chartData.showLegend"
+                       >
+  </ngx-charts-tree-map>-->
+
+</div>

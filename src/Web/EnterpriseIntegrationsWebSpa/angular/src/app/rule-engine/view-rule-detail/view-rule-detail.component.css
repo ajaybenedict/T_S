@@ -1,0 +1,90 @@
+.rule-detail-container {
+    height: 100% !important;
+}
+.detail-container {
+    width: 30%;
+    border: 1px solid #E4E5E6;
+}
+.rule-container {
+    width: 70%;
+    background-color: #F8F8F8;
+    padding: 20px;
+    gap: 20px;
+    border-top: 1px solid #E4E5E6;
+    border-right: 1px solid #E4E5E6;
+    border-bottom: 1px solid #E4E5E6;
+}
+.details {
+    padding: 20px;
+    gap: 20px;
+}
+.detail-container .details:first-child {
+    border-bottom: 1px solid #E4E5E6;
+}
+.detail-container .details:last-child {
+    border-top: 1px solid #E4E5E6;
+}
+.details-holder {
+    font-size: 14px;
+    line-height: 150%;
+    color: #262626;
+    gap: 8px;
+}
+.details .title {
+    font-weight: 700;
+}
+.details .content {
+    font-weight: 400;
+}
+.content {
+    gap: 4px;
+}
+.rule-actions-bar {
+    height: 44px;
+    gap: 10px;
+}
+.divider {
+    height: 24px;
+    border-left: 1px solid #E4E5E6;
+}
+.draft-btn {
+    background: 
+        linear-gradient(0deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+        linear-gradient(0deg, #005758, #005758);
+    color: #005758;
+    padding: 12px 20px;
+    border-radius: 8px;
+    height: 44px;
+    width: 145px;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 150%;
+    border: none;
+    outline: none;
+}
+.draft-btn:hover {
+    background: 
+        linear-gradient(0deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
+        linear-gradient(0deg, #005758, #005758);
+}
+.draft-btn:active {
+    background: 
+        linear-gradient(0deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),
+        linear-gradient(0deg, #005758, #005758);
+
+}
+.edit-btn, .copy-btn, .dismiss-btn {
+    padding: 0px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+.dismiss-btn:hover img {
+    content: url('/assets/dismiss_btn_hover_red_44_44.svg');
+}
+.details-holder .content span {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

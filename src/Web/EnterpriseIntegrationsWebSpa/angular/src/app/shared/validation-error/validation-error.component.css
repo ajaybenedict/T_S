@@ -1,0 +1,32 @@
+.ppc-validation-error-container{    
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;    
+    background-color: #FBECF0;    
+    border-left: 4px solid #CD163F;
+    border-radius: 4px;
+    padding: 10px 20px;
+    gap: 20px;
+}
+
+.ppc-validation-error-img {
+    width: 24px;
+    height: 24px;
+}
+
+.ppc-validation-error-desc {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.warning-validation-error-container{    
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;       
+    border-radius: 4px;
+    background-color: #FF62000F !important;  
+    border-left: 4px solid #FF6200 !important;
+    padding: 20px;
+    gap: 20px;
+}

@@ -1,0 +1,33 @@
+<div #snackbarAnchor></div>
+<div class="user-info-container d-flex justify-content-between align-items-center" *ngIf="userMsgCount >= allowedCount; else countBlock">
+    <div class="info-txt">The number of questions for this chat session has reached the limit.</div>
+    <div class="link">
+        <button type="button" class="link-btn" (click)="createNewChat()">New Chat</button>
+    </div>
+</div>
+<ng-template #countBlock>
+    <div class="user-info-container d-flex justify-content-between align-items-center">
+    <div class="info-txt">AI Assistant supports 10 questions per chat session.</div>
+    <div class="count-txt">{{userMsgCount + '/' + allowedCount}}</div>
+</div>
+</ng-template>
+<div class="input-container d-flex align-items-center" *ngIf="userMsgCount < allowedCount">
+    <div class="d-flex align-items-center w-100" style="gap: 16px">
+        <div class="ai-icon">
+            <img src="/assets/ai_icon_24_24.svg" alt="AIIcon">
+        </div>
+        <div class="vertical-center flex-grow-1">
+            <textarea name="message" id="message" class="w-100" rows="1" [(ngModel)]="message"
+                (input)="adjustTextareaHeight($event)" required placeholder="Type to ask anything"
+                (keydown)="checkForEnter($event)" #messageInput></textarea>
+        </div>
+    </div>
+    <button type="button" tabindex="0" class="ms-auto p-2 submit-btn" style="font-size: 20px;  cursor: pointer;"
+        (click)="submitMessage()" aria-label="SubmitMessage">
+        <img src="/assets/ai_submit_icon_44_44.svg" alt="SubmitIcon">
+    </button>
+</div>
+<div class="mt-2 d-flex gap-2 align-items-center justify-content-center footer-disclaimer-text s1-C-Stone">
+    <img src="/assets/info_icon_16_16.svg" alt="info">
+    <span>{{disclaimerText}}</span>
+</div>

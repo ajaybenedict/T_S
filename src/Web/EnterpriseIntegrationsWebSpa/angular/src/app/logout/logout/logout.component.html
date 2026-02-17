@@ -1,0 +1,23 @@
+<div class="logout-container">
+    <div class="logout-img">
+        <img src="/assets/logout_display_img.svg" alt="Logout">
+    </div>
+    <div class="logout-txt-container" *ngIf="isLoggedOut">
+        <div class="title-holder">
+            <div class="title">
+                <span>Hello {{firstName | titlecase}},</span>
+            </div>
+            <div>
+                <span>You have been logged out successfully from the StreamOne Hub, but still logged in with Microsoft.</span>
+            </div>
+        </div>
+        <div class="link-holder">
+            <div class="logout-link">
+                <span>To completely logout from Microsoft? <a class="logout-txt-link" [href]="logoutLink" target="_self">Click here</a></span>
+            </div>
+            <div class="login-link">
+                <span>To login again to StreamOne Hub? <a class="logout-txt-link" target="_self" [routerLink]="landingPageLink">Click here</a></span>
+            </div>
+        </div>
+    </div>
+</div>

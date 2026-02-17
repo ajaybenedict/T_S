@@ -1,0 +1,71 @@
+.header-container {
+    width: 380px;
+    height: 76px;
+    background-color: #FFFFFF;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: 1px solid #E4E5E6; 
+}
+
+.button {
+    height: 44px;    
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 8px;
+    border-radius: 8px;         
+    font-size: 14px;
+    line-height: 150%;    
+    background-color: #F8F8F8;
+    font-weight: 400;
+    color: #262626;
+    border: none;
+    outline: none;
+}
+
+.button.selected {
+    background-color: #EBEEEF;
+    font-weight: 700;
+    color: #005758;
+}
+
+.button:hover {
+    background-color: #E4E5E6 !important;
+    cursor: pointer;
+}
+
+.button.selected:hover {
+    border: 1px solid #005758 !important;
+    cursor: pointer;
+}
+
+.nav-container {
+    width: 380px;
+    height: 68px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.nav-btn {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.nav-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-weight: 700;
+    line-height: 150%;
+    font-size: 16px;
+    color: #003031;
+}

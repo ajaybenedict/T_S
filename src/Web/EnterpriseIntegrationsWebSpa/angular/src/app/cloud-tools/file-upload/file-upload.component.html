@@ -1,0 +1,19 @@
+<div *ngIf="!selectedFile" class="upload-box d-flex flex-column align-items-center justify-content-between" (click)="fileInput.click()"
+  (dragover)="onDragOver($event)" (keydown.enter)="fileInput.click()" (keydown.space)="fileInput.click()"
+  (drop)="onDrop($event)">
+  <span class="s1-FW700 s1-FS-16px s1-C-Teal">
+    Drag and drop / Click to upload
+  </span>
+  <span class="s1-FW400 s1-FS-16px s1-C-Teal">
+    (CSV files only, Max size of 2 MB)
+  </span>
+</div>
+
+<app-file-name
+*ngIf="selectedFile"
+[fileName]="selectedFile.name"
+[isClosable]="true"
+(dismissClicked)="removeFile()"
+></app-file-name>
+
+<input #fileInput type="file" accept=".csv" hidden (change)="onFileSelect($event)" />

@@ -1,0 +1,103 @@
+<form [formGroup]="form">
+    <div class="rule-container">
+        <div class="rule-editor d-flex flex-column" [formArrayName]="formControlNameList.EXPRESSIONS">
+            <ng-container *ngFor="let expr of expressions.controls; let i=index" [formGroupName]="i">
+                <div class="first-row d-flex align-items-center" *ngIf="i==0; else dynamicRow">
+                    <span>If</span>
+                    <div class="d-flex">
+                        <div class="expression-row-input">
+                            <app-select-dropdown [formControlName]="formControlNameList.ATTRIBUTE"
+                                [label]="labels.ATTRIBUTE" [options]="attributeList"></app-select-dropdown>
+                        </div>
+                        <div class="expression-row-input">
+                            <app-select-dropdown [formControlName]="formControlNameList.OPERATOR"
+                                [label]="labels.OPERATOR" [options]="operatorOptions[i]"></app-select-dropdown>
+                        </div>
+                        <div class="expression-row-input">
+                            <ng-container *ngIf="isDropdownValuetype(expr)">
+                                <app-select-dropdown [formControlName]="formControlNameList.VALUE" [label]="labels.VALUE"
+                                    [options]="getValueDropdownOptionsWrapper(expr)"></app-select-dropdown>
+                            </ng-container>
+                            <ng-container *ngIf="!isDropdownValuetype(expr)">
+                                <!-- a placeholder -->
+                                <ng-container *ngIf="!hasAttribute(expr)">
+                                    <input type="text" class="value-input" [placeholder]="labels.VALUE">
+                                </ng-container>
+                                <!-- shown only for numeric without decimal -->
+                                <ng-container *ngIf="isValueField(expr, 'numeric')">
+                                    <input type="text" appInputFilter="numeric" class="value-input" [placeholder]="labels.VALUE"
+                                        [formControlName]="formControlNameList.VALUE">
+                                </ng-container>
+                                <!-- shown only for decimal -->
+                                <ng-container *ngIf="isValueField(expr, 'decimal')">
+                                    <input type="text" appInputFilter="decimal" class="value-input" [placeholder]="labels.VALUE"
+                                        [formControlName]="formControlNameList.VALUE">
+                                </ng-container>
+                                <!-- shown only for ResellerName -->
+                                <ng-container *ngIf="isValueField(expr, 'stringWithSpecialChars')">
+                                    <input type="text" class="value-input" [placeholder]="labels.VALUE"
+                                        [formControlName]="formControlNameList.VALUE">
+                                </ng-container>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+                <ng-template #dynamicRow>
+                    <div class="dynamic-row d-flex align-items-center">
+                        <app-logical-operator [formControlName]="formControlNameList.LOGICAL_OPERATOR"></app-logical-operator>
+                        <div class="d-flex">
+                            <div class="expression-row-input">
+                                <app-select-dropdown [formControlName]="formControlNameList.ATTRIBUTE" [label]="labels.ATTRIBUTE" [options]="attributeList"></app-select-dropdown>
+                            </div>
+                            <div class="expression-row-input">
+                                <app-select-dropdown [formControlName]="formControlNameList.OPERATOR" [label]="labels.OPERATOR" [options]="operatorOptions[i]"></app-select-dropdown>
+                            </div>
+                            <div class="expression-row-input">
+                                <ng-container *ngIf="isDropdownValuetype(expr)">
+                                    <app-select-dropdown [formControlName]="formControlNameList.VALUE" [label]="labels.VALUE"
+                                        [options]="expr.get('filteredOptions')?.value"></app-select-dropdown>
+                                </ng-container>
+                                <ng-container *ngIf="!isDropdownValuetype(expr)">
+                                    <!-- a placeholder -->
+                                    <ng-container *ngIf="!hasAttribute(expr)">
+                                        <input type="text" class="value-input" [placeholder]="labels.VALUE" >
+                                    </ng-container>
+                                    <!-- shown only for numeric without decimal -->
+                                    <ng-container *ngIf="isValueField(expr, 'numeric')">
+                                        <input type="text" appInputFilter="numeric" class="value-input" [placeholder]="labels.VALUE"
+                                            [formControlName]="formControlNameList.VALUE">
+                                    </ng-container>
+                                    <!-- shown only for decimal -->
+                                    <ng-container *ngIf="isValueField(expr, 'decimal')">
+                                        <input type="text" appInputFilter="decimal" class="value-input" [placeholder]="labels.VALUE"
+                                            [formControlName]="formControlNameList.VALUE">
+                                    </ng-container>
+                                    <!-- shown only for ResellerName -->
+                                    <ng-container *ngIf="isValueField(expr, 'stringWithSpecialChars')">
+                                        <input type="text" class="value-input" [placeholder]="labels.VALUE"
+                                            [formControlName]="formControlNameList.VALUE">
+                                    </ng-container>
+                                </ng-container>
+                            </div>
+                        </div>
+                        <div class="row-action-holder d-flex">
+                            <button type="button" s1-button [iconOnly]="true" [customClass]="'delete-btn'" (click)="removeExpression(i)">
+                                <img src="/assets/delete_icon_44_44.svg" class="default" alt="Delete">
+                                <img src="/assets/delete_icon_hover_44_44.svg" class="hover" alt="Delete">
+                            </button>
+                        </div>
+                    </div>
+                </ng-template>
+            </ng-container>
+            <button type="button" s1-button btnType="secondary" [customClass]="'add-btn'" (click)="addExpression()">
+                Add Condition
+            </button>
+        </div>
+        <div class="action-container d-flex justify-content-between align-items-center">
+            <span>Then</span>
+            <div style="width: 270px;">
+                <app-select-dropdown [formControlName]="formControlNameList.ACTION" [label]="labels.ACTION" [options]="actionListData"></app-select-dropdown>
+            </div>
+        </div>
+    </div>
+</form>

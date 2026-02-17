@@ -1,0 +1,75 @@
+::ng-deep .mdc-tab-indicator__content--underline {
+    border: 1px solid #005758 !important;    
+}
+
+::ng-deep .mdc-tab__text-label {
+    color: #005758 !important;
+    font-weight: 400 !important;
+    font-size: 14px !important;
+    line-height: 17px !important;
+    letter-spacing: normal !important;
+    transition: font-weight 1s ease-in-out;
+}
+
+::ng-deep .mat-mdc-tab:hover .mdc-tab__text-label {
+    font-weight: 700 !important;
+}
+
+::ng-deep .mat-mdc-tab-labels {
+    background-color: #EBEEEF !important;
+}
+
+::ng-deep .mat-mdc-tab {
+    flex-grow: 0 !important;
+}
+
+::ng-deep .mdc-tab--active.mdc-tab-indicator--active .mdc-tab__text-label {
+    font-weight: 700 !important;
+}
+
+::ng-deep .mat-mdc-tab-header {
+    margin-bottom: 24px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center;
+}
+/* to make the underline of active tab visible as per the custom height */
+::ng-deep .mdc-tab {
+    height: 44px !important;
+}
+
+.ppc-nav-container {
+  position: relative;
+}
+
+.tab-header-actions {
+  position: absolute;
+  right: 0px;
+  top: 0;
+  height: 44px;               /* same as mat-tab height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* Normalize ANY projected content */
+.tab-header-actions > * {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;               /* Material icon button height */
+}
+
+/* Specifically normalize native buttons */
+.tab-header-actions button {
+  min-width: 32px;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+/* Ensure images don’t stretch the header */
+.tab-header-actions img {
+  display: block;
+  max-height: 20px;
+}

@@ -1,0 +1,36 @@
+<!-- Root button -->
+<button type="button" *ngIf="inputData.hasIcon; else normalBtn" s1-button [iconOnly]="true"
+  [customClass]="'s1-menu-btn'" [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger"
+  (click)="$event.stopPropagation()">
+  <!-- Default Icon -->
+  <img [src]="inputData.iconURL" [alt]="inputData.displayName?.toLowerCase()"
+    [ngClass]="{'default': !!inputData.hoverIcon}">
+  <!-- Hover Icon -->
+  <img *ngIf="inputData.hoverIcon" [src]="inputData.hoverIcon" [alt]="inputData.displayName?.toLowerCase()"
+    class="hover">
+</button>
+<!-- Root button (no icon) -->
+<ng-template #normalBtn>
+  <button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger" (click)="$event.stopPropagation()">
+    <span *ngIf="inputData.hasName && inputData.displayName" [innerText]="inputData.displayName"></span>
+  </button>
+</ng-template>
+<!-- Submenu -->
+<mat-menu #menu="matMenu" class="s1-menu">
+  <div class="d-flex flex-column gap-2 p-2">
+    <!-- Normal buttons -->
+    <ng-container *ngFor="let item of inputData.subMenu">
+      <button *ngIf="!item.isS1Btn" mat-menu-item (click)="onClickHandler(item.onClickEmit)">
+        <img *ngIf="item.hasIcon && item.iconURL" [src]="item.iconURL" [alt]="item.displayName" />
+        <span *ngIf="item.hasName && item.displayName" [innerText]="item.displayName"></span>
+      </button>
+    </ng-container>
+    <!-- S1 buttons -->
+    <ng-container *ngFor="let item of inputData.subMenu">
+      <button *ngIf="item.isS1Btn && item.s1BtnType" mat-menu-item s1-button [btnType]="item.s1BtnType"
+        (click)="onClickHandler(item.onClickEmit)">
+        <span class="fw-bold" *ngIf="item.hasName && item.displayName" [innerText]="item.displayName"></span>
+      </button>
+    </ng-container>
+  </div>
+</mat-menu>

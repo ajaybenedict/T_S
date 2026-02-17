@@ -1,0 +1,36 @@
+<section class="details-card-container d-flex flex-column">
+    <div class="header-container d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <div class="s1-FW700 s1-FS14px s1-C-Charcoal s1-P-8-12-px">Created By</div>
+            <app-s1-text-display [inputData]="createdByTextDisplay"></app-s1-text-display>
+        </div>
+        <div class="header-action-holder d-flex flex-row align-items-center">
+            <button type="button" s1-button [iconOnly]="true" (click)="downloadCSV()">
+                <img src="/assets/download_black_icon_40_40.svg" alt="Download" class="default">
+                <img src="/assets/download_black_icon_hover_40_40.svg" alt="Download" class="hover">
+            </button>
+            <div class="divider"></div>
+            <button type="button" s1-button [iconOnly]="true" (click)="dismissEvent.next()">
+                <img src="/assets/dismiss_btn_44_44.svg" alt="Dismiss" class="default">
+                <img src="/assets/dismiss_btn_hover_red_44_44.svg" alt="Dismiss" class="hover">
+            </button>
+        </div>
+    </div>
+    <div class="table-container">
+        <app-s1-data-table
+            [tableColumns]="tableColumn"
+            [tableData]="tableData"
+            [tbodyMaxHeight]="'calc(100vh - 645px)'"
+            [hasNoDataImg]="false"
+            [showProgressBar]="showTableProgressBar"
+            (rowEmitter)="tableRowClickHandler($event)"
+            [clearSelectionRowTrigger]="clearSelectedRowTrigger"
+            [selectedRowBgColor]="'#EBEEEF'"
+            [selectedRowFontColor]="'#262626'"
+        >
+        </app-s1-data-table>
+    </div>
+    <nav aria-label="Pagination">
+        <app-ppc-paginator></app-ppc-paginator>
+    </nav>
+</section>

@@ -1,0 +1,1 @@
+export type InputFilterMode = 'numeric' | 'decimal' | 'alpha' | 'alphanumeric' | 'emailchars' | 'alphanumerichyphen';

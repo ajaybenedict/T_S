@@ -1,0 +1,23 @@
+.s1-menu {
+    width: 210px;
+    padding: 12px 16px;
+    background-color: #FFFFFF;
+    border: 1px solid #E4E5E6;
+}
+
+::ng-deep .mdc-list-item__primary-text {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+::ng-deep .mdc-list-item__primary-text span {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 30px;
+    color: #005758;
+}
+
+.mat-mdc-icon-button {
+    --mat-mdc-button-persistent-ripple-color: none;
+}

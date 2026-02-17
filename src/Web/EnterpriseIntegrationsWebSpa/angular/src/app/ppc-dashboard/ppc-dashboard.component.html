@@ -1,0 +1,13 @@
+<div>
+  <app-custom-ppc-filter (searchTextValue)="searchTextValue($event)"></app-custom-ppc-filter>
+  <!--<div class="table-responsive card" style="margin-left:40px; margin-right:40px; max-height:300px; overflow:auto;">
+    <div class="card-header">
+      AI Overview
+    </div>
+      <div class="card-body">
+        <ai-overview *ngIf="aiMessagesOverview" [messages]="aiMessagesOverview"></ai-overview>
+      </div>
+  </div>-->
+    <app-custom-datatable [datatable]="ppcDashboardData" [showProgressBarInput]="showProgressBar"
+                          (pageChangedFromChild)="pageChangedFromChild($event)" (SortingChangedFromChild)="SortingChangedFromChild($event)"></app-custom-datatable>
+  </div>

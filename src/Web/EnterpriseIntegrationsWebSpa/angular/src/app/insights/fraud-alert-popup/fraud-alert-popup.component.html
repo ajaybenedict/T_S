@@ -1,0 +1,43 @@
+<div class="popup-wrapper d-flex flex-column gap-4" [formGroup]="fraudAlertForm">
+    <div class="popup-header d-flex flex-row align-items-center justify-content-between">
+        <div class="s1-FW700 s1-FS18px">Fraud Alert Status</div>
+        <button type="button" s1-button [iconOnly]="true" aria-label="DismissButton" (click)="closePopup()">
+            <img src="/assets/dismiss_btn_44_44.svg" alt="Dismiss" class="default">
+            <img src="/assets/dismiss_btn_hover_red_44_44.svg" alt="Dismiss" class="hover">
+        </button>
+    </div>
+    <div class="d-flex gap-2 flex-column">
+        <div>
+            <div class="popup-content-title s1-FS16px s1-FW700 s1-C-Charcoal d-flex align-items-center justify-content-start">Event ID</div>
+            <div class="popup-content-body s1-FS16px s1-FW400 s1-C-Stone d-flex align-items-center s1-P-L-10px">{{_input.eventId}}</div>
+        </div>
+        <div>
+            <div class="popup-content-title s1-FS16px s1-FW700 s1-C-Charcoal d-flex align-items-center justify-content-start">Subscription ID</div>
+            <div class="popup-content-body s1-FS16px s1-FW400 s1-C-Stone d-flex align-items-center s1-P-L-10px">{{_input.subId}}</div>
+        </div>
+        <div>
+            <div class="popup-content-title s1-FS16px s1-FW700 s1-C-Charcoal d-flex align-items-center justify-content-start">Region</div>
+            <div class="popup-content-body s1-FS16px s1-FW400 s1-C-Stone d-flex align-items-center s1-P-L-10px">{{_input.region}}</div>
+        </div>
+        <div>
+            <div class="popup-content-title s1-FS16px s1-FW700 s1-C-Charcoal d-flex align-items-center justify-content-start">Event Status</div>
+            <div class="dropdown-holder">
+                <app-select-dropdown *ngIf="showDropdown" [options]="eventStatusDropdown" [formControlName]="formControlList.EVENT_STATUS"></app-select-dropdown>
+            </div>
+        </div>
+        <div>
+            <div class="popup-content-title s1-FS16px s1-FW700 s1-C-Charcoal d-flex align-items-center justify-content-start">Resolved Reason</div>
+            <div class="dropdown-holder">
+                <app-select-dropdown *ngIf="showDropdown" [options]="resolvedReasonDropdown" [formControlName]="formControlList.RESOLVED_REASON"></app-select-dropdown>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex align-items-center flex-row justify-content-between">        
+        <div class="s1-FS14px s1-FW700" [ngClass]="computeStatusMsgClass()">
+            {{displayMessage}}
+        </div>
+        <div class="">
+            <button type="button" s1-button btnType="primary" [disabled]="fraudAlertForm.invalid" (click)="updateEventHandler()">Update</button>
+        </div>
+    </div>
+</div>

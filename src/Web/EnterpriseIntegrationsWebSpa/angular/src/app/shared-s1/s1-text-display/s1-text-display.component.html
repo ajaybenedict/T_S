@@ -1,0 +1,6 @@
+<ng-container>
+    <div [ngStyle]="{'width': inputData.width, 'height': inputData.height, 'padding': inputData.padding, 'color': inputData.color ? inputData.color : color}" class="s1-Border-1px-NG2 s1-LH20px s1-FW400 s1-FS14px text-display">
+        <span class="s1-FW700" [innerHTML]="inputData.title" *ngIf="inputData.title"></span>
+        <span [innerHTML]="inputData.content" *ngIf="inputData.content"></span>
+    </div>
+</ng-container>

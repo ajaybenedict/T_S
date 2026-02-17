@@ -1,0 +1,34 @@
+.rule-expression-holder {
+    background-color: white;    
+}
+
+.rule-expression-container {
+    padding: 20px;
+    gap: 20px;
+    border: 1px solid #E4E5E6;    
+}
+
+.rule-row {
+    gap: 20px;
+}
+
+.expression {
+    padding: 8px 12px;
+    border: 1px solid #E4E5E6;
+    width: 11vw;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 150%;
+    color: #63666A;
+}
+
+.other-row-holder {
+    border-left: 1px solid #E4E5E6;   
+}
+
+.rule-action-container {
+    padding: 20px;
+    border-bottom: 1px solid #E4E5E6;
+    border-left: 1px solid #E4E5E6;
+    border-right: 1px solid #E4E5E6;
+}

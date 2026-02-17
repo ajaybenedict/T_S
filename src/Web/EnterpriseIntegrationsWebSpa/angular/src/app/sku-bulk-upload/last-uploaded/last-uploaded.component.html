@@ -1,0 +1,23 @@
+<div class="relative-container">
+    <app-ppc-overlay [show]="(isOverlayEnabled | async) ?? false"></app-ppc-overlay>
+    <div class="last-uploaded-container">       
+        <div class="flex-items" *ngIf="productSyncHistoryData">
+            <app-last-upload-title></app-last-upload-title>
+        </div> 
+        <div class="flex-items" *ngIf="productSyncHistoryData">
+            <app-last-upload-details></app-last-upload-details>
+        </div>    
+        <div class="flex-items" *ngIf="productSyncHistoryData">
+            <app-ppc-nav-tabs [tabs]="navTabs" (tabChange)="tabChangeHandler($event)" [selectedIndex]="tabSelected == 'Error' ? 0 : 1"></app-ppc-nav-tabs>
+            <app-ppc-data-table 
+                #skuDataTable class="ppc-sku-data-table" 
+                [tableColumns]="tableColumns" 
+                [tableData]="productSyncHistoryData.result"
+                [showLoader]="tableLoader"
+                [isSearchData]="!tableLoader && productSyncRequestData.searchTerm !== ''"
+                [isSuccessData]="!tableLoader && productSyncRequestData.IsSuccessHistory"
+            ></app-ppc-data-table>
+        </div>
+    </div>
+    <app-ppc-paginator *ngIf="productSyncHistoryData"></app-ppc-paginator>
+</div>

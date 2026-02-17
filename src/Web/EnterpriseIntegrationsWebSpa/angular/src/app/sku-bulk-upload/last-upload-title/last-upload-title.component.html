@@ -1,0 +1,24 @@
+<div class="last-uploaded-title-bar">
+    <div class="title">
+        <span>{{lastUploadedTitle}}</span>
+    </div>
+    <div class="search-and-download">
+        <div class="input-wrapper">
+            <img class="input-icon" src="/assets/search.svg" alt="Search">
+            <div class="input-container">
+                <input type="text" [(ngModel)]="searchText" placeholder="Search" (keydown)="inputHandler($event)" class="input-field" />
+                <button type="button" *ngIf="showClearButton" class="clear-btn" (click)="clearInput()">
+                    <img src="/assets/dismiss-filename.svg" alt="dismiss">
+                </button>
+            </div>              
+            <button (click)="searchBtnClick()" class="input-btn">
+                <img src="/assets/line_26.svg" alt="Line" style="padding-right: 10px;">
+                <img src="/assets/arrow_24_24.svg" alt="Arrow">
+            </button>                
+        </div>
+        <img src="/assets/line_32.svg" alt="Line">
+        <button class="download-btn" (click)="download()">
+            <img src="/assets/download_arrow_24_24.svg" alt="Download_Arrow">
+        </button>         
+    </div>
+</div>

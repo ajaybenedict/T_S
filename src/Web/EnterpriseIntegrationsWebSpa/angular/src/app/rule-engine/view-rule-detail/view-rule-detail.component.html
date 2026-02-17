@@ -1,0 +1,71 @@
+<section class="rule-detail-container d-flex" *ngIf="ruleData">
+    <div class="detail-container d-flex flex-column">
+        <div class="details d-flex flex-column">
+            <div class="details-holder d-flex flex-column">
+                <div class="title">Created By</div>
+                <div class="content d-flex flex-column">
+                    <span>{{ruleData.createdBy}}</span>
+                    <span>{{ruleData.createdOn | date:'d MMM, y'}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="details d-flex flex-column" *ngIf="ruleData.overrideLevel">
+            <div class="details-holder d-flex flex-column">
+                <div class="title">Override Level</div>
+                <div class="content d-flex flex-column">
+                    <span>{{ruleData.overrideLevel.name }}</span>
+                </div>
+            </div>
+            <div class="details-holder d-flex flex-column">
+                <div class="title">Details</div>
+                <div class="content d-flex flex-column">
+                    <span>{{ruleData.levelValues.join(', ')}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="details d-flex flex-column">
+            <div class="details-holder d-flex flex-column">
+                <div class="title">Rules purpose</div>
+                <div class="content d-flex flex-column">
+                    <span>{{ruleData.purpose}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="details d-flex flex-column">
+            <div class="details-holder d-flex flex-column">
+                <div class="title">Alert Recipients</div>
+                <div class="content d-flex flex-column">
+                    <span>{{ ruleData.emails?.join(', ') || '-' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="rule-container d-flex flex-column">
+        <div class="rule-actions-bar d-flex align-items-center justify-content-end">
+            <ng-container *ngIf="hasEditAccess">
+                <button type="button" s1-button [btnType]="'secondary-filled'" *ngIf="!isDraft" aria-label="MoveToDraft" class="d-flex" (click)="actionClickHandler('moveToDraft')">
+                    Move to Draft
+                </button>
+                <button type="button" s1-button [btnType]="'secondary-filled'" *ngIf="isDraft" aria-label="Publish" class="d-flex" (click)="actionClickHandler('moveToPublish')">
+                    Publish
+                </button>
+                <button type="button" s1-button [iconOnly]="true" aria-label="Edit" class="edit-btn" (click)="actionClickHandler('edit')">
+                    <img  src="/assets/edit_icon_44_44.svg" alt="Edit" class="default">
+                    <img  src="/assets/edit_hover_icon_44_44.svg" alt="Edit" class="hover">
+                </button>
+                <button type="button" s1-button [iconOnly]="true" aria-label="Copy" class="copy-btn" (click)="actionClickHandler('copy')">
+                    <img  src="/assets/copy_icon_44_44.svg" alt="Copy" class="default">
+                    <img  src="/assets/copy_hover_icon_44_44.svg" alt="Copy" class="hover">
+                </button>
+                <div class="divider"></div>
+            </ng-container>
+            <button type="button" aria-label="Dismiss" class="dismiss-btn" (click)="actionClickHandler('dismiss')">
+                <img  src="/assets/dismiss_btn_44_44.svg" alt="Dismiss">
+            </button>
+        </div>
+        <div>
+            <app-view-rule [inputData]="ruleData.expressions" [action]="ruleData.action"></app-view-rule>
+        </div>
+    </div>
+</section>
+<!-- All the above hardcoded data will be modified while integrating -->

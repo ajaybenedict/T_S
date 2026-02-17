@@ -1,0 +1,8 @@
+<div class="container-holder d-flex flex-column" *ngIf="threadList.length">
+    <div class="container-title">{{containerTitle}}</div>
+    <div class="thread-list d-flex flex-column" [style.height]="containerHeight">
+        <ng-container *ngFor="let item of threadList">
+            <app-thread [threadData]="item"></app-thread>
+        </ng-container>
+    </div>
+</div>

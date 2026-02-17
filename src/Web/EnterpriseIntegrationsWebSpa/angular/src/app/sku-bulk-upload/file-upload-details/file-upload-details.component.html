@@ -1,0 +1,35 @@
+<div class="ppc-sku-upload-container">
+    <div class="ppc-sku-upload-wrapper">
+        <div class="ppc-sku-upload-instruction">
+            {{skuUploadInstructionText}}
+            <span class="ppc-sku-upload-intruction-span">
+                {{skuUploadInstructionSpan}}
+            </span>
+        </div>
+        <input type="file" #fileUpload class="ppc-file-upload-input" (change)="onFileSelected($event)"
+            [accept]="acceptableFileExtensions" hidden />
+        <button type="button" mat-flat-button color="primary" class="ppc-sku-upload-btn" [disabled]="disableUploadBtn" (click)="fileUpload.click()">
+            <div class="ppc-sku-upload-btn-content">
+                <img src="/assets/upload_btn_icon.svg" alt="Upload Btn Icon">
+                <span>Upload File</span>
+            </div>
+        </button>
+    </div>
+    <div class="ppc-sku-upload-file-info-wrapper" *ngIf="isApiInitiated">
+        <div class="ppc-sku-upload-file-name">
+            <app-file-name [fileName]="uploadedFileName"></app-file-name>
+        </div>
+        <div class="d-flex flex-row align-items-center justify-content-between w-100" *ngIf="storageAPIInProgress" >
+            <div class="upload-file-loader-wrapper">
+                <div class="upload-file-loader-txt">Processing</div>
+                <div class="upload-file-loader">
+                    <app-ppc-progress-bar [mode]="'indeterminate'" [borderRadius]="'8px'"></app-ppc-progress-bar>                         
+                </div>
+            </div>
+            <button class="upload-file-loader-dismiss-btn" type="button" (click)="cancelUpload()"></button>
+        </div>
+        <div class="upload-file-error-wrapper" *ngIf="storageAPIFailed">
+            <app-error></app-error>
+        </div>        
+    </div>
+</div>

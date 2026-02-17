@@ -1,0 +1,90 @@
+.ppc-paginator-outer-container {
+    height: 76px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border: 1px solid #E4E5E6;
+    padding: 16px 24px;
+    gap: 10px;
+    align-items: center;
+    color: #75716E;
+    background-color: #FFFFFF;
+}
+
+.ppc-paginator-details-wrapper {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+}
+
+.ppc-paginator-selector-wrapper {
+    width: 184px;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ppc-dropdown-btn {
+    height: 44px !important;
+    border: 1px solid #E4E5E6 !important;
+    background-color: #F8F8F8 !important;
+    box-shadow: none !important;
+    border-radius: 4px !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    color: #75716E !important;
+    width: 74px;
+}
+
+::ng-deep .dropdown-menu {
+    width: 25% !important;
+}
+
+::ng-deep .ppc-paginator-action-wrapper .pagination {
+    margin-bottom: 0px !important;
+}
+
+::ng-deep .pagination .page-link {
+    font-weight: 400 !important;
+    font-size: 14px !important;
+    border: 1px solid #75716E !important;
+    color: #75716E !important;
+    box-shadow: none !important;
+}
+
+::ng-deep .pagination .page-item:last-child .page-link {
+    border-radius: 0px 4px 4px 0px!important;    
+}
+
+::ng-deep .pagination .page-item:first-child .page-link {
+    border-radius: 4px 0px 0px 4px!important;    
+}
+
+::ng-deep .pagination .page-item.active .page-link {
+    background-color: #75716E !important;
+    color: #FFFFFF !important;
+}
+
+::ng-deep a[aria-label='Previous'] {
+    span {
+        display: none !important;
+    }
+
+    &::before {
+        content: '<' !important;
+    }
+}
+
+::ng-deep a[aria-label='Next'] {
+    span {
+        display: none !important;
+    }
+
+    &::before {
+        content: '>' !important;
+    }
+}

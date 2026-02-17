@@ -1,0 +1,5 @@
+.report-container {
+    height: calc(100vh - 185px);       
+    overflow-y: auto;    
+    overflow-x: hidden;
+}

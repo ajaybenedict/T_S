@@ -1,0 +1,18 @@
+<ng-container *ngIf="inputData?.length">
+    <button type="button"
+        class="dropdown-label d-flex flex-row justify-content-between align-items-center s1-FW700 s1-FS16px s1-C-Teal s1-P12px"
+        [matMenuTriggerFor]="menu">
+        <span>{{ title }}</span>
+        <img src="/assets/arrow_down_teal_24_24.svg" alt="Toggle DropDown">
+    </button>
+    <mat-menu #menu="matMenu" class="s1-menu">
+        <div class="d-flex flex-column menu-holder">
+            <div class="s1-C-Charcoal s1-FW700 s1-FS14px">{{title}}</div>
+            <div class="checkbox-holder d-flex flex-column">
+                <div class="checkbox-item" *ngFor="let item of inputData">
+                    <app-s1-checkbox [inputData]="item" (checked)="toggle($event)"></app-s1-checkbox>
+                </div>
+            </div>
+        </div>
+    </mat-menu>
+</ng-container>

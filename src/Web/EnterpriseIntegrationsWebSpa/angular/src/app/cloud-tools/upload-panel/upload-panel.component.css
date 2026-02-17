@@ -1,0 +1,59 @@
+.upload-panel-container {
+    background-color: #FFFFFF;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #D9D8D7;
+    height: calc(100vh - 68px);
+    position: relative;
+}
+
+.panel-header {
+    height: 56px;
+    border-bottom: 1px solid #E4E5E6;
+}
+
+.content-container {       
+    gap: 20px;
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+
+.mandatory-star {
+    color: #CD163F;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.template-container {
+    height: 72px;    
+    border: 1px solid #E4E5E6;
+}
+
+.template-container span {
+    color: #000000;
+}
+
+.panel-footer {
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+.footer-container {
+    height: 76px;
+    border: 1px solid #E4E5E6;    
+}
+
+.footer-btn {
+    width: 100%;
+    height: 44px;
+    gap: 10px;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.panel-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 1000;
+}

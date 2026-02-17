@@ -1,0 +1,8 @@
+<div [ngClass]="validationClass" [ngStyle]="{'width': width, 'height': height}">
+    <div class="ppc-validation-error-img">
+        <img [src]="imgSrc" alt="Alert">
+    </div>
+    <div class="ppc-validation-error-desc">
+        <span [innerHTML]="sanitizedContent"></span>
+    </div>
+</div>

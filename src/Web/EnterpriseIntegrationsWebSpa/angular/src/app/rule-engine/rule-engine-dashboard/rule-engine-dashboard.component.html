@@ -1,0 +1,62 @@
+<app-ppc-overlay [show]="showLoader"></app-ppc-overlay>
+<section class="d-flex flex-column dashboard-container">
+    <div class="d-flex justify-content-between action-holder align-items-center">
+        <app-s1-search-bar [inputData]="searchBarData" (outputData)="searchEventHandler($event)"></app-s1-search-bar>
+        <button *ngIf="hasEditAccess" type="button" mat-flat-button color="primary" class="add-rule-btn" aria-label="AddRule" (click)="addRuleClick()">Add Rule</button>
+    </div>
+    <div class="data-table-holder">
+        <app-ppc-nav-tabs [tabs]="navTabs" [selectedIndex]="activeTab" (tabChange)="tabChangeHandler($event)"></app-ppc-nav-tabs>
+        <ng-template #published>
+            <div class="d-flex table-details-holder">
+                <div class="data-table-container" [ngStyle]="{'width': isDetailVisible ? '20%' : '100%'}">
+                    <div class="data-table">
+                        <app-s1-data-table 
+                            [tableColumns]="publishedColumn" 
+                            [tableData]="publishedTableData" 
+                            (rowEmitter)="onRowClick($event)"
+                            [showProgressBar]="showLoader"
+                            (actionEmitter)="tableActionEmitHandler($event)"
+                            [clearSelectionRowTrigger]="clearSelectedRowTrigger"                           
+                        ></app-s1-data-table>
+                    </div>
+                </div>
+                <div class="details-container" *ngIf="isDetailVisible">
+                    <app-view-rule-detail (actionEmitter)="detailCardActionHandler($event)" [ruleData]="selectedRuleDetail"></app-view-rule-detail>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template #draft>
+            <div class="d-flex table-details-holder">
+                <div class="data-table-container" [ngStyle]="{'width': isDetailVisible ? '20%' : '100%'}">
+                    <div class="data-table">
+                        <ng-template #draftDataTable let-msg="msg">
+                            <app-s1-data-table 
+                                [tableColumns]="draftColumn" 
+                                [tableData]="draftTableData"
+                                (rowEmitter)="onRowClick($event)" 
+                                [showProgressBar]="showLoader"
+                                (actionEmitter)="tableActionEmitHandler($event)" 
+                                [noDataMsg]="msg" 
+                                [clearSelectionRowTrigger]="clearSelectedRowTrigger"
+                            >
+                            </app-s1-data-table>
+                        </ng-template>
+        
+                        <ng-container *ngIf="hasSearch; else noSearch">
+                            <ng-container [ngTemplateOutlet]="draftDataTable" [ngTemplateOutletContext]="{ msg: null }"></ng-container>
+                        </ng-container>
+        
+                        <ng-template #noSearch>
+                            <ng-container [ngTemplateOutlet]="draftDataTable"
+                                [ngTemplateOutletContext]="{ msg: noDataMsg }"></ng-container>
+                        </ng-template>        
+                    </div>
+                </div>
+                <div class="details-container" *ngIf="isDetailVisible">
+                    <app-view-rule-detail [isDraft]="activeTab == 1" (actionEmitter)="detailCardActionHandler($event)"
+                        [ruleData]="selectedRuleDetail"></app-view-rule-detail>
+                </div>
+            </div>
+        </ng-template>
+    </div>
+</section>

@@ -1,0 +1,33 @@
+.filter-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 44px;
+}
+
+.date-range-container {
+    display: flex;
+    flex-direction: row;
+    width: 328px;
+    gap: 20px;
+    align-items: center;
+}
+
+.date-range-picker-holder {
+    height: 44px !important;
+    width: 222px !important;
+}
+
+.date-range-text {
+    color: #262626;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 150%;
+}
+
+.filter-btn-container, .dynamic-btn-container {    
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: end;
+}

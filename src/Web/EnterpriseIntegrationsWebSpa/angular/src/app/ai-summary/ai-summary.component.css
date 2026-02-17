@@ -1,0 +1,21 @@
+.ai-summary-wrapper {
+    height: 100%;
+    padding: 12px 20px;
+    border: 1px solid #005758;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.ai-summary-container {
+    flex: 1;
+}
+
+.ai-summary-disclaimer {
+    margin-top: auto;
+}
+
+::ng-deep markdown h3, ::ng-deep markdown h4 {
+    font-size: 16px;
+    color: #262626;
+    font-weight: 700;
+}

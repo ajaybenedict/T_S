@@ -1,0 +1,12 @@
+<div class="input-wrapper" [ngStyle]="{'height': height, 'width': width}">
+    <img class="input-icon" src="/assets/search.svg" alt="Search">
+    <div class="input-container">
+        <input type="text" [formControl]="searchControl" [placeholder]="placeHolder" (keydown)="onKeyDown($event)" (keyup)="inputHandler($event)" class="input-field" [appInputFilter]="inputFilter" />
+        <button type="button" *ngIf="showClearButton" class="clear-btn" (click)="clearInput()">
+            <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss">
+        </button>
+    </div>
+    <button (click)="searchBtnClick()" class="input-btn">
+        <img src="/assets/arrow_24_24.svg" alt="Arrow">
+    </button>
+</div>

@@ -1,0 +1,38 @@
+.input-wrapper {
+    display: flex;
+    align-items: center;     
+    border-radius: 4px;
+    padding: 8px;    
+    border: 1px solid #E4E5E6;
+    background-color: #F8F8F8;
+}
+.input-container {
+    position: relative;    
+    flex: 1;
+} 
+.input-icon,
+.input-btn,
+.input-field,
+.download-btn,
+.clear-btn {
+    border: none;
+    outline: none;
+    background-color: #F8F8F8;
+}
+.input-field {
+    width: 100%;    
+}
+.clear-btn {    
+    height: 22px !important;  
+    width: 22px !important;
+    position: absolute;
+    right: 10px;
+    top:25%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: block;
+    font-size: 20px;
+}
+.clear-btn:hover img{
+    content: url('/assets/dismiss_btn_hover_red_24_24.svg');
+}

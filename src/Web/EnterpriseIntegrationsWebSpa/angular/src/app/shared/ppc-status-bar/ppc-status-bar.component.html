@@ -1,0 +1,13 @@
+<div class="status-bar-container" 
+    [ngStyle]="{'background-color': configData.backgroundColor, 'border-left': '4px solid ' + configData.leftBorderColor, 'height': _data.height, 'width': _data.width ? _data.width : null}"
+>
+    <div class="status-bar-img">
+        <img [src]="configData.imgSrc" alt="StatusBarImg">
+    </div>
+    <div class="status-bar-content">
+        <span [innerHTML]="sanitizedContent"></span>
+    </div>
+    <button class="status-bar-dismiss-btn" *ngIf="_data.showDismissBtn" (click)="emitDismiss()">
+        <img src="/assets/dismiss-filename.svg" alt="Dimiss">
+    </button>
+</div>

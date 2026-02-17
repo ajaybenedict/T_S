@@ -1,0 +1,29 @@
+.chat-txt {
+  display: flex;
+  flex-direction: column;  
+  align-items: flex-start;  
+  justify-content: center;
+  text-align: left;  
+}
+
+.user-chat-box {
+  color: black;
+  background-color: #F8F8F8;
+}
+
+.gap-20 {
+  gap: 20px;
+}
+
+.br-8 {
+  border-radius: 8px;
+}
+
+.gpt-chat-box {
+  background-color: #F2F2F2;
+  color: black;
+}
+
+.chat-icon {
+  margin-right: 20px;
+}

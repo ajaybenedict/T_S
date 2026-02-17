@@ -1,0 +1,10 @@
+table.mat-mdc-table {
+  background-color: #FCFCFC;
+  height: auto !important;
+  width: auto !important;
+}
+
+tr.mat-mdc-row {
+  height: 48px !important;
+  min-height: 48px !important;
+}

@@ -1,0 +1,76 @@
+<section class="chat-layout-container" *ngIf="panelVisible" @slideInOut (@slideInOut.done)="onAnimationDone()">
+    <div class="breadcrumb-container">
+        <app-s1-breadcrumb [inputData]="breadcrumbInput"></app-s1-breadcrumb>
+        <button type="button" class="dismiss-btn" aria-label='Dismiss' (click)="dismissPanel()">
+            <img src="/assets/dismiss_btn_24_24.svg" alt="Dismiss">
+        </button>
+    </div>
+    <div class="chat-layout">
+        <div class="chat-history-container d-flex flex-column">
+            <button type="button" aria-label="NewChat" class="new-chat-btn" (click)="createNewChat()">New Chat</button>
+            <!-- For threads within 30 days -->
+             <div class="thread-list-container recent-threads" *ngIf="recentThreadList?.length">
+                 <app-thread-container [threadList]="recentThreadList" [containerTitle]="'Recent Chats'" [containerHeight]="calculateThreadContainerHeight()"></app-thread-container>
+             </div>
+            <!-- For threads older than 30 days -->
+             <div class="thread-list-container older-threads" *ngIf="olderThreadList?.length">
+                 <app-thread-container [threadList]="olderThreadList" [containerTitle]="'Older Chats'" [containerHeight]="calculateThreadContainerHeight()"></app-thread-container>
+             </div>
+        </div>
+        <div class="chat-convo-container">
+            <div class="chat-content-area w-100">
+                <!-- Initial Prompt -->
+                <div class="d-flex flex-column flex-sm-row gap-20 w-100" style="margin-right: 60px; margin-bottom: 20px;">
+                    <div>
+                        <img src="/assets/gpt_icon_round_40_40.svg" alt="GPTIcon">
+                    </div>
+                    <div class="d-flex flex-column align-items-start text-start gpt-chat-box p-3 br-8 flex-grow-1 w-100"
+                        *ngIf="assistant; else welcomeTextLoader">
+                        <div class="mb-1">
+                            <markdown [data]="assistant.initialWelcomeText"></markdown>
+                            <!--InitialWelcomeText from service-->
+                        </div>
+                        <div class="mb-1" *ngIf="checkShowPrompts()">
+                            <div *ngIf="!isIon">
+                                <markdown>Here are categories and sample prompts for retrieving real time data using
+                                    natural language.
+                                    Once the data is returned, you can continue to interact with AI to explore further
+                                    and ask
+                                    questions.
+                                </markdown>
+                            </div>
+                            <div *ngIf="assistant.prompts.length > 0">
+                                <div class="row row-cols-1 row-cols-md-4 g-2 text-sm-start"
+                                    style="font-size:12px !important; padding:-1px;">
+                                    <div class="col" style="cursor: pointer;" (click)="loadPrompt(item.prompt)" (keydown.enter)="loadPrompt(item.prompt)" (keydown.space)="loadPrompt(item.prompt)"
+                                        *ngFor="let item of getLimitedPrompts(assistant.prompts[selectedFunction].prompts)">
+                                        <div class="card h-100">
+                                            <div class="card-body p-1">
+                                                <p class="card-text" style="font-size:13px;">{{ item.prompt }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="assistant.prompts[selectedFunction].prompts.length > promptsLength">
+                                    <a href="#" (click)="toggleShowMore($event)">{{ showMore ? 'Show less' : 'Show more'}}</a>
+                                </div>
+                            </div>
+                        </div>
+                        <mat-progress-bar mode="indeterminate" *ngIf="showLoader"></mat-progress-bar>
+                    </div>
+                    <ng-template #welcomeTextLoader>
+                        <div class="d-flex flex-column align-items-start text-start p-3 flex-grow-1 w-100">
+                            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                        </div>
+                    </ng-template>
+                </div>
+                <app-chat-message></app-chat-message>
+                <div [ngStyle]="{ left: leftOffset }" class="chat-inputs-container d-flex align-items-center" #chatInput>
+                    <div class="flex-grow-1">
+                        <app-chat-input></app-chat-input>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,35 @@
+<table class="s1-H432px" mat-table [dataSource]="dataSource">
+    <!-- table header -->
+    <ng-container *ngFor="let column of tableColumns" [matColumnDef]="column.displayName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header
+            [ngStyle]="{'width': column.columnWidth ?? null, 'text-align': column.headerAlignment }"
+            class="s1-FW700 s1-FS14px s1-data-table-column-header s1-C-Stone s1-P-8-12-px s1-LH21px">
+            {{ column.displayName }}</th>
+        <!-- table data -->
+        <td mat-cell class="s1-FW400 s1-FS14px s1-Border-1px-NG2 s1-C-Charcoal s1-P-8-12-px s1-LH21px"
+            *matCellDef="let element" [ngStyle]="{
+          'width': column.columnWidth ?? null,
+          'background-color': column.backgroundColor ?? null,
+          'text-align': column.cellAlignment
+          }">
+            <!-- Render content dynamically based on columnType -->
+            <ng-container [ngSwitch]="column.columnType">
+                <!-- Normal text cell -->
+                <ng-container *ngSwitchCase="'text'">
+                    <span *ngIf="column.key">
+                        {{ element[column.key] }}
+                    </span>
+                </ng-container>
+                <ng-container *ngSwitchCase="'html'">
+                    <div *ngIf="column.formatter" [innerHTML]="column.formatter(element)"></div>
+                </ng-container>
+            </ng-container>
+        </td>
+    </ng-container>   
+    <ng-container matColumnDef="empty-row">
+        <th mat-header-cell *matHeaderCellDef [attr.colspan]="displayedColumns.length"></th>
+    </ng-container>
+    <tr style="height: 48px !important" mat-header-row *matHeaderRowDef="displayedColumns"></tr> 
+    <tr style="height: 24px !important;"  mat-header-row *matHeaderRowDef="['empty-row']"></tr>
+    <tr mat-row class="s1-Border-1px-NG2" *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

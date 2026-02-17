@@ -1,0 +1,1 @@
+export const authToknEncryptionKey = 'ppc-auth-token-encryption-key';

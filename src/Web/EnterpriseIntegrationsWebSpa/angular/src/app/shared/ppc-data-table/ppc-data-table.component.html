@@ -1,0 +1,46 @@
+<div class="table-wrapper">  
+  <!-- Table -->
+  <table mat-table [dataSource]="tableDataSource">
+    <ng-container *ngFor="let tableColumn of tableColumns" [matColumnDef]="tableColumn.columnName">
+      <!-- Column header -->
+      <th mat-header-cell *matHeaderCellDef [style.width]="tableColumn.width ? tableColumn.width : null">
+        {{tableColumn.columnName}}
+      </th>                  
+      <!-- column data -->
+      <td mat-cell *matCellDef="let element" [style.width]="tableColumn.width ? tableColumn.width : null">
+        <!-- Column with Link -->
+        <div *ngIf="tableColumn.key === 'productId'; else otherContent">
+          <a [href]="element[getLinkKey(tableColumn.key)]" target="_blank">{{ element[tableColumn.key] }}</a>
+        </div>
+        <ng-template #otherContent>
+          <!-- Column with HTML values -->
+          <div *ngIf="isHtmlColumn(tableColumn.key); else textContent" [innerHTML]="element[tableColumn.key]">
+          </div>
+          <!-- Plain columns -->
+          <ng-template #textContent>{{ element[tableColumn.key] }}</ng-template>
+        </ng-template>
+      </td>
+    </ng-container>
+    <!-- Progress bar -->
+    <ng-container matColumnDef="header-row-progress-bar">
+      <th style="padding: 0px !important; border-color: transparent;" mat-header-cell *matHeaderCellDef [attr.colspan]="displayedColumns.length">
+        <div class="progress-bar" *ngIf="isLoading">
+          <app-ppc-progress-bar [height]="'4px'"></app-ppc-progress-bar> 
+        </div> 
+      </th>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <!-- Progress Bar Row -->
+    <tr class="progress-bar-row" mat-header-row *matHeaderRowDef="['header-row-progress-bar']"></tr>     
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <div class="mat-row no-data-container" *matNoDataRow>
+      <div class="no-data-wrapper">
+        <img [src]="getNoData().imgSrc" class="no-data-img" alt="NoData">
+        <div class="no-data-text-wrapper">
+          <div class="no-data-title">{{getNoData().title}}</div>
+          <div class="no-data-content">{{getNoData().content}}</div>
+        </div>
+      </div>                    
+    </div>
+  </table>
+</div>

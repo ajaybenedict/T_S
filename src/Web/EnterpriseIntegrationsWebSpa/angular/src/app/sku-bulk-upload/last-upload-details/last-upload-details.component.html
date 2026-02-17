@@ -1,0 +1,20 @@
+<div class="last-uploaded-details" *ngIf="productSyncHistoryData">
+    <div class="file-wrapper">
+        <div class="details-title">{{fileTitle}}</div>
+        <div class="file-name">            
+            <app-file-name [fileName]="fileValue" [isDownloadable]="true" (downloadClicked)="download($event)"></app-file-name>
+        </div>
+    </div>
+    <div class="user-name-wrapper">
+        <span class="details-title">{{userNameTitle}}</span>
+        <span class="user-name-value">{{userNameValue}}</span>
+    </div>
+    <div class="dt-stamp-wrapper">
+        <span class="details-title">{{dtStampTitle}}</span>
+        <span class="dt-stamp-value">{{dtStampValue}}</span>
+    </div>
+    <div class="result-wrapper">
+        <span class="details-title">{{resultTitle}}</span>
+        <span class="result-value">{{totalUploads + ' uploads [ ' + successUploads + ' success | ' +  errorUploads + ' errors ]'}}</span>
+    </div>
+</div>

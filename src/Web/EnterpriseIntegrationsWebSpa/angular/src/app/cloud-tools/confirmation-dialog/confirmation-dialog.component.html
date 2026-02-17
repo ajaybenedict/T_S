@@ -1,0 +1,30 @@
+<div class="confirmation-dialog">
+  <div class="dialog-header-wrapper d-flex flex-row align-items-center justify-content-between">
+    <span class="s1-FW700 s1-C-Charcoal s1-FS16px">
+      {{ headerText }}
+    </span>
+
+    <button s1-button [iconOnly]="true" (click)="onCancel()">
+      <img src="/assets/dismiss_btn_44_44.svg" alt="Dismiss" class="default">
+      <img src="/assets/dismiss_btn_hover_red_44_44.svg" alt="Dismiss" class="hover">
+    </button>
+  </div>
+  <div class="dialog-content-wrapper d-flex ">
+    <div class="s1-FW400 s1-FS14px s1-C-Charcoal">
+      {{ contentText }}
+    </div>
+  </div>
+
+
+  <div class="dialog-action-wrapper d-flex flex-row align-items-center justify-content-between">
+    
+    <button type="button" s1-button [btnType]="'secondary'" [customClass]="'dialog-btn'"
+      (click)="onCancel()">Cancel</button>
+
+    <button type="button" s1-button [btnType]="'primary'" [customClass]="'dialog-btn'"
+      (click)="onConfirm()">Confirm</button>
+
+  </div>
+
+
+</div>

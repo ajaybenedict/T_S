@@ -1,0 +1,32 @@
+<div 
+  #s1DropdownTrigger
+  class="select-container d-flex flex-container justify-content-between" 
+  [matMenuTriggerFor]="menu" 
+  [ngClass]="{'active': dropdownMenuStatus == 'Opened'}"
+  [ngStyle]="{'width': width}"  
+>
+  <ng-container *ngIf="value; else labelBlock">
+    <div class="d-flex align-items-center option-label">
+      <ng-container *ngIf="value.imgUrl">
+        <img class="option-img" [src]="value.imgUrl" [alt]="value.imgAlt ?? 'ItemIcon'" />
+      </ng-container>
+      <span class="s1-C-Stone">{{value.label | normalizeString}}</span>
+    </div>
+  </ng-container>
+  <ng-template class="label" #labelBlock><span class="s1-C-Stone">{{label}}</span></ng-template>
+  <div class="dropdown-arrow">
+    <button type="button" class="dropdown-btn">
+      <img src="/assets/select_dropdown_arrow_24_24.svg" alt="Dropdown">
+    </button>
+  </div>
+</div>
+<mat-menu #menu="matMenu" class="custom-menu">
+  <ng-container *ngFor="let opt of options">
+    <button class="option-btn" mat-menu-item (click)="selectOption(opt)">
+      <ng-container *ngIf="opt.imgUrl">
+        <img class="option-img" [src]="opt.imgUrl" [alt]="opt.imgAlt ?? 'ItemIcon'" />
+      </ng-container>
+      <span>{{ opt.label | normalizeString}}</span>
+    </button>
+  </ng-container>
+</mat-menu>

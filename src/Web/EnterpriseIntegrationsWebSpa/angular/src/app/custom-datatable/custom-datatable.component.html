@@ -1,0 +1,129 @@
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="custom-table-heading" style="width:612px;">RESELLER DETAILS</th>
+        <th class="custom-table-heading text-center" style="width:100px;" (click)="sortColumns(2)">
+          COUNTRY <img src="../assets/sorticon.svg" alt="SVG Icon" style="height: 100%;">
+        </th>
+        <th class="custom-table-heading text-center" style="width:340px;" (click)="sortColumns(1)">
+          ORDER DETAILS <img src="../assets/sorticon.svg" alt="SVG Icon" style="height: 100%;">
+        </th>
+        <th class="custom-table-heading text-center" style="width:230px;" (click)="sortColumns(3)">
+          ORDER VALUE <img src="../assets/sorticon.svg" alt="SVG Icon" style="height: 100%;">
+        </th>
+        <th class="custom-table-heading text-center" style="width:160px;" *ngIf="orderType">APPROVE | DECLINE</th>
+        <th class="custom-table-heading text-center" style="width:160px;" *ngIf="approvalType">APPROVAL</th>
+        <th class="custom-table-heading text-center" style="width:160px;" *ngIf="approvalType">APPROVED DETAILS</th>
+        <th class="custom-table-heading text-center" style="width:160px;" *ngIf="declineType">DECLINED</th>
+        <th class="custom-table-heading text-center" style="width:160px;" *ngIf="declineType">DECLINE DETAILS</th>
+        <th class="custom-table-heading text-center" style="width:160px;" *ngIf="declineType">MORE</th>
+      </tr>
+    </thead>
+    <mat-progress-bar class="row col-md-12" style=" width: 250%;" *ngIf="showProgressBarInput"
+      mode="indeterminate"></mat-progress-bar>
+    <hr style="width: 100%; color: transparent; margin-top: 10px; margin-bottom: 10px;">
+    <tbody *ngIf="!dashboardAPIErrorFlag">
+      <tr *ngFor="let item of datatable | paginate
+      : {
+          itemsPerPage: tableSize,
+          currentPage: page,
+          totalItems: count
+        };
+        let i = index">
+        <td style="width: 36%">
+          <p class="rowtext-normal" style="margin-right: 12px;">{{item.resellerID}}</p>
+          <p class="rowtext-normal pipe-padding">| </p>
+          <p class="rowtext-bold"> {{item.resellerName}}</p>
+        </td>
+        <td class="text-center" style="width: 6%">
+          <p class="rowtext-bold">{{item.country}}</p>
+        </td>
+        <td class="text-center" style="width: 16%">
+          <p class="rowtext-md">{{item.orderKey}}</p>
+          <p class="rowtext-normal pipe-padding">|</p>
+          <p class="rowtext-normal pipe-padding">{{item.orderDate}}</p>
+          <p class="rowtext-normal pipe-padding">|</p>
+          <p class="rowtext-normal pipe-padding">{{item.orderTime}}</p>
+        </td>
+        <td class="text-center" style="width: 10%">
+          <p class="rowtext-graybold ordervalue-background">{{item.currency}} &nbsp;&nbsp; {{item.orderValue | number: '1.2-2'}}</p>
+        </td>
+        <td class="text-center" style="width: 8%">
+          <button *ngIf="orderType" class="btn btn-sm approve-btn"  (mousedown)="toggleImg($event)" (mouseup)="toggleImg($event)" (click)="setAppoveResponse(item, 9)">
+            <img id="{{'approveBtnNeedsApproval_' + i}}" src="../assets/Approve.svg" alt="SVG Icon" style="height: 100%;">
+          </button>
+          &nbsp;
+          &nbsp;
+          <button *ngIf="orderType" class="btn btn-sm decline-btn" (mousedown)="toggleImg($event)" (mouseup)="toggleImg($event)" (click)="setDeclineResponse(item, 10)">
+            <img id="{{'declineBtnNeedsApproval_' + i}}" src="../assets/Decline.svg" alt="SVG Icon" style="height: 100%;">
+          </button>
+
+          <p  *ngIf="approvalType" class="rowtext-graybold ordervalue-background" >{{item.approvalType}}</p>
+          <p  *ngIf="declineType" class="rowtext-graybold ordervalue-background" >{{item.approvalType}}</p>
+        </td>
+        <td *ngIf="approvalType" style="width: 24%">
+          <p class="rowtext-normal" style="margin-right: 12px;">{{item.updatedBy}}</p>
+          <p class="rowtext-normal pipe-padding">|</p>
+          <p class="rowtext-normal">{{item.updatedDate}}</p>
+          <p class="rowtext-normal pipe-padding">|</p>
+          <p class="rowtext-normal"> {{item.updatedTime}}</p>
+        </td>
+        <td *ngIf="declineType" style="width: 24%">
+          <p class="rowtext-normal" style="margin-right: 12px;">{{item.updatedBy}}</p>
+          <p class="rowtext-normal pipe-padding">|</p>
+          <p class="rowtext-normal">{{item.updatedDate}}</p>
+          <p class="rowtext-normal pipe-padding">|</p>
+          <p class="rowtext-normal"> {{item.updatedTime}}</p>
+        </td>
+        <td *ngIf="declineType" style="width: 24%">
+            <button class="btn btn-outline-secondary dropdown-toggle dropdown-text" type="button"
+                    id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="../assets/moreOption.svg" alt="SVG Icon" style="height: 100%;">
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <div class="custom-list">
+                    <button class="btn btn-sm dropdown-item" style="margin-top: 10px; margin-bottom: 10px;" (click)="setAppoveResponse(item, 9)">
+                        <img src="../assets/Approve.svg" alt="SVG Icon" style="height: 100%; margin-right: 15px;">Approve
+                    </button>
+                    <button class="btn btn-sm dropdown-item" style="margin-top: 10px; margin-bottom: 10px;" (click)="setDeclineResponse(item, 2)">
+                        <img src="../assets/NeedsApproval.svg" alt="SVG Icon" style="height: 100%; margin-right: 15px">Needs Approval
+                    </button>
+                </div>
+            </ul>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+              <div class="custom-list">
+                  <button class="btn btn-sm dropdown-item btn-remove-arrow" style="margin-top: 10px; margin-bottom: 10px;">
+                      <img src="../assets/Approve.svg" alt="SVG Icon" style="height: 100%; margin-right: 15px;" (click)="setAppoveResponse(item, 9)">Approve
+                  </button>
+                  <button class="btn btn-sm dropdown-item" style="margin-top: 10px; margin-bottom: 10px;">
+                      <img src="../assets/NeedsApproval.svg" alt="SVG Icon" style="height: 100%; margin-right: 15px" (click)="setDeclineResponse(item, 2)">Needs Approval
+                  </button>
+              </div>
+          </ul>
+        </td>                       
+      </tr>
+    </tbody>
+    <tbody class="no-data-tbody" *ngIf="dashboardAPIErrorFlag">
+      <tr>
+        <img src="../assets/Frame.svg" alt="SVG Icon" style="height: 100%;">
+      </tr>
+      <tr class="no-data-message">
+        Oh no, no data available.
+      </tr>
+      <tr class="no-value-info-message">
+        There is no information to display for the filter choice you choose. Please choose an alternative to explore.
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="footer" *ngIf="!dashboardAPIErrorFlag">
+  <div class="d-flex justify-content-between w-100" style="padding: 0px;">
+    <div class="pagination-text">
+      {{ ((page - 1) * tableSize + 1) }} - {{ upperBound() }} out of {{ count }}
+    </div>
+    <pagination-controls previousLabel="" nextLabel="" (pageChange)="onTableDataChange($event)" class="custom-pagination">
+    </pagination-controls>
+  </div>
+</div>

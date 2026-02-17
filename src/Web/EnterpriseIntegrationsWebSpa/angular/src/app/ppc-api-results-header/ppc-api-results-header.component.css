@@ -1,0 +1,13 @@
+.ppc-api-results-container {
+    height: 37px;
+    border-radius: 4px;
+    border: 1px solid #E4E5E6;
+    background-color: #F8F8F8;
+    padding: 8px 24px;
+    line-height: 21px !important;
+    font-weight: 400;
+    font-size: 14px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -1,0 +1,154 @@
+::ng-deep .s1-data-table tbody {        
+    display: block;
+    max-height: var(--tbody-max-height);
+    overflow-y: auto;
+}
+::ng-deep .s1-data-table thead,
+::ng-deep .s1-data-table tbody tr {
+    display: table !important;
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+::ng-deep .s1-data-table tbody tr:last-child {
+    border-bottom: 1px solid #E4E5E6 !important;
+}
+
+:host ::ng-deep .s1-data-table thead,
+:host ::ng-deep .s1-data-table tbody {
+  display: block;
+}
+
+:host ::ng-deep .s1-data-table tbody {
+  margin-top: 24px;
+}
+
+/* Set background color on hover (configurable via CSS variables on `.s1-data-table-wrapper`) */
+:host ::ng-deep .s1-data-table-wrapper .mat-mdc-row:not(.row-selected):hover .mat-mdc-cell {
+  background-color: var(--hover-row-bg, #F8F8F8) !important;
+}
+
+:host ::ng-deep .s1-data-table-wrapper.warning-hover-enabled .mat-mdc-row:not(.row-selected):hover .mat-mdc-cell.warning {
+  background-color: var(--warning-hover-row-bg, #F2E4E7) !important;
+}
+
+.s1-data-table-action-btn {
+    display: flex !important;
+    flex-direction: row;
+    gap: 24px;
+    height: 24px;
+    justify-content: center;
+}
+.s1-data-table-action-btn button {
+    width: 24px !important;
+    height: 24px !important;
+}
+.no-data-wrapper, .no-data-wrapper-without-img {
+    margin-top: 2%;
+    margin-left: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 337px;
+    gap: 40px;  
+}
+
+.no-data-wrapper {
+    height: calc(100vh - 645px);
+}
+
+.no-data-wrapper-without-img {
+    height: calc(100vh - 780px);
+}
+
+.no-data-title {
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 27px;
+    height: 27px;
+    text-align: center;
+}
+.no-data-content {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    height: 24px;
+    text-align: center;
+}
+.mat-mdc-header-row.progress-bar-row {
+    height: 5px !important;
+}
+/* Sort */
+.hover-icon {
+    opacity: 0;
+}
+.sortable-column {
+    width: 100%;
+    border-color: transparent;
+    outline: none;
+    background-color: transparent;
+}
+.sortable-column:hover {
+    cursor: pointer;
+    .hover-icon {
+        opacity: 1;
+        transition: opacity 0.2s ease-in;
+    }
+}
+.sort-background {
+    background-color: #EBEEEF !important;
+}
+.s1-data-table mat-row, mat-cell, td, tbody, thead {
+  overflow: visible !important;
+  position: relative;
+  z-index: auto;
+}
+/* override the inline styles/global css with selected-row background-color */
+.mat-mdc-row.row-selected,
+.mat-mdc-row.row-selected [style*="background-color"] {
+  background-color: var(--selected-row-bg, #005758) !important;
+}
+/* override the inline styles/global css with selected-row font color */
+::ng-deep .mat-mdc-row.row-selected .mat-mdc-cell,
+::ng-deep .mat-mdc-row.row-selected .mat-mdc-cell *,
+::ng-deep .mat-mdc-row.row-selected .mat-mdc-cell [style*="color"],
+::ng-deep .mat-mdc-row.row-selected [class^="s1-C-"],
+::ng-deep .mat-mdc-row.row-selected [class*=" s1-C-"] {
+  color: var(--selected-row-font-color, #FFFFFF) !important;
+}
+
+.left-actions {
+  display: flex;
+  flex: 1 1 auto;   
+}
+
+.right-dropdown {
+  display: flex;
+  flex: 0 0 auto;   
+}
+
+::ng-deep .s1-data-table table tr td .left-actions-btn-holder {
+  display: none !important;
+}
+
+::ng-deep .s1-data-table table tr:hover td .left-actions-btn-holder {
+  display: flex !important;
+}
+
+::ng-deep .s1-data-table table tr td .left-actions-btn-holder button {
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;  
+}
+
+::ng-deep .s1-data-table table tr td .s1-menu-btn {
+  padding: 6px !important;
+}
+
+button {
+    cursor: pointer;
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0px !important;
+}

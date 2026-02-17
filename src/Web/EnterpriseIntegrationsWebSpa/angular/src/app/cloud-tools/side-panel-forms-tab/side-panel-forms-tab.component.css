@@ -1,0 +1,11 @@
+.content-holder {
+    background-color: #FFFFFF;
+    border: 1px solid #E4E5E6;
+    padding: 8px;
+    margin-bottom: 16px;
+    min-height: 39px;
+    display: block;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
