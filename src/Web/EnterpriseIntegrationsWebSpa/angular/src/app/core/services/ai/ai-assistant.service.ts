@@ -5,6 +5,7 @@ import { Assistant, PromptGroup, Tool } from "src/app/models/ai/assistant.interf
 import { JsonHelper } from "../AIAssistant/json-helper";
 import { DataState } from "../data-state";
 import { API_PATH_PPC, API_V1, CORE_PATH_AI } from "../../constants/constants";
+import { readChatCompletionText } from "./ai-streaming.helper";
 
 @Injectable({ providedIn: "root" })
 
@@ -16,8 +17,8 @@ export class AIAssistantService {
         private readonly dataState: DataState,
     ) { }
 
-    getAssistant(assistantId: number): Observable<Assistant> {
-        return this.http.get<Assistant>(`${this.apiBaseURL}/${assistantId}`).pipe(
+    getAssistant(assistantId: number, applicationId: number): Observable<Assistant> {
+        return this.http.get<Assistant>(`${this.apiBaseURL}/${assistantId}/${applicationId}`).pipe(
             map((response: Assistant) => {
                 // Parse 'prompts' if it's a stringified JSON
                 if (typeof response.prompts === 'string' && JsonHelper.isValidJSON(response.prompts)) {
@@ -40,6 +41,10 @@ export class AIAssistantService {
             catchError(this.handleError)
         );
     }
+    /**
+     * Builds a concise thread title from the first user message using streaming chat-completions.
+     * Sonar refactor: stream parsing is delegated to ai-streaming.helper.
+     */
     getChatSummaryTitle(firstMessage: string): Observable<string> {
       const now = new Date().toLocaleString(); 
       const systemPrompt = `Today is ${now}. Summarize this message into a concise chat title.`;
@@ -55,58 +60,12 @@ export class AIAssistantService {
         temperature: 0.2,
       };
 
-      const url = `${this.dataState.getCoreBaseUrl()}/${CORE_PATH_AI}/${API_V1}/assistant/chat-completions`;
+    const url = `${this.dataState.getCoreBaseUrl()}/${CORE_PATH_AI}/${API_V1}/assistant/chat-completions`;
 
       return new Observable<string>((observer) => {
-        fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "text/event-stream", // streaming response
-          },
-          body: JSON.stringify(body),
-        })
-          .then(async (response) => {
-            if (!response.ok || !response.body) {
-              throw new Error("Failed to fetch chat summary stream.");
-            }
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let accumulatedText = "";
-
-            // Read the stream chunk by chunk
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-
-              const chunk = decoder.decode(value, { stream: true });
-
-              // Most streaming APIs send data prefixed with "data:"
-              const lines = chunk.split("\n").filter(line => line.trim().startsWith("data:"));
-
-              for (const line of lines) {
-                const jsonStr = line.replace(/^data:\s*/, "").trim();
-                if (jsonStr === "[DONE]") {
-                  observer.next(accumulatedText.trim());
-                  observer.complete();
-                  return;
-                }
-
-                try {
-                  const data = JSON.parse(jsonStr);
-                  const delta = data?.choices?.[0]?.delta?.content;
-                  if (delta) {
-                    accumulatedText += delta;
-                  }
-                } catch (e) {
-                  console.warn("Error parsing stream chunk:", e);
-                }
-              }
-            }
-
-            // Complete if stream ends without explicit [DONE]
-            observer.next(accumulatedText.trim() || "New Chat");
+        readChatCompletionText(url, body)
+          .then((title) => {
+            observer.next(title || "New Chat");
             observer.complete();
           })
           .catch((err) => {

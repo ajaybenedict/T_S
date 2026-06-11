@@ -26,6 +26,9 @@
     background-color: #FFF;
     flex: 0 0 320px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .ppc-card-divider {
@@ -43,6 +46,10 @@
 
 .ppc-card-content-wrapper {
     padding: 0px !important;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .ppc-card-content-header {
@@ -56,11 +63,18 @@
     font-size: 13px;
     font-weight: 400;
     font-family: Arial, Helvetica, sans-serif;
-    margin: 16px 0px !important;
+    margin: 16px 0px 0px !important;
+    line-height: 20px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
 }
 
-.ppc-card-action-wrapper-animate {
+.ppc-card-action-wrapper {
+    margin-top: auto;
+    padding-top: 16px;
     position: relative;
+    min-height: 24px;
 }
 
 .ppc-card-action-arrow {

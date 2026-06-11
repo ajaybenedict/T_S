@@ -1,6 +1,6 @@
 import { DateFilterButtons } from "src/app/interface/date-filter-button.interface";
 
-export let customCalendarHeaderButtons: DateFilterButtons[] = [
+export const customCalendarHeaderButtons: DateFilterButtons[] = [
     {
         displayName: '24 h',
         width: '46px',

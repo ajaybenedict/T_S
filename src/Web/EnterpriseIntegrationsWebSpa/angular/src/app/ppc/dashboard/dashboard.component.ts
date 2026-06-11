@@ -11,10 +11,11 @@ import { DashboardHelper } from './dashboard-helper';
 import { PpcSnackBarService } from 'src/app/core/services/ppc-snack-bar.service';
 import { PPC_DASHBOARD_PAGE_SIZE } from 'src/app/core/constants/constants';
 import { DataState } from 'src/app/core/services/data-state';
-import { PermissionsEnum } from 'src/app/core/config/permissions.config';
+import { ApplicationIdEnum, PermissionsEnum } from 'src/app/core/config/permissions.config';
 import { S1TableColumnManager } from 'src/app/models/s1/s1-table-column-manager.interface';
 import { C3DashboardTabTypeEnum, C3DetailsCardActionEnum, S1ApprovedDeclinedDetailsCard, S1NeedsApprovalDetailsCard } from 'src/app/models/s1/s1-details-card.interface';
 import { OrderLineRequest, OrderLineResponse } from 'src/app/models/ppc/order-line.interface';
+import { C3_COLUMN_CONSTANTS } from 'src/app/core/constants/c3-dashboard-column.constants';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,7 +23,6 @@ import { OrderLineRequest, OrderLineResponse } from 'src/app/models/ppc/order-li
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnDestroy, AfterViewInit {
-
   constructor(
     private readonly cdr: ChangeDetectorRef,
     private readonly dashboardDataSVC: PPCDashboardDataService,
@@ -45,6 +45,7 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
   isOrderLineItemsVisible: boolean = false;
   isOrderLineItemsAPIInProgress: boolean = false;
   clearSelectedRowTrigger: number = 0;
+  scrollSelectedRowTrigger: number = 0;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -111,16 +112,16 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
   }
 
   initTableColumn() {
-    const hasAnyPermission = this.dataState.hasPermission([PermissionsEnum.PreProvisioningOrderApproval]);
+    const hasAnyPermission = this.hasApprovalPermission;
     const defaultColumns = DashboardHelper.getDefaultColumns(this, this.datePipe);
     this.needsApprovalColumns = this.buildNeedsApprovalColumnsFromConfig(this.columnManagerData);
     this.approvedColumns = [
       ...defaultColumns,
-      DashboardHelper.getActionerDetailsColumn('Approved Details', this.datePipe),
+      DashboardHelper.getActionerDetailsColumn(C3_COLUMN_CONSTANTS.main.approvedDetails.displayName, this.datePipe),
     ];
     this.declinedColumns = [
       ...defaultColumns,
-      DashboardHelper.getActionerDetailsColumn('Decline Details', this.datePipe),
+      DashboardHelper.getActionerDetailsColumn(C3_COLUMN_CONSTANTS.main.declinedDetails.displayName, this.datePipe),
       ...(hasAnyPermission ? [DashboardHelper.getDropdownActionsColumn()] : [])
     ];
   }
@@ -133,26 +134,25 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     ];
 
     // Always include Order Details from base set
-    const orderDetailsCol = baseCols.find(c => c.columnKey === 'Order Details');
+    const orderDetailsCol = baseCols.find(c => c.columnKey === C3_COLUMN_CONSTANTS.main.orderDetails.columnKey);
 
     // Map according to config order & visibility; ignore Order Details / Actions if present in config
     const managedCols = (config || [])
-      .filter(c => c.visible && c.columnKey !== 'Order Details' && c.columnKey !== 'Actions')
+      .filter(c => c.visible)
+      .filter(c => c.columnKey !== C3_COLUMN_CONSTANTS.main.orderDetails.columnKey && c.columnKey !== C3_COLUMN_CONSTANTS.main.actions.columnKey)
       .map(c => baseCols.find(def => def.columnKey === c.columnKey))
       .filter(Boolean) as S1DataTableColumn[];
 
     // Actions column appended if user has permission
-    const actionsCol = this.dataState.hasPermission([PermissionsEnum.PreProvisioningOrderApproval])
+    const actionsCol = this.dataState.hasPermission([PermissionsEnum.PreProvisioningOrderApproval], ApplicationIdEnum.C3)
       ? DashboardHelper.getActionsColumn(['Decline', 'Approve'])
       : null;
 
     // Final assembled columns (single source of truth, returned)
-    return [
-      DashboardHelper.getStatusInfoColumn(),
-      orderDetailsCol!,
-      ...managedCols,
-      ...(actionsCol ? [actionsCol] : [])
-    ];
+    // Keep status-info column for all users; it carries row icon context in Needs Approval.
+    const leadingColumns = [DashboardHelper.getStatusInfoColumn(), orderDetailsCol!];
+
+    return [...leadingColumns, ...managedCols, ...(actionsCol ? [actionsCol] : [])];
   }
 
   initTableData() {
@@ -163,17 +163,17 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     this.navTabs = [
       {
         // TabIndex - 0
-        label: 'Needs Approval',
+        label: C3_COLUMN_CONSTANTS.main.tabNames.needsApproval,
         tabContent: this.needsApprovalTab,        
       },
       {
         // TabIndex - 1
-        label: 'Approved',
+        label: C3_COLUMN_CONSTANTS.main.tabNames.approved,
         tabContent: this.approvedTab,       
       },
       {
         // TabIndex - 2
-        label: 'Declined',
+        label: C3_COLUMN_CONSTANTS.main.tabNames.declined,
         tabContent: this.declinedTab,        
       },
     ];
@@ -188,21 +188,24 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
     let snackbarMsg: string; // only if API is success.
     let api: string;
     switch(data.emitKey) {
-      case 'Approve':
+      case C3DetailsCardActionEnum.Approve:
         dataToSend.OrderStatus = 9;
         snackbarMsg = `Order <span class="ppc-bold-txt"> ${data.row.orderKey} </span> has been approved`;
         api = 'Approve';
         break;
-      case 'Decline':
+      case C3DetailsCardActionEnum.Decline:
         dataToSend.OrderStatus = 10;
         snackbarMsg = `Order <span class="ppc-bold-txt"> ${data.row.orderKey} </span> has been declined`;
         api = 'Decline';
         break;
-      case 'Needs Approval':
+      case C3DetailsCardActionEnum.NeedsApproval:
         dataToSend.OrderStatus = 2;
         snackbarMsg = `Order <span class="ppc-bold-txt"> ${data.row.orderKey} </span> has moved to Needs Approval`;
         api = 'Decline';
         break;
+      case C3DetailsCardActionEnum.Goto:
+        this.scrollSelectedRowTrigger++;
+        return;
       default:
         throw new Error(`Emitkey not defined ${data.emitKey}`);
     }
@@ -266,19 +269,24 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
   }  
 
   columnManagerToggle(value: boolean) {    
+    if (this.isCreditViewOnly) {
+      this.showColumnManager = false;
+      this.cdr.detectChanges();
+      return;
+    }
     this.showColumnManager = value;
     this.cdr.detectChanges();
   }
 
   initColumnManagerData() {
-    this.columnManagerData = DashboardHelper.defaultColumnManagerConfig.map(col => ({...col}));
+    this.columnManagerData = this.applyCreditViewColumnManagerRestrictions(DashboardHelper.defaultColumnManagerConfig);
   }
 
   private updateColumnManagerData(newData: S1TableColumnManager[]) {
     if(this.isOrderLineItemsVisible) this.hideDetailsCard();
 
     // always create fresh copy
-    this.columnManagerData = newData.map(c => ({ ...c }));
+    this.columnManagerData = this.applyCreditViewColumnManagerRestrictions(newData);
 
     // rebuild Needs Approval columns
     this.needsApprovalColumns = this.buildNeedsApprovalColumnsFromConfig(this.columnManagerData);
@@ -344,20 +352,20 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
   }
 
   resetTableColumns() {
-    const hasAnyPermission = this.dataState.hasPermission([PermissionsEnum.PreProvisioningOrderApproval]);
+    const hasAnyPermission = this.hasApprovalPermission;
     const defaultColumns = DashboardHelper.getDefaultColumns(this, this.datePipe);
     switch (this.activeTab) {
       case 1:
         this.approvedColumns = [
           ...defaultColumns,
-          DashboardHelper.getActionerDetailsColumn('Approved Details', this.datePipe),
+          DashboardHelper.getActionerDetailsColumn(C3_COLUMN_CONSTANTS.main.approvedDetails.displayName, this.datePipe),
         ];
         this.approvedDeclinedDetailsCardInput = null;
         break;
       case 2:
         this.declinedColumns = [
           ...defaultColumns,
-          DashboardHelper.getActionerDetailsColumn('Decline Details', this.datePipe),
+          DashboardHelper.getActionerDetailsColumn(C3_COLUMN_CONSTANTS.main.declinedDetails.displayName, this.datePipe),
           ...(hasAnyPermission ? [DashboardHelper.getDropdownActionsColumn()] : [])
         ];
         break;
@@ -435,5 +443,38 @@ export class DashboardComponent implements OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  get hasApprovalPermission(): boolean {
+    return this.dataState.hasPermission([PermissionsEnum.PreProvisioningOrderApproval], ApplicationIdEnum.C3);
+  }
+
+  get isCreditViewOnly(): boolean {
+    // StreamOneHub GlobalAdmin should never be constrained by C3 credit view-only restrictions.
+    const hasGlobalAccess = this.dataState.hasPermission([PermissionsEnum.GlobalAdmin], ApplicationIdEnum.StreamOneHub);
+    if (hasGlobalAccess) {
+      return false;
+    }
+
+    // Credit view-only mode is C3 permission 10 without C3 order-approval permission.
+    return this.dataState.hasPermission([PermissionsEnum.PreProvisioningCredit], ApplicationIdEnum.C3)
+      && !this.hasApprovalPermission;
+  }
+
+  get canShowColumnManager(): boolean {
+    return this.activeTab === 0 && !this.isCreditViewOnly;
+  }
+
+  private applyCreditViewColumnManagerRestrictions(data: S1TableColumnManager[]): S1TableColumnManager[] {
+    const copiedData = data.map(c => ({ ...c }));
+    if (!this.isCreditViewOnly) {
+      return copiedData;
+    }
+
+    // In credit view-only mode, keep only explicitly allowed managed columns visible.
+    return copiedData.map(c => ({
+      ...c,
+      visible: DashboardHelper.C3_VIEW_ONLY_COLUMNS.has(c.columnKey),
+    }));
   }
 }

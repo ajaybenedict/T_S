@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { DataState } from '../data-state';
 import { API_PATH_PPC, API_V1 } from '../../constants/constants';
 import { RuleDetail, GetRulesRequest, Rule, UpdateRuleRequest } from 'src/app/models/rule-engine/rule-engine';
+import { UIRuleConfigApiResponse } from 'src/app/models/rule-engine/rule-editor-config.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -21,15 +23,19 @@ export class RuleEngineApiService {
   }
 
   // need to update the response model api is not developed
-  getRuleById(workflowId: number, ruleId: string) {
-    return this.http.get<RuleDetail>(`${this.baseURI}/rule/${workflowId}/${ruleId}`);
+  getRuleById(applicationId: number, workflowId: number, ruleId: string) {
+    return this.http.get<RuleDetail>(`${this.baseURI}/rule/${applicationId}/${workflowId}/${ruleId}`);
   }
 
-  createRule(payload: RuleDetail, workflowId: number) {
-    return this.http.post<boolean>(`${this.baseURI}/rule/${workflowId}/create`, payload);
+  createRule(applicationId: number, payload: RuleDetail, workflowId: number) {
+    return this.http.post<boolean>(`${this.baseURI}/rule/${applicationId}/${workflowId}/create`, payload);
   }
 
-  updateRule(payload: UpdateRuleRequest, workflowId: number, ruleId: string) {
-    return this.http.post<boolean>(`${this.baseURI}/rule/${workflowId}/update/${ruleId}`, payload);
+  updateRule(applicationId: number, payload: UpdateRuleRequest, workflowId: number, ruleId: string) {
+    return this.http.post<boolean>(`${this.baseURI}/rule/${applicationId}/${workflowId}/update/${ruleId}`, payload);
+  }
+
+  getUIRuleConfig(workflowId: number): Observable<UIRuleConfigApiResponse> {
+    return this.http.get<UIRuleConfigApiResponse>(`${this.baseURI}/rule/workflow/${workflowId}/config`);
   }
 }

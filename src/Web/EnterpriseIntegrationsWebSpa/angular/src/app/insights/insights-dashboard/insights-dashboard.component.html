@@ -1,10 +1,36 @@
-<ng-container *ngIf="embedConfig">
-  <div class="s1-P24px">
-    <div class="report-tab-content d-flex flex-column">
-      <app-s1-action-bar [inputData]="actionbarData" (btnClick)="resetAllFilters($event)"></app-s1-action-bar>
-      <div class="report-container" *ngIf="embedConfig">
-        <app-powerbi-report-wrapper [embedConfig]="embedConfig" [reportCommand$]="reportCommand$"></app-powerbi-report-wrapper>
-      </div>
+<ng-container>
+    <div class="d-flex flex-column s1-P24px">
+        <app-ppc-nav-tabs *ngIf="navTabs.length > 1" [tabs]="navTabs" [selectedIndex]="activeTab"
+            (tabChange)="tabChangeEventHandler($event)"></app-ppc-nav-tabs>
+        <div class="no-data-container" *ngIf="reportFailed">
+            <div class="no-data-wrapper">
+                <img [src]="apiErrorImg" class="no-data-img" alt="NoData">
+                <div>
+                    <div class="no-data-title">{{apiErrorTitle}}</div>
+                    <div class="no-data-content">{{apiErrorContext}}</div>
+                </div>
+            </div>
+        </div>
+        <ng-template #report>
+            <div class="report-tab-content d-flex flex-column" *ngIf="!reportFailed">
+                <app-s1-action-bar [inputData]="actionbarData" (btnClick)="resetAllFilters($event)"></app-s1-action-bar>
+                <div class="d-flex align-items-center w-100" *ngIf="canShowBulkUpdateButton">
+                    <app-validation-error [errorMsg]="showValidationError ? validationErrorMsg : ''" [width]="'100%'"
+                        [height]="'48px'" [variant]="'error'" class="flex-grow-1 me-3"
+                        [style.visibility]="showValidationError ? 'visible' : 'hidden'">
+                    </app-validation-error>
+                    <button type="button" s1-button btnType="primary" (click)="OpenBulkUpdatePanel()"
+                        [disabled]="!canEnableBulkUpdate" class="ms-auto flex-shrink-0">
+                        Bulk Update
+                    </button>
+                </div>
+                <div class="report-container" *ngIf="embedConfig">
+                    <app-powerbi-report-wrapper [embedConfig]="embedConfig" [hiddenPages]="hiddenPages"
+                        [reportCommand$]="reportCommand$" [reportName]="reportName"
+                        (hyperlinkClicked)="clickEvent($event)"
+                        (loaded)="onReportLoaded()"></app-powerbi-report-wrapper>
+                </div>
+            </div>
+        </ng-template>
+        <ng-container *ngIf="navTabs.length === 1" [ngTemplateOutlet]="report"></ng-container>
     </div>
-  </div>
-</ng-container>

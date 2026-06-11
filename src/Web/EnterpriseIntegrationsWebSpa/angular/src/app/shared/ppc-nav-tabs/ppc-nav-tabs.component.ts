@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PPCNavData } from 'src/app/models/ppc-nav.model';
 
 @Component({
@@ -6,12 +6,8 @@ import { PPCNavData } from 'src/app/models/ppc-nav.model';
   templateUrl: './ppc-nav-tabs.component.html',
   styleUrls: ['./ppc-nav-tabs.component.css']
 })
-export class PpcNavTabsComponent implements AfterViewInit {
-  showNavTab = false;
-  @Input() declare tabs: PPCNavData[];   
+export class PpcNavTabsComponent {
+  @Input() tabs: PPCNavData[] | null = null;
   @Output() tabChange = new EventEmitter<number>();
   @Input() selectedIndex: number = 0;  
-  ngAfterViewInit(): void {
-    this.showNavTab = true;
-  }
 }

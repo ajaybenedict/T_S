@@ -21,7 +21,7 @@
                 <div class="chat-txt">
                     <div *ngIf="!item.openAiResult" [style.max-height]=" 'auto'" style="overflow-y:auto;">
                         <markdown *ngIf="item.content[0].text.value"
-                            [data]="item.content[0].text.value | extractTextBeforeJson"></markdown>
+                            [data]="(item.content[0].text.value | removeFileReferences) | extractTextBeforeJson"></markdown>
                     </div>
                     <div *ngIf="item.openAiResult" [style.max-height]="'auto'" style="overflow-y:auto; ">
                         <!-- below line will act as a subscribe to openAiResult in the doSendRequestToAi(). do not alter this!!! -->
@@ -37,7 +37,7 @@
                         </div>
                     </div>
                 </div>
-                <mat-progress-bar *ngIf="showLoader && i === messages.length - 1 && (item.role === 'assistant' || item.role === 'tool')"class="mt-1" mode="indeterminate" style="width: 100%;"></mat-progress-bar>                
+                <mat-progress-bar *ngIf="showLoader && i === messages.length - 1 && (item.role === 'assistant' || item.role === 'tool')"class="mt-1" mode="indeterminate" style="width: 100%;"></mat-progress-bar>
             </div>
         </div>
     </div>

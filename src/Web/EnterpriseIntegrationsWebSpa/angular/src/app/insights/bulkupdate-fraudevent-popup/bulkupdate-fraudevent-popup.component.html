@@ -1,0 +1,62 @@
+<aside class="panel-container d-flex flex-column" [formGroup]="fraudAlertForm">
+    <header class="d-flex justify-content-between align-items-center panel-header s1-P-16-20-px">
+        <div class="s1-FW700 s1-FS18px">
+            <span class="s1-C-Teal">Bulk Fraud Event Status Update - ({{ selectedEventsCount }} events selected)</span>
+        </div>
+        <button type="button" s1-button [iconOnly]="true" (click)="closeHandler()">
+            <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss" class="default">
+            <img src="/assets/dismiss_btn_hover_red_24_24.svg" alt="dismiss" class="hover">
+        </button>
+    </header>
+
+    <div class="panel-content-container d-flex flex-column s1-P20px gap-2">
+        <div class="filters-container d-flex flex-column gap-2">
+            <div class="filters-row d-flex gap-3">
+                <div class="flex-field d-flex flex-column gap-2">
+                    <div class="popup-content-title s1-FS16px s1-FW700 s1-C-Charcoal">
+                        Event Status &nbsp;<span class="s1-mandatory-star">*</span>
+                    </div>
+                    <div class="dropdown-holder">
+                        <app-select-dropdown [options]="eventStatusDropdown"
+                            [formControlName]="formControlList.EVENT_STATUS">
+                        </app-select-dropdown>
+                    </div>
+                </div>
+
+
+                <div class="flex-field d-flex flex-column gap-2" *ngIf="eventStatus === 'Resolved'">
+                    <div class="popup-content-title s1-FS16px s1-FW700 s1-C-Charcoal">
+                        Resolved Reason &nbsp;<span class="s1-mandatory-star">*</span>
+                    </div>
+                    <div class="dropdown-holder">
+                        <app-select-dropdown [options]="resolvedReasonDropdown"
+                            [formControlName]="formControlList.RESOLVED_REASON">
+                        </app-select-dropdown>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <app-s1-data-table [tableColumns]="tablecolumns" [tableData]="publishedTableData"
+                [showProgressBar]="showTableProgressBar" [tbodyMaxHeight]="tableMaxHeight">
+            </app-s1-data-table>
+        </div>
+
+        <nav class="paginator-container" aria-label="Pagination">
+            <app-ppc-paginator></app-ppc-paginator>
+        </nav>
+
+    </div>
+
+    <div class="panel-footer">
+        <div class="d-flex justify-content-end">
+            <div class="d-flex flex-row align-items-center gap-3 footer-container s1-P-16-20-px">
+                <button type="button" s1-button btnType="primary" [disabled]="fraudAlertForm.invalid"
+                    (click)="showDialog()">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</aside>

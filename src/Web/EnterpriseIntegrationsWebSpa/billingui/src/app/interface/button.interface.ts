@@ -36,6 +36,17 @@ export interface CheckBox {
   key: number;
 }
 
+export interface CheckboxGroup {
+  id: string;
+  groupTitle: string;
+  checkboxes: CheckBox[];
+}
+
+
+// Union type for checkbox value - allows both individual and array types
+export type CheckboxValue = CheckBox[] | CheckboxGroup[] | (CheckBox | CheckboxGroup)[];
+
+
 export interface SelectDropdown {
   label: string;
   value: string;

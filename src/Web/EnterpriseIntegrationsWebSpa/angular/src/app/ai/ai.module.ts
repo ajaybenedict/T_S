@@ -9,6 +9,7 @@ import { ChatMessageComponent } from './chat-message/chat-message.component';
 import { ThreadComponent } from './thread/thread.component';
 import { ThreadContainerComponent } from './thread-container/thread-container.component';
 import { ChatInputComponent } from './chat-input/chat-input.component';
+import { RemoveFileReferencesPipe } from '../pipe/remove-file-references.pipe';
 
 
 const modules = [
@@ -19,21 +20,26 @@ const modules = [
   DynamicModule,
 ];
 
-const components = [  
+const components = [
   ChatLayoutComponent,
   ChatMessageComponent,
     ThreadComponent,
     ThreadContainerComponent,
-    ChatInputComponent, 
+    ChatInputComponent,
+];
+
+const pipes = [
+  RemoveFileReferencesPipe,
 ];
 
 @NgModule({
   declarations: [
     ...components,
+    ...pipes,
   ],
-  
+
   imports: [
-    ...modules,    
+    ...modules,
   ]
 })
 export class AiModule { }

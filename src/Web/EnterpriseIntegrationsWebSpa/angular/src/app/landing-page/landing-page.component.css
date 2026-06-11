@@ -61,3 +61,11 @@
     height: calc(100vh - 68px);
     overflow: auto;
 }
+
+.floating-ai-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  border-radius: 50% !important;
+}

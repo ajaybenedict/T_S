@@ -3,6 +3,7 @@ import { AISummaryService } from '../core/services/ai/ai-summary.service';
 import { AIAssistantService } from '../core/services/ai/ai-assistant.service';
 import { catchError, concatMap, of, take } from 'rxjs';
 import { AI_OVERVIEW_DISCLAIMER_TEXT, C3_AI_SUMMARY_ASSISTANT_ID } from '../core/constants/constants';
+import { ApplicationIdEnum } from '../core/config/permissions.config';
 
 @Component({
   selector: 'app-ai-summary',
@@ -17,6 +18,7 @@ export class AiSummaryComponent implements OnInit{
   disclaimerText = AI_OVERVIEW_DISCLAIMER_TEXT;
   
   @Input() assistantId: number = C3_AI_SUMMARY_ASSISTANT_ID; //fall backs to 2
+  @Input() applicationId: number = ApplicationIdEnum.C3; // fall back to C3 applicationId which is 2, as this component is currently used in C3 module. This can be overridden by parent component if needed while using this component in other modules in future.
   @Input() jsonData!: string;
 
   @Output() panelClosed = new EventEmitter<void>();
@@ -32,7 +34,7 @@ export class AiSummaryComponent implements OnInit{
       console.error(`No JSON data received from pa.`);
       return;
     }
-    this.assistantSVC.getAssistant(this.assistantId).pipe(
+    this.assistantSVC.getAssistant(this.assistantId, this.applicationId).pipe(
       take(1),
       catchError(err => {
         console.log(`Error in getting assistant: ${err}`); 

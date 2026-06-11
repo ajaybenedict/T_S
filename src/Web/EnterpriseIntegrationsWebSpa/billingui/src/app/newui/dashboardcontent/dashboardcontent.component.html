@@ -1,13 +1,26 @@
 <div class="main-container" [ngClass]="{ 'side-open': isSidePanelOpen }">
-  <div class="table-container">
-    <app-table-view [SidePanelMiddleColspan]="isSidePanelOpen" (clickedRow)="onRowSelected($event)"
-      (ActionInformation)="invoiceAction($event)"></app-table-view>
+  <div class="table-container" [ngClass]="{ 'loading': isLoading }">  
+
+    <app-selection-toolbar *ngIf="selectedRowCount > 0" [selectedCount]="selectedRowCount"
+      [allSelectedOnPage]="isSelectAll" (selectAll)="onSelectAll()" (deselectAll)="onDeselectAll()">
+    </app-selection-toolbar>
+
+
+    <app-grouped-table-view-template [data]="groupedData" [columns]="tablecolumns" [toggleAll]="toggleAllState"
+      [isLoading]="isLoading" [sidePanelMiddleColspan]="isSidePanelOpen" (selectedRowCount)="onSelectedRowCount($event)"
+      (isSelectAll)="onIsSelectAll($event)" (clickedRow)="onRowSelected($event)"
+      (actionInformation)="invoiceAction($event)">
+    </app-grouped-table-view-template>
+
   </div>
   <mat-sidenav-container class="sidenav-wrapper" *ngIf="isSidePanelOpen">
     <mat-sidenav position="end" mode="side" opened="true" class="side-panel">
       <app-data-modal (buttonAction)="invoiceAction($event)" (close)="closeSidePanel()"></app-data-modal>
     </mat-sidenav>
   </mat-sidenav-container>
+
+  <!-- Full-Screen Loading Overlay -->
+  <div class="loading-screen-overlay" *ngIf="isLoading"></div>
 </div>
 
 <app-manage-tablecolumn [tabs]=tabs [columns]=columns></app-manage-tablecolumn>

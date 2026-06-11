@@ -1,5 +1,4 @@
 import { DisplayEntity } from '../models/display-entity';
-import { DisplayTableComponent } from '../DisplayComponent/display-table.component';
 import { DisplayCustomIonDataComponent } from '../DisplayComponent/display-custom-ion-data.component';
 
 

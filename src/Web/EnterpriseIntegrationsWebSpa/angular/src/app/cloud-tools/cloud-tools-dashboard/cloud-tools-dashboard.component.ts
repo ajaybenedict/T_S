@@ -4,22 +4,21 @@ import { CloudToolsHelper } from '../cloud-tools-helper';
 import { S1DataTableColumn } from 'src/app/models/s1/s1-data-table.interface';
 import { S1SearchBar } from 'src/app/models/s1/s1-search-bar.interface';
 import { DatePipe } from '@angular/common';
-import { CLOUD_TOOL_PERMISSION_MAP, CloudTools, CloudToolsOperationFactory, CLOUD_TOOLS_PERMISSION_MAP, taskTypeData, uploadButtonData } from 'src/app/core/config/cloud-tools.config';
-import { S1Checkbox } from 'src/app/models/s1/s1-filter-checkbox.interface';
+import { CloudTools, CLOUD_TOOLS_PERMISSION_MAP, DashboardTabEnum } from 'src/app/core/config/cloud-tools.config';
 import { CloudToolsStatusIdEnum, CloudToolsTaskIdEnum, TransactionDetailsRequest, TransactionDetailsResponse, TransactionRequest, TransactionResponse, Transactions } from 'src/app/models/cloud-tools/cloud-tools.interface';
 import { CloudToolsAPIService } from 'src/app/core/services/cloud-tools/cloud-tools-api.service';
 import { Subject, take, takeUntil } from 'rxjs';
 import { CloudToolsDataService } from 'src/app/core/services/cloud-tools/cloud-tools-data.service';
 import { PPCPageChangeEventData, PPCPaginatorData } from 'src/app/models/ppc-paginator.model';
 import { PpcPaginatorDataService } from 'src/app/core/services/ppc-paginator-data.service';
-import { DEFAULT_PAGE_SIZE_CLOUD_TOOLS, DEFAULT_PAGE_SIZE_OPTIONS } from 'src/app/core/constants/constants';
-import { S1DropDownButton } from 'src/app/models/s1/s1-drop-down-button.interface';
-import { S1MenuItem } from 'src/app/models/s1/s1-menu.interface';
+import { CLOUD_TOOLS_ROUTE, DEFAULT_PAGE_SIZE_CLOUD_TOOLS, DEFAULT_PAGE_SIZE_OPTIONS } from 'src/app/core/constants/constants';
 import { DataState } from 'src/app/core/services/data-state';
-import { PermissionsEnum } from 'src/app/core/config/permissions.config';
+import { ApplicationIdEnum, PermissionsEnum } from 'src/app/core/config/permissions.config';
 import { SidePanelService } from 'src/app/shared-s1/s1-cdk-side-panel/side-panel.service';
 import { UploadPanelComponent } from '../upload-panel/upload-panel.component';
+import { SubsTransferUploadPanelComponent } from '../subs-transfer-upload-panel/subs-transfer-upload-panel.component';
 import { PermissionsLoaderDialogService } from 'src/app/core/services/permissions-loader-dialog.service';
+import { ActivatedRoute } from '@angular/router';
 
 const ALLOWED_TOOL_PERMISSION_SET = new Set(Object.values(CLOUD_TOOLS_PERMISSION_MAP));
 
@@ -37,6 +36,7 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
   showOverlay = false;
   isCardDetailsVisible = false;
   isTransactionDetailsAPIInProgress = false;
+  showFilterControls = true;
 
   navTabs!: PPCNavData[];
   successColumnData!: S1DataTableColumn[];
@@ -44,22 +44,21 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
   failedColumnData!: S1DataTableColumn[];
   searchBarData!: S1SearchBar;
   paginatorData!: PPCPaginatorData;
-  tableData!: Transactions[];
+  tableData: Transactions[] = [];
   detailsCardInputData!: {row: Transactions, details: TransactionDetailsResponse} | null;
-  transactionRequestData!: TransactionRequest;
   transactionAPIResponse!: TransactionResponse;
-
-  cloudToolOperations!: S1Checkbox[];
-
-  taskTypes: S1Checkbox[] = taskTypeData;
-  cloudToolsButtonData: S1DropDownButton | null = null;
-  taskIds: number[] = [];
+  taskIds: CloudToolsTaskIdEnum[] = [];
+  private scopedTaskIds: CloudToolsTaskIdEnum[] = [];
+  private isToolScopedRoute = false;
 
   activeTab = 0;
   clearSelectedRowTrigger: number = 0;
+  scrollSelectedRowTrigger: number = 0;
+  selectedTransactionId: string | null = null;
 
   selectedCloudToolsType!: CloudTools;
-  private readonly userPermissions = this.dataState.getUserPermissions();
+  private currentToolRouteKey = '';
+  private readonly userPermissions = this.dataState.getUserPermissions(ApplicationIdEnum.CloudTools);
   private readonly destroy$ = new Subject<void>();
 
   constructor(
@@ -71,24 +70,148 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
     private readonly dataState: DataState,
     private readonly sidePanelSVC: SidePanelService,
     private readonly permissionDialogSVC: PermissionsLoaderDialogService,
+    private readonly activatedRoute: ActivatedRoute,
   ) { }
 
   @ViewChild('successTab', { static: false }) successTab!: TemplateRef<unknown>;
   @ViewChild('inProgressTab', { static: false }) inProgressTab!: TemplateRef<unknown>;
-  @ViewChild('failedTab', { static: false }) failedTab!: TemplateRef<unknown>;
-  @ViewChild('requestAccess', { static: true }) requestAccessTemplate!: TemplateRef<unknown>;
+  @ViewChild('failedTab', { static: false }) failedTab!: TemplateRef<unknown>;  
 
-  ngOnInit(): void {
-    this.initSearchBar();
-    this.initCloudToolsButton();
-    this.initOperationDropdown();
+  ngOnInit(): void {    
+    this.initSearchBar();        
     this.initSubs();
-    this.initApiCall();
+    this.initRouteStateSubs();
   }
 
-  private initApiCall() {
-    this.transactionRequestData = this.cloudToolsDataSVC.getTransactionRequestData();
-    this.getTransactions(this.transactionRequestData);
+  private setScopedTaskIds(taskIds: CloudToolsTaskIdEnum[]): void {
+    this.scopedTaskIds = [...taskIds];
+  }
+
+  private refreshTransactions(patch: Partial<TransactionRequest>): void {
+    const current = this.cloudToolsDataSVC.getTransactionRequestData();
+    const effectiveTaskIds = this.scopedTaskIds.length > 0
+      ? this.scopedTaskIds
+      : (current.taskIds ?? this.taskIds);
+
+    const next: TransactionRequest = {
+      ...current,
+      ...patch,
+      taskIds: effectiveTaskIds,
+    };
+
+    this.cloudToolsDataSVC.setTransactionRequestData(next);
+    this.getTransactions(next);
+  }
+
+  private initResolvedTransactions(resolvedData: TransactionResponse | null | undefined): void {
+    this.permissionDialogSVC.closeDialog();
+    const resolved = resolvedData;
+
+    if (!resolved) {
+      this.transactionAPIResponse = {
+        transactions: [],
+        totalCount: 0,
+        pageNumber: 1,
+        pageSize: DEFAULT_PAGE_SIZE_CLOUD_TOOLS,
+        timestamp: '',
+        message: null,
+      };
+      this.tableData = [];
+      this.isPaginatorVisible = false;
+      this.cloudToolsDataSVC.setTransactionAPIInProgress(false);
+      return;
+    }
+
+    this.transactionAPIResponse = resolved;
+    this.tableData = [...(resolved.transactions ?? [])];
+    this.initPaginator();
+    this.cloudToolsDataSVC.setTransactionAPIInProgress(false);
+  }
+
+  private initRouteStateSubs(): void {
+    this.activatedRoute.url.pipe(
+      takeUntil(this.destroy$),
+    ).subscribe({
+      next: (segments) => {
+        const routeKey = segments[0]?.path ?? this.activatedRoute.snapshot.routeConfig?.path ?? '';
+        const routeToolType = this.getCloudToolTypeFromRouteKey(routeKey);
+        const routeTaskId = this.getCloudToolTaskIdFromRouteKey(routeKey);
+
+        this.isToolScopedRoute = !!routeToolType;
+        if (routeToolType) {
+          this.selectedCloudToolsType = routeToolType;
+        }
+        this.setScopedTaskIds(routeTaskId ? [routeTaskId] : []);
+
+        if (this.currentToolRouteKey && this.currentToolRouteKey !== routeKey) {
+          this.resetDashboardStateForToolNavigation();
+        }
+
+        this.currentToolRouteKey = routeKey;
+      },
+    });
+
+    this.activatedRoute.data.pipe(
+      takeUntil(this.destroy$),
+    ).subscribe({
+      next: (data) => {
+        const resolved = data[CLOUD_TOOLS_ROUTE.RESOLVER] as TransactionResponse | null | undefined;
+        this.initResolvedTransactions(resolved);
+      },
+    });
+  }
+
+  private getCloudToolTaskIdFromRouteKey(routeKey: string): CloudToolsTaskIdEnum | null {
+    switch (routeKey) {
+      case CLOUD_TOOLS_ROUTE.EST_MANAGER:
+        return CloudToolsTaskIdEnum.LCMUpdate;
+      case CLOUD_TOOLS_ROUTE.PCR_CLEANUP:
+        return CloudToolsTaskIdEnum.PCRCleanup;
+      case CLOUD_TOOLS_ROUTE.SANDBOX_CLEANUP:
+        return CloudToolsTaskIdEnum.SandBoxCleanUp;
+      case CLOUD_TOOLS_ROUTE.UPDATE_MPNID:
+        return CloudToolsTaskIdEnum.UpdateMPNID;
+      case CLOUD_TOOLS_ROUTE.SUBS_TRANSFER:
+        return CloudToolsTaskIdEnum.SubscriptionTransfer;
+      default:
+        return null;
+    }
+  }
+
+  private getCloudToolTypeFromRouteKey(routeKey: string): CloudTools | null {
+    switch (routeKey) {
+      case CLOUD_TOOLS_ROUTE.EST_MANAGER:
+        return 'EST';
+      case CLOUD_TOOLS_ROUTE.PCR_CLEANUP:
+        return 'PCR';
+      case CLOUD_TOOLS_ROUTE.SANDBOX_CLEANUP:
+        return 'Sandbox';
+      case CLOUD_TOOLS_ROUTE.UPDATE_MPNID:
+        return 'UpdateMPNID';
+      case CLOUD_TOOLS_ROUTE.SUBS_TRANSFER:
+        return 'SubscriptionTransfer';
+      default:
+        return null;
+    }
+  }
+
+  private resetDashboardStateForToolNavigation(): void {
+    this.activeTab = 0;
+    this.tableData = [];
+    this.clearSelectedRowTrigger++;
+    this.selectedTransactionId = null;
+    this.isCardDetailsVisible = false;
+    this.isTransactionDetailsAPIInProgress = false;
+    this.detailsCardInputData = null;
+    this.isPaginatorVisible = false;
+
+    this.initSearchBar();
+    this.showFilterControls = false;
+    this.cdr.detectChanges();
+    this.showFilterControls = true;
+
+    this.paginatorDataSVC.setPPCPageChangeEventData(null);
+    this.paginatorDataSVC.setPPCPaginatorData(null);
   }
 
   initSubs() {
@@ -124,16 +247,20 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
           }
           case 'Failed': {
             this.showOverlay = false;
+            this.cloudToolsDataSVC.clearUploadAPIState();
             break;
           }
           default: {
             this.showOverlay = false;
-            const req = {...this.cloudToolsDataSVC.getTransactionRequestData(), statusIds: [CloudToolsStatusIdEnum.Success]};
-            this.getTransactions(req);
-            this.cloudToolsDataSVC.setTransactionRequestData(req);
             // hard reset to success tab after a successful upload
             this.activeTab = 0;
-            this.tabChangeHandler(0);
+            this.initTableColumn();
+            this.refreshTransactions({
+              statusIds: [CloudToolsStatusIdEnum.Success],
+              pageNumber: 1,
+              pageSize: DEFAULT_PAGE_SIZE_CLOUD_TOOLS,
+            });
+            this.cloudToolsDataSVC.clearUploadAPIState();
             break;
           }
         }
@@ -144,11 +271,14 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
   ngAfterViewInit(): void {
     this.initNavTab();
     this.initTableColumn();
-    this.initTableData();
     this.cdr.detectChanges();
   }
 
   canShowTaskTypeFilter(): boolean {
+    if (this.isToolScopedRoute) {
+      return false;
+    }
+
     if (this.userPermissions.includes(PermissionsEnum.GlobalAdmin)) {
       return true;
     }
@@ -167,6 +297,13 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
   }
 
   getTransactions(data: TransactionRequest) {
+    if (!data.taskIds || data.taskIds.length === 0) {
+      this.cloudToolsDataSVC.setTransactionAPIInProgress(false);
+      this.tableData = [];
+      this.isPaginatorVisible = false;
+      return;
+    }
+
     this.cloudToolsDataSVC.setTransactionAPIInProgress(true);
     this.cloudToolsAPISVC.getTransactions(data)
       .pipe(
@@ -185,26 +322,6 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
           this.cloudToolsDataSVC.setTransactionAPIInProgress(false);
         }
       });
-  }
-
-  private initOperationDropdown(): void {
-    const allOperations = CloudToolsOperationFactory.getOperationsTools();
-    const userPermissions = this.dataState.getUserPermissions();
-    this.cloudToolOperations = allOperations.filter(op => this.hasPermissionForOperation(op.key as CloudToolsTaskIdEnum, userPermissions));
-    this.taskIds = this.cloudToolOperations.map(op => Number(op.key));
-    const updatedRequest: TransactionRequest = {
-      ...this.cloudToolsDataSVC.getTransactionRequestData(),
-      taskIds: this.taskIds
-    };
-    this.cloudToolsDataSVC.setTransactionRequestData(updatedRequest);
-  }
-
-  private hasPermissionForOperation(taskId: CloudToolsTaskIdEnum, userPermissions: PermissionsEnum[]): boolean {
-    const requiredPermission = CLOUD_TOOL_PERMISSION_MAP[taskId];
-    if (userPermissions.includes(PermissionsEnum.GlobalAdmin)) {
-      return true;
-    }
-    return userPermissions.includes(requiredPermission);
   }
 
   initPaginator() {
@@ -242,53 +359,28 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
     ];
   }
 
-  initCloudToolsButton(): void {
-    const allTools = Object.keys(uploadButtonData) as CloudTools[];
+  showUploadPanel(toolType?: string) {
+    // Tool-scoped routes should always open the upload panel for the current route tool.
+    this.selectedCloudToolsType = (toolType as CloudTools | undefined) ?? this.selectedCloudToolsType;
 
-    const subMenu: S1MenuItem[] = allTools.map(tool => {
-      const cfg = uploadButtonData[tool];
-      const hasAccess = this.hasPermissionForCloudTool(tool, this.userPermissions);
-
-      return {
-        hasIcon: false,
-        hasName: true,
-        onClickEmit: cfg.emit,
-        displayName: cfg.display,
-        tagTemplate: hasAccess ? undefined : this.requestAccessTemplate,
-      };
-    });
-
-    this.cloudToolsButtonData = {
-      hasIcon: false,
-      hasTitle: true,
-      title: 'Tools',
-      subMenu,
-    };
-  }
-
-  private hasPermissionForCloudTool(tool: CloudTools, userPermissions: PermissionsEnum[]): boolean {
-    if (userPermissions.includes(PermissionsEnum.GlobalAdmin)) {
-      return true;
+    if (!this.selectedCloudToolsType) {
+      return;
     }
-    const requiredPermission = CLOUD_TOOLS_PERMISSION_MAP[tool];
-    return userPermissions.includes(requiredPermission);
-  }
-
-
-  showUploadPanel(toolType: string) {
-    // Already our interface is emitting as CloudTools. S1-Menu is emitting as string and we convert here.
-    this.selectedCloudToolsType = toolType as CloudTools;
 
     const selectedToolPermission = CLOUD_TOOLS_PERMISSION_MAP[this.selectedCloudToolsType];
 
-    if (!this.dataState.hasPermission([selectedToolPermission])) {
+    if (!this.dataState.hasPermission([selectedToolPermission], ApplicationIdEnum.CloudTools)) {
       // User does not have permission to access this tool
       this.permissionDialogSVC.showDialog('PermissionError');
       return;
     }
 
+    const panelComponent = this.selectedCloudToolsType === 'SubscriptionTransfer'
+      ? SubsTransferUploadPanelComponent
+      : UploadPanelComponent;
+
     this.sidePanelSVC.open(
-      UploadPanelComponent,
+      panelComponent,
       {
         disableClose: true,
         hasBackdrop: false,
@@ -301,34 +393,27 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
     );
   }
 
-
   tabChangeHandler(tab: number) {
 
     if (this.activeTab === tab) return;
 
     this.activeTab = tab;
     this.tableData = [];
-    this.cloudToolsDataSVC.setTransactionAPIInProgress(true);
+    this.selectedTransactionId = null;
     let statusIds: CloudToolsStatusIdEnum[] = [];
 
     switch (tab) {
-      case 1: statusIds = [1]; break; // InProgress tab
-      case 2: statusIds = [2]; break; // Failed tab
-      default: statusIds = [3]; break; // Success tab
+      case DashboardTabEnum.Success: statusIds = [CloudToolsStatusIdEnum.Success]; break;
+      case DashboardTabEnum.InProgress: statusIds = [CloudToolsStatusIdEnum.InProgress]; break;
+      case DashboardTabEnum.Failed: statusIds = [CloudToolsStatusIdEnum.Failed]; break;      
     }
+    this.initTableColumn();
 
-    const currReqData = this.cloudToolsDataSVC.getTransactionRequestData();
-
-    let reqData = {
-      ...currReqData,
+    this.refreshTransactions({
       statusIds,
       pageNumber: 1,
       pageSize: DEFAULT_PAGE_SIZE_CLOUD_TOOLS,
-    };
-
-    this.cloudToolsDataSVC.setTransactionRequestData(reqData);
-    this.initTableColumn();
-    this.getTransactions(reqData);
+    });
   }
 
   pageChangeHandler(event: PPCPageChangeEventData): void {
@@ -349,9 +434,9 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
       };
     }
 
-    const dataToSend = { ...reqData, ...tempData };
-    this.cloudToolsDataSVC.setTransactionRequestData(dataToSend);
-    this.getTransactions(dataToSend);
+    const patch: Partial<TransactionRequest> = { ...tempData };
+    // Preserve current filters/status/search and always reapply scoped taskIds.
+    this.refreshTransactions(patch);
   }
 
 
@@ -364,41 +449,31 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
   }
 
   searchEventHandler(searchData: string) {
-    let dataToSend: Partial<TransactionRequest>;
-    dataToSend = {
+    this.refreshTransactions({
       searchText: searchData,
       pageSize: DEFAULT_PAGE_SIZE_CLOUD_TOOLS,
       pageNumber: 1,
-    };
-    this.cloudToolsDataSVC.setTransactionRequestData(dataToSend);
-    this.getTransactions(this.cloudToolsDataSVC.getTransactionRequestData());
+    });
   }
 
   dateRangeEventHandler(data: { [key: string]: string }) {
     // when a user chooses the 'custom' date range, first value will be the same start & end date. To catch that we use this logic here
     if (data['start'] == data['end']) return;
-    let dateFilter: Partial<TransactionRequest> = {
-      fromDate: new Date(data['start']),
-      toDate: new Date(data['end']),
+    const startDate = new Date(data['start']);
+    const endDate = new Date(data['end']);
+
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+      return;
+    }
+
+    this.refreshTransactions({
+      fromDate: startDate,
+      toDate: endDate,
       sortBy: 'CreatedDate',
       sortDescending: true,
       pageNumber: 1,
       pageSize: DEFAULT_PAGE_SIZE_CLOUD_TOOLS,
-    };
-    this.cloudToolsDataSVC.setTransactionRequestData(dateFilter);
-    this.getTransactions(this.cloudToolsDataSVC.getTransactionRequestData());
-  }
-
-  onOperationDropdownChange(data: S1Checkbox[]): void {
-    const taskIds: CloudToolsTaskIdEnum[] = data.filter(item => item.checked).map(item => item.key as CloudToolsTaskIdEnum);
-    const updatedRequest: TransactionRequest = {
-      ...this.cloudToolsDataSVC.getTransactionRequestData(),
-      taskIds: taskIds.length ? taskIds : this.taskIds,
-      pageNumber: 1,
-      pageSize: DEFAULT_PAGE_SIZE_CLOUD_TOOLS,
-    };
-    this.cloudToolsDataSVC.setTransactionRequestData(updatedRequest);
-    this.getTransactions(updatedRequest);
+    });
   }
 
   initTableColumn() {
@@ -408,11 +483,8 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
     this.failedColumnData = [...defaultCoulmns];
   }
 
-  initTableData() {
-    this.tableData = [];
-  }
-
   tableRowClickHandler(row: Transactions) {
+    this.selectedTransactionId = row.id;
     this.isCardDetailsVisible = true;
     this.handleTDCardFlag(true);
     switch(this.activeTab) {
@@ -464,6 +536,7 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
 
   detailsCardDismissEventHandler() {
     this.clearSelectedRowTrigger++;
+    this.selectedTransactionId = null;
     this.isCardDetailsVisible = false;
     this.detailsCardInputData = null;
     this.initTableColumn();
@@ -471,6 +544,84 @@ export class CloudToolsDashboardComponent implements OnInit, AfterViewInit, OnDe
 
   detailsCardParentOverlayEventHandler(data: boolean) {
     this.showOverlay = data;
+  }
+
+  detailsCardGotoEventHandler() {
+    this.scrollSelectedRowTrigger++;
+  }
+
+  /**
+   * Returns whether the nav-tabs download action should be visible.
+   * The action is shown only when a transaction row is currently selected.
+   */
+  shouldShowDownloadAction(): boolean {
+    return !!this.selectedTransactionId;
+  }
+
+  /**
+   * Downloads the CSV for the currently selected transaction.
+   * No action is taken when no row is selected.
+   */
+  downloadCSV(): void {
+    if (!this.selectedTransactionId) {
+      return;
+    }
+
+    const selectedTransactionId = this.selectedTransactionId;
+
+    this.cloudToolsAPISVC.downloadTransaction(selectedTransactionId).pipe(
+      take(1),
+    ).subscribe({
+      next: response => {
+        const contentDisposition = response.headers.get('content-disposition');
+
+        if (!response.body) {
+          return;
+        }
+
+        const downloadUrl = globalThis.URL.createObjectURL(response.body);
+        const anchor = document.createElement('a');
+        anchor.href = downloadUrl;
+        anchor.download = this.getDownloadFileName(contentDisposition, selectedTransactionId);
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        globalThis.URL.revokeObjectURL(downloadUrl);
+      },
+      error: err => {
+        console.error(`Error downloading transaction CSV - ${err}`);
+      }
+    });
+  }
+
+  /**
+   * Extracts the download filename from Content-Disposition.
+   * Falls back to a deterministic transaction-based filename when header parsing fails.
+   */
+  private getDownloadFileName(contentDisposition: string | null, transactionId: string): string {
+    const defaultFileName = `transaction_${transactionId}.csv`;
+    if (!contentDisposition) {
+      return defaultFileName;
+    }
+
+    // Prefer filename* if present (RFC 5987)
+    const filenameStarMatch = /filename\*=(?:UTF-8'')?([^;\n]*)/i.exec(contentDisposition);
+    if (filenameStarMatch?.[1]) {
+      const filenameStarRaw = filenameStarMatch[1].trim();
+      try {
+        return decodeURIComponent(filenameStarRaw);
+      } catch {
+        return filenameStarRaw;
+      }
+    }
+
+    // Otherwise, fallback to filename (quoted or unquoted)
+    const filenameMatch = /filename="?([^";\n]+)"?/i.exec(contentDisposition);
+    if (filenameMatch?.[1]) {
+      return filenameMatch[1].trim();
+    }
+
+    return defaultFileName;
   }
 
   ngOnDestroy(): void {

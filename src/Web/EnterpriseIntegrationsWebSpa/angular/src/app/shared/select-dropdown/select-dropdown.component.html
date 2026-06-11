@@ -20,7 +20,7 @@
     </button>
   </div>
 </div>
-<mat-menu #menu="matMenu" class="custom-menu">
+<mat-menu #menu="matMenu" class="custom-menu" panelClass="dropdown-menu-panel">
   <ng-container *ngFor="let opt of options">
     <button class="option-btn" mat-menu-item (click)="selectOption(opt)">
       <ng-container *ngIf="opt.imgUrl">

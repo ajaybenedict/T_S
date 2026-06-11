@@ -4,7 +4,8 @@ import {
   ViewContainerRef,
   AfterViewInit,
   Input,
-  SimpleChanges
+  SimpleChanges,
+  Output, EventEmitter
 } from '@angular/core';
 import { loadRemoteModule } from '@angular-architects/module-federation';
 import { REMOTE_ENTRY_URL } from 'src/app/constants/constants';
@@ -24,6 +25,11 @@ export class FooterComponent implements AfterViewInit {
     total: number;
     pageSizeOption: number[];
   };
+
+  @Output() pageChangeInfo = new EventEmitter<{
+    page: number;
+    pageSize: number;
+  }>();
 
   @Input() onPageChange!: (page: number, pageSize: number) => void;
 
@@ -45,6 +51,11 @@ export class FooterComponent implements AfterViewInit {
     this.componentRef.instance.pageChangeEvent = (page: number) => {
       this.inputData.page = page;
 
+      this.pageChangeInfo.emit({
+        page,
+        pageSize: this.inputData.pageSize
+      });
+
       if (this.onPageChange) {
         this.onPageChange(page, this.inputData.pageSize);
       }
@@ -57,7 +68,7 @@ export class FooterComponent implements AfterViewInit {
     //  Override page size change
     this.componentRef.instance.getItemsPerPage = (event: Event) => {
       const ele = event.target as HTMLElement;
-      const newSize = parseInt(ele.innerText);
+      const newSize = Number.parseInt(ele.innerText);
 
       this.inputData.pageSize = newSize;
       this.inputData.page = 1;
@@ -83,7 +94,7 @@ export class FooterComponent implements AfterViewInit {
     if (this.componentRef?.instance) {
       return this.componentRef.instance.startIndex;
     }
-    return 0; 
+    return 0;
   }
 
 

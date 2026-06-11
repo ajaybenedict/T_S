@@ -29,7 +29,7 @@ export class CloudToolsDataService {
     private readonly initialTransactionRequestData: TransactionRequest = cloneDeep(this.transctionRequestData);
     /** Maintains the transaction API InProgress state. */
     private readonly transactionAPIInProgress = new BehaviorSubject<boolean>(false);
-    /** MAintains the Upload API state. */
+    /** Maintains the Upload API state. */
     private readonly uploadAPIState = new BehaviorSubject<'InProgress' | 'Failed' | 'Success' | null>(null);
 
     transactionAPIInProgress$ = this.transactionAPIInProgress.asObservable();
@@ -54,7 +54,11 @@ export class CloudToolsDataService {
         this.transactionAPIInProgress.next(data);
     }
 
-    setUploadAPIState(data: 'InProgress' | 'Failed' | 'Success') {
+    setUploadAPIState(data: 'InProgress' | 'Failed' | 'Success' | null) {
         this.uploadAPIState.next(data);
+    }
+
+    clearUploadAPIState() {
+        this.setUploadAPIState(null);
     }
 }

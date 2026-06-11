@@ -33,7 +33,8 @@ export class InputFilterDirective implements Validator, OnChanges {
   /** Regexes for each mode */
   private readonly patterns: Record<InputFilterMode, RegExp> = {
     numeric: /^\d*$/,
-    decimal: /^\d*\.?\d*$/,    // digits with optional single dot
+    // Linear-time decimal matcher that requires at least one digit and rejects a lone dot.
+    decimal: /^(?:\d+(?:\.\d*)?|\.\d+)$/,
     alpha: /^[A-Za-z]*$/,
     alphanumeric: /^[A-Za-z\d]*$/,
     emailchars: /^[A-Za-z\d.@]*$/,
@@ -127,17 +128,29 @@ export class InputFilterDirective implements Validator, OnChanges {
   private sanitize(input: string): string {
     switch (this.mode) {
       case 'numeric':
-        return input.replace(/\D/g, '');
+        return input.replaceAll(/\D/g, '');
       case 'decimal':
-        return input
-          .replace(/[^0-9.]/g, '')   // allow digits and dots only
-          .replace(/(\..*?)\./g, '$1'); // remove all dots after the first
+        {
+          // Keep only characters relevant for decimal input.
+          const digitsAndDotsOnly = input.replaceAll(/[^0-9.]/g, '');
+          const firstDotIndex = digitsAndDotsOnly.indexOf('.');
+
+          if (firstDotIndex === -1) {
+            return digitsAndDotsOnly;
+          }
+
+          // Preserve the first decimal separator and strip every subsequent dot.
+          return (
+            digitsAndDotsOnly.slice(0, firstDotIndex + 1) +
+            digitsAndDotsOnly.slice(firstDotIndex + 1).replaceAll('.', '')
+          );
+        }
       case 'alpha':
-        return input.replace(/[^A-Za-z]/g, '');
+        return input.replaceAll(/[^A-Za-z]/g, '');
       case 'alphanumeric':
-        return input.replace(/[^A-Za-z\d]/g, '');
+        return input.replaceAll(/[^A-Za-z\d]/g, '');
       case 'emailchars':
-        return input.replace(/[^A-Za-z\d.@]/g, '');
+        return input.replaceAll(/[^A-Za-z\d.@]/g, '');
       case 'alphanumerichyphen':
         return input.replaceAll(/[^A-Za-z\d-]/g, '');
       default:

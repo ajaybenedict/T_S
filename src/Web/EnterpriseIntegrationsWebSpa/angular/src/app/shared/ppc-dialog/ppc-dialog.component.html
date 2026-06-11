@@ -37,7 +37,8 @@
 </div>
 
 <!-- Loader or LoadError or PermissionError Only-->
-<div *ngIf="_data.type == 'Loader' || _data.type == 'LoadError' || _data.type == 'PermissionError' || _data.type == 'UserNotFound' || _data.type == 'UserDeactivated' || _data.type == 'InternalServerError' || _data.type == 'NoCountryRegionAccess' || _data.type == 'SessionExpired'">
+<div
+    *ngIf="_data.type == 'Loader' || _data.type == 'LoadError' || _data.type == 'PermissionError' || _data.type == 'UserNotFound' || _data.type == 'UserDeactivated' || _data.type == 'InternalServerError' || _data.type == 'NoCountryRegionAccess' || _data.type == 'SessionExpired' || _data.type == 'ServerError'">
     <div class="header" *ngIf="_data.type != 'Loader' && _data.header">
         <div class="title">{{_data.header}}</div>
         <button class="dismiss-icon" (click)="emitFalse()" (keydown.enter)="emitFalse()" (keydown.space)="emitFalse()">
@@ -59,7 +60,8 @@
         </div>
     </div>
     <div class="load-dialog-error-action-wrapper" *ngIf="_data.type == 'LoadError' && _data.primaryBtnName">
-        <button mat-flat-button color="primary" class="ppc-confirm-dialog-primary-btn load-error-btn" type="button" mat-dialog-close (click)="emitAction(_data.primaryBtnAction || '')">{{_data.primaryBtnName}}</button>
+        <button mat-flat-button color="primary" class="ppc-confirm-dialog-primary-btn load-error-btn" type="button"
+            mat-dialog-close (click)="emitAction(_data.primaryBtnAction || '')">{{_data.primaryBtnName}}</button>
     </div>
 </div>
 
@@ -77,20 +79,10 @@
         <span [innerHTML]="getSanitizedContent(_data.content)"></span>
     </div>
     <div class="ppc-confirm-dialog-action-wrapper">
-        <button
-            mat-flat-button color="secondary"
-            class="ppc-confirm-dialog-secondary-btn"
-            type="button"
-            mat-dialog-close
-            (click)="emitAction(_data.secondaryBtnAction || '')"
-        >{{_data.secondaryBtnName}}</button>
-        <button
-            mat-flat-button color="primary"
-            class="ppc-confirm-dialog-primary-btn"
-            type="button"
-            mat-dialog-close
-            (click)="emitAction(_data.primaryBtnAction || '')"
-        >{{_data.primaryBtnName}}</button>
+        <button mat-flat-button color="secondary" class="ppc-confirm-dialog-secondary-btn" type="button"
+            mat-dialog-close (click)="emitAction(_data.secondaryBtnAction || '')">{{_data.secondaryBtnName}}</button>
+        <button mat-flat-button color="primary" class="ppc-confirm-dialog-primary-btn" type="button" mat-dialog-close
+            (click)="emitAction(_data.primaryBtnAction || '')">{{_data.primaryBtnName}}</button>
     </div>
 </div>
 
@@ -121,14 +113,94 @@
     </div>
     <ng-container *ngIf="_data.type == 'RuleEngineConfirmation'; else radioFooter">
         <div class="re-confirm-dialog-action-wrapper d-flex align-items-center justify-content-end">
-            <button type="button" s1-button [btnType]="'secondary'" mat-dialog-close (click)="emitAction(_data.secondaryBtnAction || '')">{{_data.secondaryBtnName}}</button>
-            <button type="button" s1-button [btnType]="'primary'" mat-dialog-close (click)="emitAction(_data.primaryBtnAction || '')">{{_data.primaryBtnName}}</button>
+            <button type="button" s1-button [btnType]="'secondary'" mat-dialog-close
+                (click)="emitAction(_data.secondaryBtnAction || '')">{{_data.secondaryBtnName}}</button>
+            <button type="button" s1-button [btnType]="'primary'" mat-dialog-close
+                (click)="emitAction(_data.primaryBtnAction || '')">{{_data.primaryBtnName}}</button>
         </div>
     </ng-container>
     <ng-template #radioFooter>
         <div class="re-confirm-dialog-action-wrapper d-flex align-items-center justify-content-end">
-            <button type="button" [disabled]="!selectedRERadio" s1-button [btnType]="'primary'" mat-dialog-close (click)="radioEmit()">{{_data.primaryBtnName}}</button>
+            <button type="button" [disabled]="!selectedRERadio" s1-button [btnType]="'primary'" mat-dialog-close
+                (click)="radioEmit()">{{_data.primaryBtnName}}</button>
         </div>
     </ng-template>
 </ng-container>
+<ng-container *ngIf="_data.type == 'ServiceOrderIDPopup'">
+    <div class="re-confirm-dialog-header">
+        <span class="re-confirm-dialog-heder-text">{{_data.header}}</span>
+    </div>
 
+    <div class="service-order-dialog-content">
+        <span class="subtitle" [innerHTML]="getSanitizedContent(_data.content)"></span>
+        <div class="service-order-info">
+            <div *ngIf="_data.radioGroup">
+                <mat-radio-group [(ngModel)]="selectedRERadio">
+                    <mat-radio-button [disableRipple]="true" *ngFor="let item of _data.radioGroup; let i = index"
+                        [value]="item.value">{{item.displayName}}</mat-radio-button>
+                </mat-radio-group>
+            </div>
+            <div class="service-id-section" *ngIf="selectedRERadio === 'With_Service_Id'">
+                <label for="serviceOrderId">
+                    Service Order ID <span class="required">*</span>
+                </label>
+                <input type="text" class="service-order-input" [(ngModel)]="serviceOrderId"
+                    placeholder="Service Order ID" />
+            </div>
+        </div>
+    </div>
+
+    <div class="re-confirm-dialog-action-wrapper d-flex align-items-center justify-content-end">
+        <button type="button" s1-button [btnType]="'secondary'" mat-dialog-close
+            (click)="emitAction(_data.secondaryBtnAction || '')">{{_data.secondaryBtnName}}</button>
+        <button type="button" [disabled]="isPrimaryDisabled()" s1-button [btnType]="'primary'" mat-dialog-close
+            (click)="emitRadioWithServiceId()">{{_data.primaryBtnName}}</button>
+    </div>
+</ng-container>
+
+<!-- Cloud Tools - Customer Transfer Customer Preview Confirmation dialog  & Bulk Update Fraud Event Confirmation -->
+<ng-container
+    *ngIf="_data.type === 'SubsTransferCustomerPreviewConfirmation' || _data.type === 'SubsTransferNoCustomerFound' || _data.type === 'BulkUpdateFraudEventConfirmation'">
+    <!-- Dialog header -->
+    <div class="ppc-confirm-dialog-header-wrapper">
+        <div *ngIf="_data.header" class="s1-FW700 s1-FS16px s1-C-Charcoal">
+            {{_data.header}}
+        </div>
+        <button type="button" s1-button [iconOnly]="true" mat-dialog-close (click)="emitFalse()">
+            <img src="/assets/dismiss_btn_44_44.svg" alt="Dismiss" class="default">
+            <img src="/assets/dismiss_btn_hover_red_44_44.svg" alt="Dismiss" class="hover">
+        </button>
+    </div>
+    <!-- Dialog content -->
+    <ng-container *ngIf="_data.type === 'SubsTransferCustomerPreviewConfirmation'">
+        <div class="d-flex flex-column gap-3 subs-transfer-preview-confirmation-content">
+            <span [innerHTML]="getSanitizedContent(_data.content)"></span>
+            <ng-container *ngIf="_data.validationErrorMsg">
+                <app-validation-error [errorMsg]="_data.validationErrorMsg" [width]="'100%'" [height]="'64px'"
+                    variant="warning"></app-validation-error>
+            </ng-container>
+        </div>
+    </ng-container>
+    <ng-container
+        *ngIf="_data.type === 'SubsTransferNoCustomerFound' || _data.type === 'BulkUpdateFraudEventConfirmation'">
+        <div class="d-flex flex-column gap-3 subs-transfer-no-customer-found-content">
+            <span [innerHTML]="getSanitizedContent(_data.content)"></span>
+        </div>
+    </ng-container>
+    <!-- Dialog footer -->
+    <ng-container *ngIf="_data.type == 'BulkUpdateFraudEventConfirmation'; else cloudToolsFooter">
+        <div class="re-confirm-dialog-action-wrapper d-flex align-items-center justify-content-end">
+            <button type="button" s1-button [btnType]="'secondary'" mat-dialog-close
+                (click)="emitAction(_data.secondaryBtnAction || '')">{{_data.secondaryBtnName}}</button>
+            <button type="button" s1-button [btnType]="'primary'" mat-dialog-close
+                (click)="emitAction(_data.primaryBtnAction || '')">{{_data.primaryBtnName}}</button>
+        </div>
+    </ng-container>
+    <ng-template #cloudToolsFooter>
+        <div class="d-flex flex-column s1-P-16-20-px" style="border-top: 1px solid #E4E5E6;"
+            [ngClass]="{ 'align-items-end': _data.type === 'SubsTransferCustomerPreviewConfirmation' }">
+            <button type="button" s1-button [btnType]="'primary'"
+                (click)="emitAction(_data.primaryBtnAction || '')">{{_data.primaryBtnName}}</button>
+        </div>
+    </ng-template>
+</ng-container>

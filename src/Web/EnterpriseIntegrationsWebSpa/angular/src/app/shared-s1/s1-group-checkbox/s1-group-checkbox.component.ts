@@ -22,8 +22,8 @@ export class S1GroupCheckboxComponent implements OnInit {
         key: this.inputData.groupTitle,
         checked: !allChecked,        
       };
+      this.toggleIndeterminate();
     };
-    this.toggleIndeterminate();
   }
 
   toggleGroup() {
@@ -40,6 +40,9 @@ export class S1GroupCheckboxComponent implements OnInit {
   }
 
   toggleIndeterminate() {
+    if (!this.inputData || !this.groupTitle) {
+      return;
+    }
     // Ignore the disabled one
     const enabledItems = this.inputData.checkboxes.filter(el=>!el.disabled);
     const totalCount = this.inputData.checkboxes.length;

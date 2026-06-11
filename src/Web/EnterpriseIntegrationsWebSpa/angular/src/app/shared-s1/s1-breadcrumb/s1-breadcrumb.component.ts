@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 
 @Component({
   selector: 'app-s1-breadcrumb',
@@ -6,15 +6,30 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
   styleUrls: ['./s1-breadcrumb.component.css']
 })
 export class S1BreadcrumbComponent implements OnChanges {
-  @Input() inputData!: string; // Expected Input - Nav1$Nav2$Nav3...
+  /**
+   * Breadcrumb items as a `$`-delimited string.
+   * Example: `Nav1$Nav2$Nav3`.
+   */
+  @Input() inputData: string | null = null;
 
-  declare crumbList: string[];
-  upperBound = 0;
+  /**
+   * Optional CSS color value to override the breadcrumb button text color.
+   * When omitted, the component uses the current default styles.
+   *
+   * Examples: `#262626`, `rgb(0,0,0)`, `var(--some-token)`.
+   */
+  @Input() buttonTextColor: string | null = null;
 
-  ngOnChanges(): void {        
-    if(this.inputData?.split('$').length > 0) {
-      this.crumbList = this.inputData?.split('$');
-      this.upperBound = this.crumbList.length - 1;      
-    }
+  crumbList: string[] = [];
+  upperBound = -1;
+
+  ngOnChanges(): void {
+    const parts = (this.inputData ?? '')
+      .split('$')
+      .map((value) => value.trim())
+      .filter((value) => value.length > 0);
+
+    this.crumbList = parts;
+    this.upperBound = this.crumbList.length - 1;
   }
 }

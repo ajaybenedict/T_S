@@ -6,8 +6,7 @@ import { SsoauthGuard } from './core/auth/ssoauth.guard';
 import { SsoComponent } from './sso/sso.component';
 import { ErrorPageComponent } from './error-page/error-page.component';
 import { LogoutComponent } from './logout/logout/logout.component';
-import { ChatComponent } from './AIAssistant/chat.component';
-import { PermissionsEnum } from './core/config/permissions.config';
+import { ApplicationIdEnum, PermissionsEnum } from './core/config/permissions.config';
 import { loadRemoteModule } from '@angular-architects/module-federation';
 import { APP_ROUTE_CONFIG_URL, ROUTE_DATA_KEYS, REMOTE_ENTRY_URL } from './core/constants/constants';
 import { AutomationLoginComponent } from './automation-login/automation-login.component';
@@ -17,14 +16,19 @@ const ruleEngineAuxRouteGuard: CanActivateFn = (_route, state): boolean | UrlTre
   const router = inject(Router);
   const dataState = inject(DataState);
 
-  const hasRuleEngineAccess = dataState.hasPermission([PermissionsEnum.RuleEditor, PermissionsEnum.RuleViewer]);
+  const hasRuleEngineAccess = dataState.hasPermission(
+    [PermissionsEnum.RuleEditor, PermissionsEnum.RuleViewer],
+    ApplicationIdEnum.C3,
+  );
 
   const urlTree = router.parseUrl(state.url);
   const primarySegments = urlTree.root.children['primary']?.segments ?? [];
   const primaryFirstSegment = primarySegments[0]?.path ?? '';
   const isOnC3Dashboard = primaryFirstSegment === APP_ROUTE_CONFIG_URL.C3_DASHBOARD;
+  const isOnCBCDashboard = primaryFirstSegment === APP_ROUTE_CONFIG_URL.CBC_DASHBOARD;
 
-  if (hasRuleEngineAccess && isOnC3Dashboard) {
+
+  if (hasRuleEngineAccess && (isOnC3Dashboard || isOnCBCDashboard)) {
     return true;
   }
 
@@ -67,6 +71,7 @@ const routes: Routes = [
       }).then(m => m.BillingConsoleModule),
     data: {
       [ROUTE_DATA_KEYS.ANIMATION]: 'CBCDashboard',
+      [ROUTE_DATA_KEYS.APPLICATION_ID]: ApplicationIdEnum.CBC,
       [ROUTE_DATA_KEYS.PERMISSIONS]: [PermissionsEnum.BillingConnector],
     },
   },
@@ -81,6 +86,7 @@ const routes: Routes = [
       }).then(m => m.ProductCollectionModule),
     data: {
       [ROUTE_DATA_KEYS.ANIMATION]: 'CBCCollectionSKU',
+      [ROUTE_DATA_KEYS.APPLICATION_ID]: ApplicationIdEnum.CBC,
       [ROUTE_DATA_KEYS.PERMISSIONS]: [PermissionsEnum.BillingConnector],
     },
   },
@@ -109,6 +115,7 @@ const routes: Routes = [
     canMatch: [SsoauthGuard],
     data: {
       [ROUTE_DATA_KEYS.ANIMATION]: 'InsightsDashboard',
+      [ROUTE_DATA_KEYS.APPLICATION_ID]: ApplicationIdEnum.Insight,
     }
   },
   {
@@ -117,20 +124,11 @@ const routes: Routes = [
     loadChildren: () => import('./ppc/ppc.module').then(m => m.PPCModule),
     data: {
       [ROUTE_DATA_KEYS.ANIMATION]: 'C3Dashboard',
+      [ROUTE_DATA_KEYS.APPLICATION_ID]: ApplicationIdEnum.C3,
       [ROUTE_DATA_KEYS.PERMISSIONS]: [PermissionsEnum.PreProvisioningOrderApproval, PermissionsEnum.PreProvisioningCredit],
       [ROUTE_DATA_KEYS.COUNTRY_REGION_CHECK]: true,
     }
-  },
-  {
-    path: `${APP_ROUTE_CONFIG_URL.ASSISTANT_PARAM_ID}`, // Added ':id' as a route parameter
-    canActivate: [SsoauthGuard],
-    component: ChatComponent,
-  },
-  {
-    path: `${APP_ROUTE_CONFIG_URL.ASSISTANT}`,
-    canActivate: [SsoauthGuard],
-    component: ChatComponent,
-  },
+  }, 
   {
     path: `${APP_ROUTE_CONFIG_URL.RULE_ENGINE}`,
     outlet: 'ruleEngineOutlet', //Auxillary route
@@ -138,16 +136,17 @@ const routes: Routes = [
     loadChildren: () => import('./rule-engine/rule-engine.module').then(m => m.RuleEngineModule),
     data: {
       [ROUTE_DATA_KEYS.ANIMATION]: 'RuleEngine',
+      [ROUTE_DATA_KEYS.APPLICATION_ID]: ApplicationIdEnum.C3,
       [ROUTE_DATA_KEYS.COUNTRY_REGION_CHECK]: true,
     },
   },
   {
     path: `${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}`,
-    canActivate: [SsoauthGuard],
+    canMatch: [SsoauthGuard],
     loadChildren: () => import('./cloud-tools/cloud-tools.module').then(m => m.CloudToolsModule),
     data: {
       [ROUTE_DATA_KEYS.ANIMATION]: 'CloudTools',
-      [ROUTE_DATA_KEYS.PERMISSIONS]: [PermissionsEnum.ESTManager, PermissionsEnum.SandBoxCleanUp, PermissionsEnum.PCRCleanUp],
+      [ROUTE_DATA_KEYS.APPLICATION_ID]: ApplicationIdEnum.CloudTools,
     }
   },
   { path: `${APP_ROUTE_CONFIG_URL.PPC_DASHBOARD}`, redirectTo: `/${APP_ROUTE_CONFIG_URL.C3_DASHBOARD}`, pathMatch: 'full' },

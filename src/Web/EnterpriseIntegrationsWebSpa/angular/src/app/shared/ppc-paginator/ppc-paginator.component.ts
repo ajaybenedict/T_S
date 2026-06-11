@@ -40,9 +40,9 @@ export class PpcPaginatorComponent implements OnInit, OnDestroy {
   getItemsPerPage(event: Event) {
     // set dropdown button title
     const ele = (event.target) as HTMLElement;
-    this.dropdownTitle = parseInt(ele.innerText);
+    this.dropdownTitle = Number.parseInt(ele.innerText);
     // change the _pageSize
-    this.inputData.pageSize = parseInt(ele.innerText);
+    this.inputData.pageSize = Number.parseInt(ele.innerText);
     this.inputData.page = 1;
     this.calculateIndex();
     this.emit(); // For all changes, we will emit the changes

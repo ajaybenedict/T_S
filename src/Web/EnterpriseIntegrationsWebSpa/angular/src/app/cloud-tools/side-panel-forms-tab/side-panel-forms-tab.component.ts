@@ -16,5 +16,5 @@ import { FormRow } from 'src/app/models/cloud-tools/cloud-tools.interface';
 /** Used only for the Cloud tools - side panel details - form tab */
 export class SidePanelFormsTabComponent {
   /** FormRow data being passed from side panel content */
-  @Input() data!: FormRow[];
+  @Input() data: FormRow[] = [];
 }

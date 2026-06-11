@@ -8,23 +8,23 @@ import { Router } from '@angular/router';
 })
 export class PpcCardComponent {
 
-  @Input('headerImgSrc') _headerImgSrc !: string;
-  @Input('comingSoonText') _comingSoonText!: string;
-  @Input('contentHeader') _contentHeader !: string;
-  @Input('contentDesc') _contentDesc !: string;
-  @Input('actionText') _actionText !: string;
-  @Input('actionImgSrc') _actionImgSrc !: string;
-  @Input('isActive') _isActive !: boolean;
-  @Input('navigateURL') _navigateURL !: string;
+  @Input() headerImgSrc !: string;
+  @Input() comingSoonText!: string;
+  @Input() contentHeader !: string;
+  @Input() contentDesc !: string;
+  @Input() actionText !: string;
+  @Input() actionImgSrc !: string;
+  @Input() isActive !: boolean;
+  @Input() navigateURL !: string;
 
   constructor(
     private router: Router,
   ){}
 
   navigate() {
-    if(this._isActive) {      
-      if(this._navigateURL != undefined) {
-        this.router.navigate([this._navigateURL]);
+    if(this.isActive) {      
+      if(this.navigateURL != undefined) {
+        this.router.navigate([this.navigateURL]);
       } else {
         console.log('Navigation URL not defined');
       }

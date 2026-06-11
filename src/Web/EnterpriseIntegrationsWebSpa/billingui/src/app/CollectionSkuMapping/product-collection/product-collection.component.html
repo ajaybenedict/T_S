@@ -37,7 +37,8 @@
                         aria-label="...">
                 </div>
             </div>
-            <button class="btn btn-success col-md-1" [disabled]="isSearchButtonClicked" style="margin:31px 12px 0px 12px;" (click)="searchAndCSV(true)">
+            <button class="btn btn-success col-md-1" [disabled]="isSearchButtonClicked"
+                style="margin:31px 12px 0px 12px;" (click)="searchProducts()">
                 Search
             </button>
             <button class="btn btn-light col-md-1" style="margin:31px 0px 0px 12px;" (click)="clearInput()">
@@ -47,8 +48,10 @@
             <hr />
         </div>
         <div style="padding-bottom: 20px;">
-            <button class="btn btn-dark" style="margin-right: 10px;" (click)="addRow()"> Add New Row</button>
-            <button class="btn btn-dark" [disabled]="products.length == 0 || isExportButtonClicked" (click)="searchAndCSV(false)"> Export CSV
+            <button class="btn btn-dark" style="margin-right: 10px;" [disabled]="!canManageSKUs" (click)="addRow()"> Add
+                New Row</button>
+            <button class="btn btn-dark" [disabled]="products.length == 0 || isExportButtonClicked"
+                (click)="exportProducts()"> Export CSV
             </button>
         </div>
     </form>
@@ -92,8 +95,10 @@
                         <td>
                             <select class="form-select" formControlName="{{option.recordId+'country'}}"
                                 [ngClass]="{'is-invalid':valForm.controls[option.recordId+'country'].errors}">
-                                <option selected>All</option>
-                                <option *ngFor="let option of contries" [value]="option.country">{{option.name}}
+                                <option [disabled]="!isAllCountrypermission" [selected]="isAllCountrypermission">
+                                    All
+                                </option>
+                                <option *ngFor="let option of countries" [value]="option.country">{{option.name}}
                                 </option>
                             </select>
                         </td>
@@ -106,9 +111,10 @@
                         </td>
                         <td>
                             <button style="margin-right: 10px;" class="btn btn-sm btn-light mr-1" i-bs
-                                name="pencil-square" (click)="edit(option)">
+                                name="pencil-square" [disabled]="!canManageSKUs" (click)="edit(option)">
                             </button>
-                            <button [disabled]="valForm.controls[option.recordId+option.productDescription].errors || 
+                            <button
+                                [disabled]="valForm.controls[option.recordId+option.productDescription].errors || 
                                     valForm.controls[option.erpProductId ? option.recordId+option.erpProductId : option.recordId+'SkuSCEC'].errors || 
                                     valForm.controls[option.recordId+'vendor'].errors ||
                                     valForm.controls[option.recordId+'country'].errors || 
@@ -125,8 +131,7 @@
                         totalCount: thruoghRecord}} of {{totalCount}}
                     </div>
                     <div class="col-md-6 d-flex flex-row-reverse bd-highlight">
-                        <pagination-controls previousLabel="Prev" nextLabel="Next"
-                            (pageChange)="onPageChange($event)">
+                        <pagination-controls previousLabel="Prev" nextLabel="Next" (pageChange)="onPageChange($event)">
                         </pagination-controls>
                     </div>
                 </div>

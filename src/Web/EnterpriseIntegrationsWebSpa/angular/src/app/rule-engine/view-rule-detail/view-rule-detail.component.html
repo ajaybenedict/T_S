@@ -9,11 +9,11 @@
                 </div>
             </div>
         </div>
-        <div class="details d-flex flex-column" *ngIf="ruleData.overrideLevel">
+        <div class="details d-flex flex-column" *ngIf="ruleData.overrideLevelName">
             <div class="details-holder d-flex flex-column">
                 <div class="title">Override Level</div>
                 <div class="content d-flex flex-column">
-                    <span>{{ruleData.overrideLevel.name }}</span>
+                    <span>{{ ruleData.overrideLevelName }}</span>
                 </div>
             </div>
             <div class="details-holder d-flex flex-column">
@@ -64,7 +64,7 @@
             </button>
         </div>
         <div>
-            <app-view-rule [inputData]="ruleData.expressions" [action]="ruleData.action"></app-view-rule>
+            <app-view-rule [inputData]="ruleData.expression" [action]="ruleData.action" [overrideLevelName]="ruleData.overrideLevelName"></app-view-rule>
         </div>
     </div>
 </section>

@@ -38,6 +38,20 @@
     height: 24px;
     justify-content: center;
 }
+
+/*
+  Prevent long cell content from painting over adjacent columns.
+  Keep overflow visible on the <td> itself (needed for certain overlays),
+  but constrain the actual content container.
+*/
+:host ::ng-deep .s1-data-table-cell-content {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .s1-data-table-action-btn button {
     width: 24px !important;
     height: 24px !important;

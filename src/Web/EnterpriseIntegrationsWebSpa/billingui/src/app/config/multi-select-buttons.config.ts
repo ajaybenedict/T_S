@@ -1,11 +1,11 @@
 import { Button } from "../interface/button.interface";
 
-export const MultiSelectButtonConfigs:Button[] = [
+export const MultiSelectButtonConfigs: Button[] = [
   {
     key: 'Download',
     label: 'Download',
     icon: '/cbc/download',
-    tab: ['NONE'],
+    tab: ['NONE', 'Approved', 'Declined'],
     width: '119px',
     showLabel: true,
     showIcon: true,
@@ -22,7 +22,6 @@ export const MultiSelectButtonConfigs:Button[] = [
     showIcon: true,
     disabled: false,
     class: 'multiselect-button'
-
   },
   {
     key: 'Decline',
@@ -34,7 +33,6 @@ export const MultiSelectButtonConfigs:Button[] = [
     showIcon: true,
     disabled: false,
     class: 'multiselect-button'
-
   },
   {
     key: 'BillingList',
@@ -46,18 +44,16 @@ export const MultiSelectButtonConfigs:Button[] = [
     showIcon: true,
     disabled: false,
     class: 'multiselect-button'
-
   },
-    {
+  {
     key: 'Close',
     label: 'Close',
-    icon: 'dismiss',
-    tab: ['Declined','NONE', 'Approved'],
+    icon: 'dismiss_btn_24_24',
+    tab: ['Declined', 'NONE', 'Approved'],
     width: '44px',
     showLabel: false,
     showIcon: true,
     disabled: false,
     class: 'multiselect-button dismiss-button'
-
   }
 ];

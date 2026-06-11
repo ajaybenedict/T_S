@@ -61,6 +61,8 @@ export enum CloudToolsTaskIdEnum {
   PCRCleanup = 1,
   SandBoxCleanUp = 2,
   LCMUpdate = 3,
+  UpdateMPNID = 4,
+  SubscriptionTransfer = 5,
 }
 
 export enum CloudToolsStatusIdEnum {
@@ -82,6 +84,7 @@ export interface Transactions {
   id: string;
   createdOn: string;
   createdBy: string;
+  requestedBy: string;
   taskId: number;
   taskName: string;
 }
@@ -114,6 +117,9 @@ export interface TransactionDetails {
   response: NormalizedTransactionDetailsResponse | string | null; // JSON Object | null - from API
   url: string;
   regionKey: string;
+  azurePlan?: boolean | null;
+  budget?: boolean | null;
+  mpnId?: string | null;
 }
 
 export interface NormalizedTransactionDetailsResponse {
@@ -140,7 +146,17 @@ export interface TransactionDetailsPayloadScheduledAction {
 
 export interface TransactionDetailsPayloadCustomFields {
   customerId: string;
+  mpnId?: string;
   scheduledActions?: TransactionDetailsPayloadScheduledAction[];
+  sourcePartnerTenantId?: string;
+  sourcePartnerName?: string;
+  customerEmailId?: string;
+  customerName?: string;
+  targetPartnerTenantId?: string;
+  targetPartnerEmailId?: string;
+  transferType?: string;
+  targetProductTypes?: string[];
+  partnerOnRecord?: string;
 }
 
 export interface TransactionDetailsPayload {
@@ -167,5 +183,68 @@ export interface ColumnConfig {
   key: string;
   name: string;
   width?: string;
+  enableEllipsisTooltip?: boolean;
   formatter: (d: TransactionDetails) => string;
+}
+
+// Regions API Response Interfaces -- Subscrtiption Transfer Tool
+export interface SubsTransferCountry {
+  countryId: string;
+  countryName: string;
+  countryCode2: string;
+  countryCode3: string;
+}
+
+export interface SubsTransferVendor {
+  vendorId: number;
+  vendorKey: string;
+  vendorName: string;
+  isEnabled: boolean;
+}
+
+export interface SubsTransferRegion {
+  regionId: number;
+  regionKey: string;
+  regionName: string;
+  geoLocation: string;
+  regionType: string;
+  isEnabled: boolean;
+  country: SubsTransferCountry;
+  vendor: SubsTransferVendor;
+}
+
+// Subscription Transfer Upload Interfaces
+export enum SubsTransferTypeEnum {
+  All = 'All',
+  NewCommerce = 'NewCommerce',
+}
+
+export interface SubsTransferUploadRequest {
+  /** The region key identifying the target region */
+  region: string;
+  /** The Microsoft Partner Network ID */
+  mpnId: string;
+  /** The type of subscriptions to transfer */
+  transferType: SubsTransferTypeEnum;
+  /** Tenant ID of the source partner - GUID */
+  sourcePartnerTenantId: string;
+  /** Name of the source partner */
+  sourcePartnerName: string;
+  /** Email address of the customer */
+  customerEmail: string;
+  /** Name of the person requesting the transfer */
+  requestedBy: string;
+}
+
+// Customers API Response Interfaces
+export interface CompanyProfile {
+  tenantId: string;
+  domain: string;
+  companyName: string;
+}
+
+export interface SubscriptionTransferCustomer {
+  id: string;
+  companyProfile: CompanyProfile;
+  relationshipToPartner: string;
 }

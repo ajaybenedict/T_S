@@ -4,21 +4,23 @@ export function preloadAndPatchViewOrders(): Promise<void> {
   const viewOrdersUrl = REMOTE_ENTRY_BASEURL + 'assets/legacy/ViewOrders.html';
   const baseImagePath = REMOTE_ENTRY_BASEURL + 'assets/legacy/';
 
+
+
   return fetch(viewOrdersUrl)
     .then(res => res.text())
     .then(patchedHtml => {
       // Patch all relative img src paths
       patchedHtml = patchedHtml.replace(
-        /<img\s+([^>]*?)src=["'](assets\/legacy\/[^"']+)["']/g,
-        (_, attrs, src) => {
+        /<img\b[^>]*\bsrc=["'](assets\/legacy\/[^"']+)["'][^>]*>/gi,
+        (match, src) => {
           const fullSrc = baseImagePath + src.replace(/^assets\/legacy\//, '');
-          return `<img ${attrs}src="${fullSrc}"`;
+          return match.replace(src, fullSrc);
         }
       );
 
       const angular = (window as any).angular;
 
-    
+
       if (angular?.module) {
         try {
           angular.module('billingOrderModule')
@@ -29,7 +31,7 @@ export function preloadAndPatchViewOrders(): Promise<void> {
               }]);
             }]);
 
-        
+
         } catch (err) {
           console.error('Error while patching $templateCache:', err);
         }

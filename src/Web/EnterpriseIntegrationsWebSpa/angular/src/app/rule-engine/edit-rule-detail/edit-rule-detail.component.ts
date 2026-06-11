@@ -1,9 +1,8 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Subject, Subscription, takeUntil } from 'rxjs';
-import { PPCDashboardDataService } from 'src/app/core/services/ppc-dashboard-data.service';
+import { Subject, Subscription, catchError, of, take, takeUntil } from 'rxjs';
 import { SelectDropdown } from 'src/app/models/select-dropdown.interface';
-import { C3_RULE_ENGINE_WORKFLOW_ID, C3OverrideLevels, c3RuleEngineAlertRecipientAllowedDomains, c3RuleEngineDialogConfig, c3RuleEngineDialogType, c3RuleEngineOverrideData } from 'src/app/core/config/rule-engine.config';
+import { c3RuleEngineDialogType } from 'src/app/core/config/rule-engine.config';
 import { RuleEngineDataService } from 'src/app/core/services/rule-engine/rule-engine-data.service';
 import { RuleEngineExpressionHelper, RuleEngineHelper } from '../rule-engine-helper';
 import { RuleEngineApiService } from 'src/app/core/services/rule-engine/rule-engine-api.service';
@@ -12,8 +11,10 @@ import { PpcDialogComponent } from 'src/app/shared/ppc-dialog/ppc-dialog.compone
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PpcSnackBarService } from 'src/app/core/services/ppc-snack-bar.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RuleDetail } from 'src/app/models/rule-engine/rule-engine';
+import { RuleDetail, RuleTypeEnum } from 'src/app/models/rule-engine/rule-engine';
 import { APP_ROUTE_CONFIG_URL } from 'src/app/core/constants/constants';
+import { RuleEditorConfigAdapter } from 'src/app/core/services/rule-engine/rule-editor-config-adapter.service';
+import { RuleEditorField, RuleEditorShellConfig, UIRuleConfigApiResponse } from 'src/app/models/rule-engine/rule-editor-config.model';
 
 @Component({
   selector: 'app-edit-rule-detail',
@@ -23,24 +24,23 @@ import { APP_ROUTE_CONFIG_URL } from 'src/app/core/constants/constants';
 export class EditRuleDetailComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>;
 
-  private readonly emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   editForm!: FormGroup;
   countryData!: { countries: SelectDropdown[], regions: SelectDropdown[] };
-  overrideData = [...c3RuleEngineOverrideData];
-  selectedOverride!: C3OverrideLevels;
+  overrideData: SelectDropdown[] = [];
+  selectedOverride!: string;
   levelValues: string[] = [];
   apiErrorMsg!: string | null;
-  workflowId = C3_RULE_ENGINE_WORKFLOW_ID;
+  workflowId!: number;
   ruleDetail: RuleDetail | null = null;
   isEditmode = false;
   ruleId: string | null = null;
   levelValueSubs!: Subscription;
+  shellConfig!: RuleEditorShellConfig;
+  private resellerInputHasText = false;
+  private alertRecipientInputHasText = false;
 
   private readonly dialog = inject(MatDialog);
   private declare dialogRef: MatDialogRef<PpcDialogComponent>;
-
-  readonly allowedEmailList = c3RuleEngineAlertRecipientAllowedDomains;
 
   formControlList = {
     OVERRIDE: 'override',
@@ -59,35 +59,197 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
     ACTION: 'action',
   };
 
-  overrideList = {
-    GLOBAL: 'Global',
-    COUNTRY_GROUP: 'CountryGroup',
-    COUNTRY: 'Country',
-    RESELLER: 'Reseller',
-  };
-
-  MAX_RESELLER_LENGTH = 50;
-
   private readonly resolverData: { mode: 'edit' | 'create' | 'duplicate', data: RuleDetail | null, ruleId: string | null } = this.route.snapshot.data['ruleDetail'];
-  
+
   constructor(
-    private readonly fb: FormBuilder,    
-    private readonly dashboardDataSVC: PPCDashboardDataService,
+    private readonly fb: FormBuilder,
     private readonly ruleEngineDataSVC: RuleEngineDataService,
     private readonly ruleEngineAPISVC: RuleEngineApiService,
+    private readonly ruleConfigAdapter: RuleEditorConfigAdapter,
     private readonly snackbarSVC: PpcSnackBarService,
     private readonly router: Router,
-    private readonly route: ActivatedRoute,    
+    private readonly route: ActivatedRoute,
   ) { }
 
-  ngOnInit(): void {    
-    this.initForm();
-    this.getCountryRegionData(); 
+  ngOnInit(): void {
+    this.workflowId = this.getWorkflowId();
+    this.shellConfig = this.ruleConfigAdapter.getShellConfigForWorkflow(this.workflowId);
+    this.initForm();  
+    this.loadDataForUI();
     //  Breadcrumb logic
     this.ruleEngineDataSVC.setBreadcrumb(
-      (this.resolverData.mode == 'create' || this.resolverData.mode == 'duplicate') 
+      (this.resolverData.mode == 'create' || this.resolverData.mode == 'duplicate')
         ? 'Rules Engine$Add Rule' : 'Rules Engine$Edit Rule'
-    );         
+    );
+  }
+
+  /**
+   * Returns the list of email domains allowed for the current workflow shell.
+   */
+  get allowedEmailList(): string[] {
+    return this.shellConfig?.allowedEmailDomains ?? [];
+  }
+
+  /**
+   * Indicates whether the current workflow exposes geo-based level value selection.
+   */
+  get hasGeoSelection(): boolean {
+    return !!this.shellConfig?.geoDataSourceKey;
+  }
+
+  /**
+   * Indicates whether the currently selected override uses dropdown-based geo selection.
+   */
+  get usesGeoSelector(): boolean {
+    return this.shellConfig?.geoSelectorOverrideKeys.includes(this.selectedOverride) ?? false;
+  }
+
+  /**
+   * Indicates whether the current geo selector should render region values instead of country values.
+   */
+  get usesRegionSelector(): boolean {
+    return this.shellConfig?.regionSelectorOverrideKeys.includes(this.selectedOverride) ?? false;
+  }
+
+  /**
+   * Indicates whether the currently selected override uses reseller free-text input.
+   */
+  get usesResellerInput(): boolean {
+    return this.shellConfig?.resellerOverrideKeys.includes(this.selectedOverride) ?? false;
+  }
+
+  /**
+   * Indicates whether the reseller-specific override hint should be displayed.
+   */
+  get showResellerOverrideHint(): boolean {
+    return this.usesResellerInput;
+  }
+
+  /**
+   * Returns the configured reseller input max length for the active workflow.
+   */
+  get resellerMaxLength(): number {
+    return this.shellConfig?.resellerMaxLength ?? 0;
+  }
+
+  /**
+   * Indicates whether the email recipients section should be rendered.
+   */
+  get showAlertRecipients(): boolean {
+    return this.shellConfig?.emailRecipientsEnabled ?? false;
+  }
+
+  /**
+   * Shows inline Add action for reseller input only when user has typed text.
+   */
+  get showResellerAddButton(): boolean {
+    const control = this.getResellerControl();
+    const value = control?.value ? String(control.value).trim() : '';
+    return this.resellerInputHasText || value.length > 0;
+  }
+
+  /**
+   * Shows inline Add action for alert recipients input only when user has typed text.
+   */
+  get showAlertRecipientAddButton(): boolean {
+    const control = this.getAlertRecipientInputControl();
+    const value = control?.value ? String(control.value).trim() : '';
+    if (!value.length || !control) {
+      return false;
+    }
+
+    control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+    return this.alertRecipientInputHasText || control.valid;
+  }
+
+  onResellerInputChange(event: Event): void {
+    const value = (event.target as HTMLInputElement | null)?.value ?? '';
+    this.resellerInputHasText = value.trim().length > 0;
+  }
+
+  onAlertRecipientInputChange(event: Event): void {
+    const value = (event.target as HTMLInputElement | null)?.value ?? '';
+    const control = this.getAlertRecipientInputControl();
+    if (!control) {
+      this.alertRecipientInputHasText = false;
+      return;
+    }
+
+    control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+    this.alertRecipientInputHasText = value.trim().length > 0 && control.valid;
+  }
+
+  private loadDataForUI(): void {
+    const cachedConfig = this.ruleEngineDataSVC.getUIRuleConfig();
+    if (cachedConfig) {
+      this.initializeRuleConfigData(cachedConfig);
+      return;
+    }
+
+    this.ruleEngineAPISVC.getUIRuleConfig(this.workflowId)
+      .pipe(
+        take(1),
+        catchError((error) => {
+          console.error('Error fetching UI rule config:', error);
+          return of(null);
+        }),
+      )
+      .subscribe((config) => {
+        if (!config) {
+          return;
+        }
+        this.ruleEngineDataSVC.setUIRuleConfig(config);
+        this.initializeRuleConfigData(config);
+      });
+  }
+
+  /**
+   * Initializes adapter-driven shell data and hydrates edit or duplicate state.
+   */
+  private initializeRuleConfigData(config: UIRuleConfigApiResponse): void {
+    this.setDistinctOverrideData(config);
+
+    if (this.hasGeoSelection) {
+      this.setCountryRegionData(config);
+      return;
+    }
+
+    this.subscribeToOverride();
+    this.initializeResolverMode(config);
+  }
+
+  private setDistinctOverrideData(config: UIRuleConfigApiResponse): void {
+    const distinctAllowedOverrides = RuleEngineHelper.getDistinctAllowedOverrides(config);
+    this.overrideData = distinctAllowedOverrides.map((override) => ({
+      label: this.getOverrideLabel(override),
+      value: override,
+    }));
+  }
+
+  private getOverrideLabel(override: string): string {
+    return override === 'CountryGroup' ? 'Region' : override;
+  }
+
+  /**
+   * Initializes edit or duplicate state once shell-specific data sources are ready.
+   */
+  private initializeResolverMode(config: UIRuleConfigApiResponse): void {
+    if (this.resolverData.mode !== 'edit' && this.resolverData.mode !== 'duplicate') {
+      this.ruleEngineDataSVC.setEditingExpression(null);
+    }
+
+    if ((this.resolverData.mode === 'edit' || this.resolverData.mode === 'duplicate') && this.resolverData.data) {
+      this.addFormControl(this.formControlList.LEVEL_VALUE, null);
+      this.initRuleDetail(
+        this.resolverData.data,
+        this.getSupportedExpressionAttributes(config, this.resolverData.data.expression),
+      );
+
+      if (this.resolverData.mode === 'edit') {
+        this.isEditmode = true;
+        this.ruleId = this.resolverData.ruleId;
+      }
+    }
   }
 
   private initForm() {
@@ -97,21 +259,39 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
       [this.formControlList.OVERRIDE]: ['', Validators.required],
       // below are dummy formControlNames to handle the logic & design
       [this.formControlList.COUNTRY_REGION]: [null],
-      [this.formControlList.RESELLER_INPUT]: [null, [Validators.maxLength(this.MAX_RESELLER_LENGTH)]],
-      [this.formControlList.ALERT_RECIPIENT_INPUT]: ['', Validators.email],
+      [this.formControlList.RESELLER_INPUT]: [null, [Validators.maxLength(this.resellerMaxLength)]],
+      [this.formControlList.ALERT_RECIPIENT_INPUT]: [''],
       [this.formControlList.ALERT_RECIPIENTS]: [[]],
       [this.formControlList.CHILD_FORM]: this.fb.control(null, { validators: [Validators.required] }),
     });
   }
 
-  private initRuleDetail(ruleDetail: RuleDetail) {
+  private parseCommaSeparatedTokens(value: string): string[] {
+    return value
+      .split(/[\s,;]+/)
+      .map(token => token.trim())
+      .filter(token => token.length > 0);
+  }
+
+  private initRuleDetail(ruleDetail: RuleDetail, supportedExpressionAttributes: RuleEditorField[]) {
     if (ruleDetail) {
-      const uiForm = RuleEngineExpressionHelper.apiToUiForm({ expressions: ruleDetail.expressions, action: ruleDetail.action });
-      const override = ruleDetail.overrideLevel ? c3RuleEngineOverrideData.find(el => el.value.toLowerCase() == ruleDetail.overrideLevel.name.toLowerCase()) : null;
+      this.ruleEngineDataSVC.setEditingExpression(ruleDetail.expression ?? null);
+      const uiForm = RuleEngineExpressionHelper.apiToUiForm(
+        { expression: ruleDetail.expression, action: ruleDetail.action },
+        supportedExpressionAttributes,
+      );
+      const overrideName = String(ruleDetail.overrideLevelName ?? '').trim();
+      if (overrideName && !this.overrideData.some((el) => String(el.value).toLowerCase() === overrideName.toLowerCase())) {
+        this.overrideData = [...this.overrideData, { label: this.getOverrideLabel(overrideName), value: overrideName }];
+      }
+
+      const override = overrideName
+        ? this.overrideData.find((el) => String(el.value).toLowerCase() == overrideName.toLowerCase())
+        : null;
       this.editForm.patchValue({
         [this.formControlList.NAME]: ruleDetail.name,
         [this.formControlList.PURPOSE]: ruleDetail.purpose,
-        // we have the overrides defined in config. API value tries to match any one from it, else override will be empty & user can select available value          
+        // we have the overrides defined in config. API value tries to match any one from it, else override will be empty & user can select available value
         [this.formControlList.OVERRIDE]: override ?? null,
         [this.formControlList.LEVEL_VALUE]: ruleDetail.levelValues,
         [this.formControlList.ALERT_RECIPIENTS]: ruleDetail.emails ?? [],
@@ -122,54 +302,58 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
         }
       });
       this.editForm.updateValueAndValidity({ emitEvent: false });
-      // Ensure service is always in sync in edit/duplicate
-      if (override) {
-        this.ruleEngineDataSVC.setOverrideValue(override.value as C3OverrideLevels);
+      // Keep service state aligned with the selected override for workflows using adapter-driven level values.
+      if (override && this.hasGeoSelection) {
+        this.ruleEngineDataSVC.setOverrideValue(override.value as any);
       }
-      if (ruleDetail.levelValues?.length) {
+      if (ruleDetail.levelValues?.length && this.hasGeoSelection) {
         this.ruleEngineDataSVC.setLevelValue(ruleDetail.levelValues);
       }
     }
   }
 
-  private getCountryRegionData() {
-    this.dashboardDataSVC.countryRegionData$
-      .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(res => {
-        if (!res) return;
-        this.countryData = RuleEngineHelper.getAllCountryRegionList(res);
-        this.subscribeToOverride();
-        this.subscribeToCountryRegion();        
-        if (this.resolverData.mode === 'edit' && this.resolverData.data) {
-          this.isEditmode = true;
-          this.ruleId = this.resolverData.ruleId;
-          this.addFormControl(this.formControlList.LEVEL_VALUE, null);
-          this.initRuleDetail(this.resolverData.data);
-        } else if (this.resolverData.mode == 'duplicate' && this.resolverData.data) {
-          this.addFormControl(this.formControlList.LEVEL_VALUE, null);
-          this.initRuleDetail(this.resolverData.data);
-        }
-      });
+  private getSupportedExpressionAttributes(config: UIRuleConfigApiResponse, expression: string): RuleEditorField[] {
+    const ruleType = RuleEngineExpressionHelper.inferRuleTypeFromExpression(expression);
+    const isComparable = ruleType === RuleTypeEnum.Compare;    
+    return this.ruleEngineDataSVC.getExpressionAttributesByComparability(
+      isComparable,
+      config.attributeList,
+    );
   }
-  
+
+  /**
+   * Loads workflow-specific geo data when configured by the shell adapter.
+   */
+  private setCountryRegionData(config: UIRuleConfigApiResponse): void {
+    const regionCountryDropDown = this.shellConfig.geoDataSourceKey
+      ? config.dataSource?.[this.shellConfig.geoDataSourceKey]
+      : null;
+
+    if (!regionCountryDropDown) {
+      this.subscribeToOverride();
+      this.initializeResolverMode(config);
+      return;
+    }
+
+    this.countryData = RuleEngineHelper.getAllCountryRegionList(regionCountryDropDown);    
+    this.subscribeToOverride();
+    this.subscribeToCountryRegion();
+    this.initializeResolverMode(config);
+  }
+
+  /**
+   * Synchronizes shell-driven override behavior with level value controls.
+   */
   private subscribeToOverride() {
-    // Core logic for override level values
     this.editForm.get(this.formControlList.OVERRIDE)?.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (controlValue: SelectDropdown | undefined) => {
           if(!controlValue) return;
-          this.selectedOverride = controlValue.value as C3OverrideLevels;
+          this.selectedOverride = String(controlValue.value);
           this.ruleEngineDataSVC.setOverrideValue(this.selectedOverride);
-          if (
-            [
-              this.overrideList.COUNTRY_GROUP,
-              this.overrideList.COUNTRY,
-              this.overrideList.RESELLER
-            ].includes(controlValue.value)
-          ) {
+
+          if (this.shellConfig.overridesRequiringLevelValue.includes(this.selectedOverride)) {
             this.addFormControl(this.formControlList.LEVEL_VALUE, []);
             this.subscribeToLevelValue();
           } else {
@@ -219,7 +403,7 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
     if (allowedKeys.includes(event.key)) return;
 
     // If already at limit → block typing
-    if (value.length >= this.MAX_RESELLER_LENGTH) {
+    if (value.length >= this.resellerMaxLength) {
       event.preventDefault();
     }
   }
@@ -233,7 +417,7 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
 
     const newLength = currentVal.length + clipboardText.length;
 
-    if (newLength > this.MAX_RESELLER_LENGTH) {
+    if (newLength > this.resellerMaxLength) {
       event.preventDefault();
     }
   }
@@ -251,7 +435,7 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
     const raw = control.value ? String(control.value).trim() : '';
 
     // Just block — no trimming
-    if (raw.length > this.MAX_RESELLER_LENGTH) {      
+    if (raw.length > this.resellerMaxLength) {
       return;
     }
 
@@ -259,6 +443,7 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
 
     this.appendLevelValue(raw);
     control.setValue('');
+    this.resellerInputHasText = false;
   }
 
   private appendLevelValue(value: string) {
@@ -291,38 +476,44 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
     const recipientsControl = this.getAlertRecipientsControl();
     if (!inputControl || !recipientsControl) return;
 
+    inputControl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+    if (inputControl.invalid) {
+      inputControl.markAsTouched();
+      return;
+    }
+
     const raw = this.getTrimmedControlValue(inputControl);
-    if (!raw) return;
+    if (!raw) {
+      return;
+    }
 
-    const candidate = this.getValidAlertRecipientEmail(raw);
-    if (!candidate) return;
-
-    const current = this.getStringArrayControlValue(recipientsControl);
-    if (this.hasEmail(current, candidate)) {
+    const tokens = this.parseCommaSeparatedTokens(raw);
+    if (tokens.length === 0) {
       inputControl.setValue('');
       return;
     }
 
-    recipientsControl.setValue([...current, candidate]);
+    const current = this.getStringArrayControlValue(recipientsControl);
+    let next = current;
+
+    for (const token of tokens) {
+      if (this.hasEmail(next, token)) {
+        continue;
+      }
+      next = [...next, token];
+    }
+
+    if (next !== current) {
+      recipientsControl.setValue(next);
+    }
+
     inputControl.setValue('');
+    this.alertRecipientInputHasText = false;
   }
 
   private getTrimmedControlValue(control: FormControl): string {
     const value = control.value;
     return value ? String(value).trim() : '';
-  }
-
-  private getValidAlertRecipientEmail(raw: string): string | null {
-    // Do not block the form with invalid email; just ignore the entry
-    if (!this.emailRegex.test(raw)) {
-      return null;
-    }
-
-    if (!this.isAllowedAlertRecipientEmail(raw)) {
-      return null;
-    }
-    
-    return raw;
   }
 
   private getStringArrayControlValue(control: FormControl): string[] {
@@ -336,31 +527,6 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
   private hasEmail(current: string[], email: string): boolean {
     const normalized = email.toLowerCase();
     return current.some(v => v.toLowerCase() === normalized);
-  }
-
-  private isAllowedAlertRecipientEmail(email: string): boolean {
-    const allowedDomains = (this.allowedEmailList ?? [])
-      .map(d => String(d).trim().toLowerCase())
-      .filter(d => d.length > 0)
-      .map(d => (d.startsWith('@') ? d.slice(1) : d))
-      .map(d => (d.startsWith('.') ? d.slice(1) : d));
-
-    // If not configured, do not block (keeps behavior safe across envs)
-    if (allowedDomains.length === 0) {
-      return true;
-    }
-
-    const atIndex = email.lastIndexOf('@');
-    if (atIndex <= 0 || atIndex === email.length - 1) {
-      return false;
-    }
-
-    const domain = email.slice(atIndex + 1).trim().toLowerCase().replace(/^\./, '');
-    if (!domain) {
-      return false;
-    }
-
-    return allowedDomains.some(allowed => domain === allowed || domain.endsWith(`.${allowed}`));
   }
 
   alertRecipientChipDismissHandler(value: string) {
@@ -413,9 +579,9 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
   }
 
   // Should be used only when user creates a new Rule. Do not use while edit/duplicate!!!
-  makePublishApiCall(isDraft: boolean, mode: string) {
-    const datatoSend = RuleEngineHelper.getAPIRuleformat(this.editForm.value, isDraft, mode);
-    this.ruleEngineAPISVC.createRule(datatoSend, this.workflowId)
+  makePublishApiCall(isDraft: boolean) {
+    const datatoSend = RuleEngineHelper.getAPIRuleformat(this.editForm.value, isDraft, this.workflowId, this.ruleEngineDataSVC.getUIRuleConfig()?.attributeList);
+    this.ruleEngineAPISVC.createRule(this.shellConfig.applicationId, datatoSend, this.workflowId)
       .subscribe({
         next: res => {
           if (res) {
@@ -437,10 +603,10 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  updateApiCall(isDraft:boolean, mode: string) {    
-    const datatoSend = RuleEngineHelper.getAPIRuleformat(this.editForm.value, isDraft, mode);
+  updateApiCall(isDraft:boolean) {
+    const datatoSend = RuleEngineHelper.getAPIRuleformat(this.editForm.value, isDraft, this.workflowId, this.ruleEngineDataSVC.getUIRuleConfig()?.attributeList);
     if(!this.ruleId) return;
-    this.ruleEngineAPISVC.updateRule({...datatoSend, ruleId: this.ruleId}, this.workflowId, this.ruleId)
+    this.ruleEngineAPISVC.updateRule(this.shellConfig.applicationId, {...datatoSend, ruleId: this.ruleId}, this.workflowId, this.ruleId)
       .subscribe({
         next: res => {
           if (res) {
@@ -462,15 +628,18 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Opens the workflow-specific confirmation dialog and routes the selected action.
+   */
   private openDialog(type: DialogType, isDraft: boolean) {
     this.closeDialog();
     let dialogData: { height: string, data: PPCDialogData };
     let position = { bottom: '0', right: '0' };
-    let key = this.getDialogType(isDraft, this.isEditmode);    
-    let data: PPCDialogData = { ...c3RuleEngineDialogConfig[key], type };
+    let key = this.getDialogType(isDraft, this.isEditmode);
+    let data: PPCDialogData = { ...this.shellConfig.dialogConfig[key], type };
     dialogData = {
       height: type == 'RuleEngineConfirmationWithRadioBtn' ? '310px' : '229px',
-      data, 
+      data,
     };
     this.dialogRef = this.dialog.open(
       PpcDialogComponent,
@@ -483,20 +652,20 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
       }
     );
     this.dialogRef.afterClosed().subscribe(res => {
-      if (res) {        
-        if (res == 'Publish') {
-          this.makePublishApiCall(isDraft, res);
+      if (res) {
+        if (res == this.shellConfig.dialogActions.publish) {
+          this.makePublishApiCall(isDraft);
         }
-        if (res == 'SaveDraft') {
-          this.makePublishApiCall(isDraft, res)
+        if (res == this.shellConfig.dialogActions.saveDraft) {
+          this.makePublishApiCall(isDraft)
         }
-        if(res == 'EditDraft') {
+        if(res == this.shellConfig.dialogActions.editDraft) {
           // create new draft - using create API
-          this.makePublishApiCall(true, res);
+          this.makePublishApiCall(true);
         }
-        if(res == 'EditPublish') {
+        if(res == this.shellConfig.dialogActions.editPublish) {
           // update API call
-          this.updateApiCall(false, res);
+          this.updateApiCall(false);
         }
       }
     });
@@ -513,6 +682,14 @@ export class EditRuleDetailComponent implements OnInit, OnDestroy {
     if (isDraft && !isEditMode) return 'createDraft';
     if (!isDraft && !isEditMode) return 'createPublish';
     return 'moveToDraft';
+  }
+
+  private getWorkflowId(): number {
+    const workflowId = this.ruleEngineDataSVC.getWorkflowId();
+    if (workflowId === null || !Number.isInteger(workflowId) || workflowId <= 0) {
+      throw new Error('Missing mandatory workflowId from RuleEngineDataService');
+    }
+    return workflowId;
   }
 
   ngOnDestroy(): void {

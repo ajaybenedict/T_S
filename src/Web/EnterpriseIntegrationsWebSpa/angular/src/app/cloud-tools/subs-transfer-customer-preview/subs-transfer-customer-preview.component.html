@@ -1,0 +1,34 @@
+<aside class="panel-container d-flex flex-column">
+    <header class="d-flex justify-content-between align-items-center panel-header s1-P-16-20-px">
+        <app-s1-breadcrumb [inputData]="breadcrumbInput" [buttonTextColor]="'#005758'"></app-s1-breadcrumb>
+        <button type="button" s1-button [iconOnly]="true" (click)="closeHandler()">
+            <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss" class="default">
+            <img src="/assets/dismiss_btn_hover_red_24_24.svg" alt="dismiss" class="hover">
+        </button>
+    </header>
+    <!-- Panel Container -->
+    <div class="s1-P20px panel-content-container d-flex flex-column">
+        <div class="table-container">
+            <app-s1-data-table 
+                [tableColumns]="columnData"
+                [tableData]="displayedTableData"
+                [showProgressBar]="showLoadingOverlay"
+                [tbodyMaxHeight]="tableMaxHeight"
+            ></app-s1-data-table>
+        </div>
+        <nav class="paginator-container" aria-label="Pagination">
+            <app-ppc-paginator></app-ppc-paginator>
+        </nav>
+        <!-- PPC Overlay -->
+        <app-ppc-overlay [show]="showLoadingOverlay"></app-ppc-overlay>
+    </div>
+    <!-- Panel Footer -->
+    <div class="panel-footer">
+        <div class="d-flex justify-content-end">
+            <div class="d-flex flex-row align-items-center gap-3 footer-container s1-P-16-20-px">
+                <button type="button" s1-button btnType="secondary" (click)="closeHandler()">Cancel</button>
+                <button type="button" s1-button btnType="primary" (click)="showDialog()">Submit</button>
+            </div>
+        </div>
+    </div>
+</aside>

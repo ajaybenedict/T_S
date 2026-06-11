@@ -29,6 +29,7 @@ export class PermissionsLoaderDialogService {
                 ticket to request access.`;
 
         const LoginBackLink = `Please <a href="${APP_ROUTE_CONFIG_URL.SSO}" class="s1-no-underline s1-C-LegacyOcean">Log in</a> again to continue.`;
+        const loginLaterLink = `Please <a href="${APP_ROUTE_CONFIG_URL.SSO}" class="s1-no-underline s1-C-LegacyOcean">Log in</a> again later.`;
 
         const defaultDialogSize = { width: '480px', height: '244px' };
         const loaderDialogSize = { width: '480px', height: '152px' };
@@ -74,7 +75,13 @@ export class PermissionsLoaderDialogService {
               loadErrorMsg: '<span>Uh-oh! oauth session expired</span>',
               header: 'Session Expired',
               type: 'SessionExpired',
-          },
+            },
+            ServerError: {
+              content: `Authentication failed due to server error. ${loginLaterLink}`,
+              loadErrorMsg: '<span>Uh-oh! Server Error</span>',
+              header: 'Server Error',
+              type: 'ServerError',
+            },
         };
 
         const data = dialogConfigMap[type];

@@ -1,6 +1,5 @@
 import { Component, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { LogicalOperator } from 'src/app/models/rule-engine/rule-engine';
 import { S1FilterButtons } from 'src/app/models/s1/s1-filter-buttons.interface';
 
 @Component({
@@ -63,9 +62,9 @@ export class LogicalOperatorComponent implements ControlValueAccessor {
   }
   
   // ControlValueAccessor implementation
-  writeValue(value: 'And' | 'Or' | LogicalOperator): void {    
+  writeValue(value: 'And' | 'Or' | null | undefined): void {    
     if (value) {
-      this.selectedOperator = typeof value === 'object' ? value.name as ('And' | 'Or') : value;
+      this.selectedOperator = value;
       this.updateSelectionState();
     }
   }

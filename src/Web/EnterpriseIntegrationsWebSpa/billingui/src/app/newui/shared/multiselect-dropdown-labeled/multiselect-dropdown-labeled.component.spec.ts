@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { MultiselectDropdownLabeledComponent } from './multiselect-dropdown-labeled.component';
+import { configureTestBed } from 'src/app/testing/test-bed.helper';
 
 describe('MultiselectDropdownLabeledComponent', () => {
   let component: MultiselectDropdownLabeledComponent;
   let fixture: ComponentFixture<MultiselectDropdownLabeledComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
+    await configureTestBed({
       declarations: [ MultiselectDropdownLabeledComponent ]
     })
     .compileComponents();

@@ -28,7 +28,7 @@ const DeleteItem = {
   hasName: true, 
   displayName: 'Delete', 
   hasIcon: true, 
-  iconURL: '/assets/delete.svg', 
+  iconURL: '/assets/cbc/delete_24_24.svg', 
   onClickEmit: 'Delete'
 };
 

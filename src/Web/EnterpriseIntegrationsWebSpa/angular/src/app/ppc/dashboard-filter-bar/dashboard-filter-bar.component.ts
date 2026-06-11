@@ -31,6 +31,8 @@ export class DashboardFilterBarComponent implements OnInit, OnDestroy, AfterView
     ApprovalType: null,
     Country: null,
     OrderValue: null,
+    BillingTerm: null,
+    ResellerStatus: null,
   };
   mindays: number = PPC_CALENDAR_MIN_DAYS;
   resetBtn: S1FilterButtons = DashboardFilterBarHelper.getResetButton();
@@ -198,12 +200,45 @@ export class DashboardFilterBarComponent implements OnInit, OnDestroy, AfterView
         dataToSend = { ...dataToSend, AmountFilter: 0, AmountMax: 0, AmountMin: 0 };
         this.getOrderDetails(dataToSend);
         break;
+      case ppcFilterButtonDataConfig[PPCFilterTypeEnum.BillingTerm].onClickEvent:
+        this.clearBillingTermBtn();
+        dataToSend = { ...dataToSend, MultiYearContractFilter: 0, MultiYearContract: false, };
+        this.getOrderDetails(dataToSend);
+        break;
+      case ppcFilterButtonDataConfig[PPCFilterTypeEnum.ResellerStatus].onClickEvent:
+        this.clearResellerStatusBtn();
+        dataToSend = { ...dataToSend, 
+          OnHold: false,
+          OnHoldFilter: 0,
+          Discontinued: false,
+          DiscontinuedFilter: 0,
+        };
+        this.getOrderDetails(dataToSend);
+        break;
       default:
         // resetAll
         this.clearApprovalBtn();
         this.clearCountryBtn();
         this.clearOrderValueBtn();
-        dataToSend = { ...dataToSend, ApprovalTypeFilter: 0, ApprovalType: [], CountryFilter: 0, Country: [], AmountFilter: 0, AmountMax: 0, AmountMin: 0, PageIndex: 0 };
+        this.clearBillingTermBtn();
+        this.clearResellerStatusBtn();
+        dataToSend = {
+          ...dataToSend,
+          ApprovalTypeFilter: 0,
+          ApprovalType: [],
+          CountryFilter: 0,
+          Country: [],
+          AmountFilter: 0,
+          AmountMax: 0,
+          AmountMin: 0,
+          MultiYearContractFilter: 0,
+          MultiYearContract: false,
+          OnHold: false,
+          OnHoldFilter: 0,
+          Discontinued: false,
+          DiscontinuedFilter: 0,
+          PageIndex: 0,
+        };
         this.getOrderDetails(dataToSend);
         break;
     }
@@ -222,6 +257,16 @@ export class DashboardFilterBarComponent implements OnInit, OnDestroy, AfterView
   private clearOrderValueBtn() {
     this.dashboardDataSVC.setSelectedOrderValue(null);
     this.updateCount({ OrderValue: 0 });
+  }
+
+  private clearBillingTermBtn() {
+    this.dashboardDataSVC.setSelectedBillingTerm(null);
+    this.updateCount({ BillingTerm: 0 });
+  }
+
+  private clearResellerStatusBtn() {
+    this.dashboardDataSVC.setSelectedResellerStatus(null);
+    this.updateCount({ ResellerStatus: 0 });
   }
 
   private updateCount(data: Partial<PPCFilterCount>) {

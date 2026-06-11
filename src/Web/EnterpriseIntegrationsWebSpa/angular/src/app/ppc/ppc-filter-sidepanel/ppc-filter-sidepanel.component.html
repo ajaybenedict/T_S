@@ -23,6 +23,10 @@
                 </ng-container>
                 <!-- Approval Type -->
                 <app-s1-description-checkbox *ngSwitchCase="filterConfigData[filterEnum.ApprovalType].onClickEvent" [inputData]="approvalTypeCheckbox" (checked)="approvalTypeEventHandler($event)"></app-s1-description-checkbox>
+                <!-- Billing Term -->
+                <app-s1-single-description-checkbox *ngSwitchCase="filterConfigData[filterEnum.BillingTerm].onClickEvent" [inputData]="billingTermCheckbox" (checked)="billingTermEventHandler($event)"></app-s1-single-description-checkbox>
+                <!-- Reseller Status -->
+                <app-s1-description-checkbox *ngSwitchCase="filterConfigData[filterEnum.ResellerStatus].onClickEvent" [inputData]="resellerStatusCheckbox" (checked)="resellerStatusEventHandler($event)"></app-s1-description-checkbox>
             </div>
         </div>
     </div>

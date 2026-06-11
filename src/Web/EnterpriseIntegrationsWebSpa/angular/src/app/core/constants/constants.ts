@@ -53,6 +53,7 @@ export const DEFAULT_PAGE_SIZE_CLOUD_TOOLS = 10;
 /** Paginator - Page size options. */
 export const DEFAULT_PAGE_SIZE_OPTIONS = [10,25,50,100];
 export const REVENUE_AI_BREADCRUMB = 'Cloud Data Assistant';
+export const HUB_AI_BREADCRUMB = 'Ask Assistant';
 /** Pagintaor - Page size - C3 dashboard. */
 export const PPC_DASHBOARD_PAGE_SIZE = 10;
 export const PPC_CALENDAR_MIN_DAYS = 90;
@@ -60,6 +61,7 @@ export const QUESTIONS_ALLOWED_PER_THREAD = 10;
 export const THREAD_NAME_MIN_CHAR = 1;
 export const THREAD_NAME_MAX_CHAR = 100;
 export const REMOTE_ENTRY_URL = resolveEnvironment().REMOTE_ENTRY_URL;
+export const BILLINGUI_BASE_URL = resolveEnvironment().REMOTE_BASE_URL;
 export const INSIGHT_DASHBOARD_ROUTE = {
     PARAM_NAME: 'report-name',
     RESOLVER: 'reportData',
@@ -72,13 +74,18 @@ export const INSIGHT_DASHBOARD_ROUTE = {
     REVENUE_DASHBOARD_PHASE2_URL: 'revenuedashboard-phase2',
     ION_ORDER_DATA_URL: 'ion-order-data',
     END_CUSTOMER_CHURN_URL: 'end-customer-churn',
-
+    USER_USAGE_REPORT_URL: 'user-usage-insights',
+    KPI_REPORT_URL: 'kpi-dashboard',
+    RESELLER_CHURN_URL: 'reseller-churn',
 };
 export const INSIGHT_NO_PERMISSION_REPORTS = [INSIGHT_DASHBOARD_ROUTE.EXCHANGE_RATE_URL];
 export const LANDING_PAGE = {
     WELCOME_TEXT: 'Welcome',
-    WELCOME_CONTENT: `Welcome to StreamOne Business Operations Hub! You’ve successfully logged in.
+    WELCOME_CONTENT: `Welcome to StreamOne Operations Hub! You've successfully logged in.
     The following modules are designed to help you manage and monitor your cloud operations with ease. Select a module to get started`,
+    LOGOUT_CONTENT: 'You have been logged out successfully from the StreamOne Operations Hub, but still logged in with Microsoft.',
+    MICROSOFT_LOGOUT_TXT: 'To completely logout from Microsoft?',
+    LOGIN_AGAIN_TXT: 'To login again to StreamOne Operations Hub?',
 };
 export const APP_ROUTE_CONFIG_URL = {
     C3_DASHBOARD: 'c3-dashboard',
@@ -90,16 +97,23 @@ export const APP_ROUTE_CONFIG_URL = {
     LOGOUT: 'logout',
     INSIGHTS: 'insights',
     DATA_DISCOVERY: 'datadiscovery',
-    ASSISTANT: 'assistant',
-    ASSISTANT_PARAM_ID: 'assistant/:id',
     RULE_ENGINE: 'rule-engine',
     PPC_DASHBOARD: 'ppcdashboard',
     QA_LOGIN: 'qalogin',
     CLOUD_TOOLS: 'cloud-tools',
-    
+
+};
+export const CLOUD_TOOLS_ROUTE = {
+    EST_MANAGER: 'est-manager',
+    PCR_CLEANUP: 'pcr-cleanup',
+    SANDBOX_CLEANUP: 'sandbox-cleanup',
+    UPDATE_MPNID: 'update-mpnid',
+    SUBS_TRANSFER: 'subscription-transfer',
+    RESOLVER: 'toolType',
 };
 export const ROUTE_DATA_KEYS = {
     ANIMATION: 'animation',
+    APPLICATION_ID: 'applicationId',
     PERMISSIONS: 'permissions',
     COUNTRY_REGION_CHECK: 'countryRegionCheck',
 };
@@ -110,19 +124,27 @@ export const RULE_ENGINE_ROUTE_CONFIG_URL = {
 export const DISCLAIMER_TEXT = {
     AI_ASSISTANT: 'Data is based on the latest ION Revenue reports and may be subject to sync delays. Please verify critical insights with official sources.',
     RULE_ENGINE: 'Amounts will be automatically converted to USD based on the applicable exchange rate.',
+    HUB_ASSISTANT: 'AI‑generated responses may not always be perfect. Please review important information before taking action.'
 };
 export const DOCUMENT_URL = {
-    EASY_VISTA: '/assets/docs/EasyVistaSupportGuide.pdf',
-    INSIGHT: '/assets/docs/InsightUserGuide.pdf',
-    C3: '/assets/docs/C3UserGuide.pdf',
-    REVENUE: '/assets/docs/Revenue_Dashboard_AI_Assistant_UG_v1.pdf',
-    EST_TEMPLATE: '/assets/docs/Sample_ESTM_Template.csv',
-    PCR_TEMPLATE: '/assets/docs/Sample_PCR_Template.csv',
-    SANDBOX_TEMPLATE: '/assets/docs/Sample_Sandbox_Template.csv',
-    REGIONAL_OVERVIEW_GUIDE: '/assets/docs/Regional_Overview_Dashboard_UG_V1.pdf',
-    REVENUE_DASHBOARD_PHASE2_GUIDE: '/assets/docs/Revenue_Dashboard_Phase2_UG_V1.pdf',
-    ION_ORDER_DATA_GUIDE: '/assets/docs/SION_OrderData_UG_V1.pdf',
-    END_CUSTOMER_CHURN_GUIDE: '/assets/docs/End_Customer_Churn_UG_V1.pdf',
+  EASY_VISTA: '/assets/docs/Easy_Vista_UserGuide.pdf',
+  INSIGHT: '/assets/docs/InsightUserGuide.pdf',
+  C3: '/assets/docs/Cloud Credit Connector User Guide.pdf',
+  REVENUE: '/assets/docs/Revenue_Dashboard_AI_Assistant_UG_v1.pdf',
+  EST_TEMPLATE: '/assets/docs/Sample_ESTM_Template.csv',
+  PCR_TEMPLATE: '/assets/docs/Sample_PCR_Template.csv',
+  UPDATE_MPNID_TEMPLATE: '/assets/docs/Sample_UpdateMPNID_Template.csv',
+  SANDBOX_TEMPLATE: '/assets/docs/Sample_Sandbox_Template.csv',
+  REGIONAL_OVERVIEW_GUIDE: '/assets/docs/Regional_Overview_Dashboard_UG_V1.pdf',
+  REVENUE_DASHBOARD_PHASE2_GUIDE: '/assets/docs/Revenue_Dashboard_Phase2_UG_V1.pdf',
+  ION_ORDER_DATA_GUIDE: '/assets/docs/SION_OrderData_UG_V1.pdf',
+  END_CUSTOMER_CHURN_GUIDE: '/assets/docs/End_Customer_Churn_UG_V1.pdf',
+  CBC_GUIDE: '/assets/docs/CBC_UG_V1.pdf',
+  MPNID_USER_GUIDE: '/assets/docs/Update MPNID_User guide.pdf',
+  SANDBOX_USER_GUIDE: '/assets/docs/Sandbox Cleanup_User guide.pdf',
+  EST_MANAGER_USER_GUIDE: '/assets/docs/EST Manager_User guide.pdf',
+  PCR_CLEANUP_USER_GUIDE: '/assets/docs/PCR Cleanup_User guide.pdf',
+  SUBSCRIPTION_TRANSFER_USER_GUIDE: '/assets/docs/Subscription_Transfer_UserGuide.pdf',
 };
 export const INSIGHT_USER_GUIDE_ALLOWED_ROUTES = [
     `/${APP_ROUTE_CONFIG_URL.INSIGHTS}/${INSIGHT_DASHBOARD_ROUTE.BILLING_RECON_URL}`,
@@ -136,6 +158,16 @@ export const INSIGHT_USER_GUIDE_ALLOWED_ROUTES = [
 ];
 export const C3_USER_GUIDE_ALLOWED_ROUTES = [
     `/${APP_ROUTE_CONFIG_URL.C3_DASHBOARD}`,
+];
+export const CBC_USER_GUIDE_ALLOWED_ROUTES = [
+    `/${APP_ROUTE_CONFIG_URL.CBC_DASHBOARD}`,
+];
+export const CLOUD_TOOLS_USER_GUIDE_ALLOWED_ROUTES = [
+  `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}/${CLOUD_TOOLS_ROUTE.EST_MANAGER}`,
+  `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}/${CLOUD_TOOLS_ROUTE.PCR_CLEANUP}`,
+  `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}/${CLOUD_TOOLS_ROUTE.SANDBOX_CLEANUP}`,
+  `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}/${CLOUD_TOOLS_ROUTE.UPDATE_MPNID}`,
+  `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}/${CLOUD_TOOLS_ROUTE.SUBS_TRANSFER}`,
 ];
 export const C3_DASHBOARD_NEEDSAPPROVAL_TOOLTIP = {
     DISCONTINUED: {
@@ -176,10 +208,58 @@ export const AI_OVERVIEW_ELEMENT_NAME = 'ai-summary';
 export const C3_AI_SUMMARY_ASSISTANT_ID = 2;
 export const AI_OVERVIEW_DISCLAIMER_TEXT = 'The information displayed is applicable only to the current page.';
 export const CLOUD_TOOLS_CONFIRMATION_DIALOG = {
-    DEFAAULT_HEADER: 'Confirmation',
+    DEFAULT_HEADER: 'Confirmation',
     DEFAULT_CONTENT: 'Are you sure you want to proceed? This action is permanent and cannot be undone.',
     UPLOAD_CONTENT: 'Are you sure you want to Upload the selected data into the system?',
+    CUSTOMER_PREVIEW_CONTENT: 'Are you sure you want to upload the selected data into the system?',
+    NO_CUSTOMER_FOUND_CONTENT: 'No customers found for the MPIN ID and region provided. Cannot proceed further.',
 };
 export const CLOUD_TOOLS_UPLOAD_WARNING = {
     MSG: 'Confirm all details before submitting. All updates are permanent and can’t be reversed.',
+    CUSTOMER_PREVIEW_MSG: 'Confirmation will update. All updates are permanent and cannot be reversed.',
 };
+
+// Allowed email domains for rule-engine and cloud-tools recipient validations.
+export const c3RuleEngineAlertRecipientAllowedDomains: readonly string[] = ['tdsynnex.com', 'techdata.com', 'myTecD.com'];
+export const UTC_TIMEZONE = 'UTC';
+//Bulk update Fraud Event Response Messages
+export const BULK_UPDATE_FRAUD_EVENT_MESSAGES = {
+    NO_STATUS_SELECTED: 'Please select at least one event status to proceed.',
+    NO_EVENTS_IN_THE_GRID: 'There are no events available for bulk update.',
+    RESOLVED_STATUS_SELECTED: 'You can\'t perform a bulk update for events in \'Resolved\' status.',
+    MORE_THAN_ONE_STATUS_SELECTED: 'Select only one event status to proceed a bulk update.',
+    REPORT_LOADING: 'The report is still loading. Please wait before attempting a bulk update.',
+    PRECHECK_SUCCESS_MESSAGE: 'You may proceed with the bulk update for the selected events',
+    API_FAILURE: 'Failed to update event status. Please try again.',
+    INVALID_STATUS: 'Invalid event status selected. Please choose a valid status.',
+};
+export const BULK_UPDATE_FRAUD_EVENT_OPERATOR ={
+    NOTIN : 'NotIn',
+    IN: 'In',
+}
+export const BULK_UPDATE_TABLE = 'FraudEvents';
+export const BULK_UPDATE_COLUMN = 'Event Status';
+export const EVENT_TIME_FILTER_TYPE = 4;
+export const EVENT_TIME_COLUMN_NAME = 'Event Time';
+/**
+ * Constants for the Microsoft Fraud Events report.
+ *
+ * Note: This report uses custom country/region filtering because it is displayed
+ * across two tabs, making its filtering logic different from the common scenario.
+ */
+export const MICROSOFT_FRAUD_EVENTS_REPORT_NAME = 'MicrosoftFraudEvents';
+export const MICROSOFT_FRAUD_EVENTS_AZURE_CONSUMPTION_SPIKE_LABEL = 'Azure Consumption Spike';
+export const MICROSOFT_FRAUD_EVENTS_DB = 'FraudEvents';
+export const MICROSOFT_FRAUD_EVENTS_AZURE_CONSUMPTION_SPIKE_DBS = [
+  'FraudEventsUsage',
+  'FraudEventUsage-Lakehouse',
+];
+
+//  Rule Engine - Confirmation dialog content when user tries to switch rule type with unsaved changes
+export const RULE_ENGINE_TYPE_SWITCH_CONFIRMATION_DIALOG = {
+    HEADER: 'Confirm Rule Change',
+    CONTENT: "Switching the rule type will remove the changes you've made. Would you like to proceed?",
+};
+
+export const BOOTSTRAP_5_HREF = '/c3-bootstrap.css';
+export const BOOTSTRAP_2_HREF = `${BILLINGUI_BASE_URL}assets/legacy/Content/bootstrap2.css`;

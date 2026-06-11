@@ -1,7 +1,7 @@
 import { Overlay, OverlayRef } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
 import { Location } from "@angular/common";
-import { AfterViewInit, Directive, ElementRef, HostListener, OnDestroy, OnInit } from "@angular/core";
+import { AfterViewInit, Directive, ElementRef, HostListener, Input, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { Subscription } from "rxjs";
 import { APP_ROUTE_CONFIG_URL } from "src/app/core/constants/constants";
@@ -13,6 +13,7 @@ import { PanelShellComponent } from "src/app/rule-engine/panel-shell/panel-shell
 })
 
 export class RuleEnginePanelDirective implements OnInit, AfterViewInit, OnDestroy {
+    @Input() workflowId!: number;
     isPanelOpen = false;
     declare panelStatusSubs: Subscription;
     private overlayRef: OverlayRef | null = null;
@@ -52,8 +53,12 @@ export class RuleEnginePanelDirective implements OnInit, AfterViewInit, OnDestro
     }
     async showPanel(reNavigateUrl?: string) {
         if(this.overlayRef) return;
-        this.ruleEngineDataSVC.setPanelStatus('Opened');        
-
+        this.ruleEngineDataSVC.setWorkflowId(this.workflowId);
+        this.ruleEngineDataSVC.setPanelStatus('Opened'); 
+        
+        const currentUrl = (reNavigateUrl ?? this.location.path()).split('?')[0];
+        const isCbcDashboard = currentUrl.includes(APP_ROUTE_CONFIG_URL.CBC_DASHBOARD);
+        const overlayWidth = isCbcDashboard ? '100vw' : '75vw';
         const positionStrategy = this.overlay.position()
             .flexibleConnectedTo(this.elRef)
             .withFlexibleDimensions()
@@ -68,7 +73,7 @@ export class RuleEnginePanelDirective implements OnInit, AfterViewInit, OnDestro
         this.overlayRef = this.overlay.create({
             positionStrategy,
             hasBackdrop: true,
-            width: '75vw', 
+            width: overlayWidth, 
             height: '100vh',           
             scrollStrategy: this.overlay.scrollStrategies.reposition(),            
         });

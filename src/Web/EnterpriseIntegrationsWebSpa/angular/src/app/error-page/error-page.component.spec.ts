@@ -1,18 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 
-import { LogoutComponent } from './error-page.component';
+import { ErrorPageComponent } from './error-page.component';
 
-describe('LogoutComponent', () => {
-  let component: LogoutComponent;
-  let fixture: ComponentFixture<LogoutComponent>;
+describe('ErrorPageComponent', () => {
+  let component: ErrorPageComponent;
+  let fixture: ComponentFixture<ErrorPageComponent>;
 
   beforeEach(async () => {
+    const routerSpy = jasmine.createSpyObj<Router>('Router', ['navigateByUrl']);
+
     await TestBed.configureTestingModule({
-      declarations: [ LogoutComponent ]
+      declarations: [ErrorPageComponent],
+      providers: [{ provide: Router, useValue: routerSpy }],
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(LogoutComponent);
+    fixture = TestBed.createComponent(ErrorPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

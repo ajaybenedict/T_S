@@ -1,4 +1,4 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, SecurityContext, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PPCDialogData } from '../../models/ppc-dialog-data.model';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -10,6 +10,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class PpcDialogComponent {
   selectedRERadio!:string;
+  serviceOrderId!: string;
   constructor(
     @Inject(MAT_DIALOG_DATA) readonly _data: PPCDialogData,
     private readonly sanitizer: DomSanitizer,
@@ -37,8 +38,31 @@ export class PpcDialogComponent {
     if(this.selectedRERadio) this.dialogRef.close(this.selectedRERadio);
   }
 
+  /**
+   * Sanitizes HTML fragments used by dialog content and labels.
+   */
   getSanitizedContent(value: string) {
-    return this.sanitizer.bypassSecurityTrustHtml(value);
+    return this.sanitizer.sanitize(SecurityContext.HTML, value) ?? '';
+  }
+
+  isPrimaryDisabled(): boolean {
+    if (!this.selectedRERadio) return true;
+
+    if (this.selectedRERadio === 'With_Service_Id') {
+      return !this.serviceOrderId?.trim();
+    }
+
+    return false;
+  }
+
+
+  emitRadioWithServiceId() {
+    if (!this.selectedRERadio) return;
+
+    this.dialogRef.close({
+      selectedRERadio: this.selectedRERadio,
+      serviceOrderId: this.serviceOrderId?.trim() || null
+    });
   }
 
 }

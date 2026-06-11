@@ -250,6 +250,11 @@
     padding: 16px 20px;
 }
 
+/* Subs Transfer Preview Confirmation Content */
+.subs-transfer-preview-confirmation-content, .subs-transfer-no-customer-found-content {
+    padding: 20px 20px 40px 20px;
+}
+
 /* Mat radio styles override */
 
 /* Outer circle border (default + checked) */
@@ -277,4 +282,35 @@
 /* Apply spacing between radio buttons inside a group */
 ::ng-deep .mat-mdc-radio-group .mat-mdc-radio-button {
   margin-right: 20px; /* horizontal spacing */
+}
+
+.service-order-dialog-content {
+    padding: 12px 20px;
+}
+
+.subtitle {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 150%;
+    letter-spacing: 0%;
+    color: #262626;
+}
+
+.service-order-info {
+    margin-top: 24px;
+}
+
+.service-id-section {
+    margin-top: 12px;
+    padding: 10px;
+
+    input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+    }
+}
+
+.required {
+    color: red;
 }

@@ -14,7 +14,7 @@
     margin-top: auto;
 }
 
-::ng-deep markdown h3, ::ng-deep markdown h4 {
+::ng-deep .markdown-content h3, ::ng-deep .markdown-content h4 {
     font-size: 16px;
     color: #262626;
     font-weight: 700;

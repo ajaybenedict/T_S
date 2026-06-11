@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, SecurityContext } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
@@ -8,13 +8,16 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class ErrorComponent {
 
-  @Input('errorMsg') _errorMsg: string = '<span class="ppc-bold-txt">System Error</span> while uploading. Please <span class="ppc-bold-txt">try uploading again</span>';
+  @Input() errorMsg: string = '<span class="ppc-bold-txt">System Error</span> while uploading. Please <span class="ppc-bold-txt">try uploading again</span>';
 
   constructor(
     private sanitizer: DomSanitizer,
   ){}  
 
+  /**
+   * Sanitizes incoming rich text before binding it with [innerHTML].
+   */
   getSanitizedHTML(str: string) {
-    return this.sanitizer.bypassSecurityTrustHtml(str);
+    return this.sanitizer.sanitize(SecurityContext.HTML, str) ?? '';
   }
 }

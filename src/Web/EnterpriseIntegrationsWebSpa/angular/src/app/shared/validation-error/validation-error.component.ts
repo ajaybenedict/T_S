@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+
+export type ValidationErrorVariant = 'error' | 'warning';
 
 @Component({
   selector: 'app-validation-error',
@@ -8,18 +9,22 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class ValidationErrorComponent {
 
-  constructor(
-    private sanitizer: DomSanitizer,
-  ){}
+  @Input() errorMsg = 'File size exceeds the limit. Try again';
+  @Input() width = '412px';
+  @Input() height = '36px';
+  @Input() variant: ValidationErrorVariant = 'error';
 
-  @Input('errorMsg') _errorMsg: string = 'File size exceeds the limit. Try again';  
-  @Input() width: string = '412px'; 
-  @Input() height: string = '36px'; 
-  @Input() imgSrc: string = '/assets/alert.svg';
-  @Input() validationClass: string = 'ppc-validation-error-container';
-
-  get sanitizedContent() {
-    return this.sanitizer.bypassSecurityTrustHtml(this._errorMsg);
+  get containerClasses(): string[] {
+    return ['validation-error-container', `validation-error--${this.variant}`];
   }
 
+  get iconSrc(): string {
+    switch (this.variant) {
+      case 'warning':
+        return '/assets/alert_orange_24_24.svg';
+      case 'error':
+      default:
+        return '/assets/validation_alert_icon_24_24.svg';
+    }
+  }
 }

@@ -1,4 +1,4 @@
-<div class="checkbox-container">
+<div class="checkbox-container" *ngIf="inputData">
     <div class="group-container">
         <div class="title-checkbox">
             <app-s1-checkbox *ngIf="groupTitle" [inputData]="groupTitle" (checked)="toggleGroup()"></app-s1-checkbox>

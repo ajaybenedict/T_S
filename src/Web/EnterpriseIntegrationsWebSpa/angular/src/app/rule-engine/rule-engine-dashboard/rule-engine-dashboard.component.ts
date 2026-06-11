@@ -6,18 +6,16 @@ import { S1DataTableColumn, S1DataTableNoData } from 'src/app/models/s1/s1-data-
 import { RuleEngineApiService } from 'src/app/core/services/rule-engine/rule-engine-api.service';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RuleEngineDashboardHelper, RuleEngineHelper } from '../rule-engine-helper';
-import { C3_RULE_ENGINE_WORKFLOW_ID, c3RuleEngineDialogConfig } from 'src/app/core/config/rule-engine.config';
+import { RuleEngineDashboardHelper } from '../rule-engine-helper';
+import { c3RuleEngineDialogConfig } from 'src/app/core/config/rule-engine.config';
 import { catchError, of, switchMap, take, tap } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PpcDialogComponent } from 'src/app/shared/ppc-dialog/ppc-dialog.component';
 import { DialogType, PPCDialogData } from 'src/app/models/ppc-dialog-data.model';
 import { PpcSnackBarService } from 'src/app/core/services/ppc-snack-bar.service';
 import { SelectDropdown } from 'src/app/models/select-dropdown.interface';
-import { PPCDashboardAPIService } from 'src/app/core/services/ppc-dashboard-api.service';
-import { PPCDashboardDataService } from 'src/app/core/services/ppc-dashboard-data.service';
 import { DataState } from 'src/app/core/services/data-state';
-import { PermissionsEnum } from 'src/app/core/config/permissions.config';
+import { ApplicationIdEnum, PermissionsEnum } from 'src/app/core/config/permissions.config';
 import { RuleEngineDataService } from 'src/app/core/services/rule-engine/rule-engine-data.service';
 import { RULE_ENGINE_ROUTE_CONFIG_URL } from 'src/app/core/constants/constants';
 
@@ -39,12 +37,12 @@ export class RuleEngineDashboardComponent implements OnInit, AfterViewInit {
   showLoader = false;
   countryData!: { countries: SelectDropdown[], regions: SelectDropdown[] };
   getAllRulesPayload!: GetRulesRequest;
-  
-  private readonly workflowId = C3_RULE_ENGINE_WORKFLOW_ID;
+
+  private workflowId!: number;
   private readonly dialog = inject(MatDialog);
   private declare dialogRef: MatDialogRef<PpcDialogComponent>;
-  
-  hasEditAccess = this.dataState.hasPermission([PermissionsEnum.RuleEditor]);
+
+  hasEditAccess = this.dataState.hasPermission([PermissionsEnum.RuleEditor], ApplicationIdEnum.C3);
   hasSearch = false; // used in sending no data message to S1DataTable
   clearSelectedRowTrigger = 0;
 
@@ -54,9 +52,7 @@ export class RuleEngineDashboardComponent implements OnInit, AfterViewInit {
     private readonly datePipe: DatePipe,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly snackbarSVC: PpcSnackBarService,
-    private readonly dashboardApiSVC: PPCDashboardAPIService,
-    private readonly dashboardDataSVC: PPCDashboardDataService,
+    private readonly snackbarSVC: PpcSnackBarService,    
     private readonly dataState: DataState,
     private readonly ruleEngineDataSVC: RuleEngineDataService,
   ) { }
@@ -67,11 +63,54 @@ export class RuleEngineDashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('draft', { static: false }) draftTable!: TemplateRef<any>;
 
   ngOnInit(): void {
-    this.getAllRulesPayload = { WorkflowId: this.workflowId, PageSize: 50, PageNumber: 1, SortBy: 'createdOn', SortOrder: 'desc' };
+    this.workflowId = this.getWorkflowId();
+    this.ruleEngineDataSVC.setWorkflowId(this.workflowId);
+    this.getAllRulesPayload = {
+      ApplicationId: ApplicationIdEnum.C3,
+      WorkflowId: this.workflowId,
+      PageSize: 50,
+      PageNumber: 1,
+      SortBy: 'createdOn',
+      SortOrder: 'desc'
+    };
     this.initSearchBar();
     this.initTableData();
-    this.getCountryRegions();
+    this.prefetchUIRuleConfig();
     this.ruleEngineDataSVC.setBreadcrumb('Rules Engine');
+  }
+
+  private getWorkflowId(): number {
+    const workflowId = this.ruleEngineDataSVC.getWorkflowId();
+    if (workflowId === null || !Number.isInteger(workflowId) || workflowId <= 0) {
+      console.error(
+        `[RuleEngineDashboard] Invalid workflowId from RuleEngineDataService: ${workflowId}. 
+         Expected workflowId to be set by RuleEnginePanelDirective via setWorkflowId(). 
+         Ensure the rule engine button is properly bound with [workflowId]="ruleEngineWorkflowId" 
+         and that you click it before accessing the rule engine dashboard.`
+      );
+      throw new Error(
+        `Missing or invalid workflowId from RuleEngineDataService. ` +
+        `Received: ${workflowId}. ` +
+        `The workflowId must be set by the RuleEnginePanelDirective before the dashboard component loads.`
+      );
+    }
+    return workflowId;
+  }
+
+  private prefetchUIRuleConfig() {
+    this.ruleApiService.getUIRuleConfig(this.workflowId)
+      .pipe(
+        take(1),
+        catchError((error) => {
+          console.error('Error in getUIRuleConfig API:', error);
+          return of(null);
+        })
+      )
+      .subscribe((config) => {
+        if (config) {
+          this.ruleEngineDataSVC.setUIRuleConfig(config);
+        }
+      });
   }
 
   ngAfterViewInit(): void {
@@ -88,19 +127,19 @@ export class RuleEngineDashboardComponent implements OnInit, AfterViewInit {
     }
   }
 
-  get noDataMsg(): S1DataTableNoData | null {       
+  get noDataMsg(): S1DataTableNoData | null {
     return this.hasSearch ? null :
     {
       imgSrc: '/assets/no_data_undraw.svg',
       title: 'Looks Like You Have No Drafts',
       context: 'Rules you save as drafts/move to drafts will show up here for further editing or publishing.'
     };
-  }  
+  }
 
-  searchEventHandler(data: string) {                      
+  searchEventHandler(data: string) {
       this.getAllRulesPayload = {...this.getAllRulesPayload, SearchTerm: data};
       this.hasSearch = !!data;
-      this.initTableData();      
+      this.initTableData();
   }
 
   private initNavTab() {
@@ -119,7 +158,7 @@ export class RuleEngineDashboardComponent implements OnInit, AfterViewInit {
   }
 
   private initTableColumn() {
-    const defaultCoulmns = [...RuleEngineDashboardHelper.getDefaultColumns(this.datePipe)]
+    const defaultCoulmns = [...RuleEngineDashboardHelper.getDefaultColumns(this.datePipe, this.workflowId)]
     this.publishedColumn = [
       ...defaultCoulmns,
       ...(this.hasEditAccess ? [RuleEngineDashboardHelper.getActionColumn(false)] : [])
@@ -139,19 +178,6 @@ export class RuleEngineDashboardComponent implements OnInit, AfterViewInit {
         this.showLoader = false;
       }
     })
-  }
-
-  private getCountryRegions() {
-    this.dashboardApiSVC.getCountriesWithRegion()
-      .pipe(take(1)) // API will called only once during the component lifecycle and will be completed automatically. No unsub required.
-      .subscribe({
-        next: res => {
-          if (res?.length) {
-            this.dashboardDataSVC.setCountryRegionData(res);
-            this.countryData = RuleEngineHelper.getAllCountryRegionList([...res]);
-          }
-        }
-      });
   }
 
   onRowClick(row: Rule) {
@@ -191,13 +217,13 @@ export class RuleEngineDashboardComponent implements OnInit, AfterViewInit {
       case 'moveToPublish':
         if (this.selectedRuleId) this.openDialog('RuleEngineConfirmation', this.selectedRuleId, false);
         break;
-      case 'edit':        
+      case 'edit':
         this.router.navigate([RULE_ENGINE_ROUTE_CONFIG_URL.EDIT, this.selectedRuleId], { relativeTo: this.route });
         break;
       case 'copy':
-        this.router.navigate([RULE_ENGINE_ROUTE_CONFIG_URL.EDIT], { relativeTo: this.route, queryParams: { duplicateId: this.selectedRuleId } });        
+        this.router.navigate([RULE_ENGINE_ROUTE_CONFIG_URL.EDIT], { relativeTo: this.route, queryParams: { duplicateId: this.selectedRuleId } });
         break;
-      default:        
+      default:
         this.isDetailVisible = false;
         this.initTableColumn();
         this.selectedRuleDetail = null;
@@ -224,7 +250,7 @@ export class RuleEngineDashboardComponent implements OnInit, AfterViewInit {
         break;
       case 'MoveToPublish':
         this.openDialog('RuleEngineConfirmation', event.row.id, false);
-        break;      
+        break;
     }
   }
 
@@ -246,7 +272,7 @@ export class RuleEngineDashboardComponent implements OnInit, AfterViewInit {
         switchMap(res => {
           if (res) {
             let dataToSend: UpdateRuleRequest = { ...res, isDraft: isDraft, ruleId: ruleId };
-            return this.ruleApiService.updateRule(dataToSend, this.workflowId, ruleId)
+            return this.ruleApiService.updateRule(ApplicationIdEnum.C3, dataToSend, this.workflowId, ruleId)
           } else {
             return of(null);
           }
@@ -268,7 +294,7 @@ export class RuleEngineDashboardComponent implements OnInit, AfterViewInit {
   }
 
   private getRuleById(ruleId: string) {
-    return this.ruleApiService.getRuleById(this.workflowId, ruleId);
+    return this.ruleApiService.getRuleById(ApplicationIdEnum.C3, this.workflowId, ruleId);
   }
 
   private openDialog(type: DialogType, ruleId: string, isDraft: boolean) {

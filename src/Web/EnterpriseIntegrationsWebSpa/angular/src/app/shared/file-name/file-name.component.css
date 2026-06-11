@@ -30,4 +30,10 @@
 }
 .ppc-file-name-download-img-wrapper {
     cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    outline: none;
+    display: flex;
+    align-items: center;
 }

@@ -45,8 +45,8 @@ export class S1DateRangePickerComponent implements OnInit {
         filter(([start, end]) =>
           start instanceof Date &&
           end instanceof Date &&
-          !isNaN(start.getTime()) &&
-          !isNaN(end.getTime())
+          !Number.isNaN(start.getTime()) &&
+          !Number.isNaN(end.getTime())
         ),
         map(([start, end]) => ({
           start: start.toLocaleDateString('en-CA'),

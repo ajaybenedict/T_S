@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, SecurityContext } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { PpcSnackBarService } from 'src/app/core/services/ppc-snack-bar.service';
 
@@ -16,8 +16,11 @@ export class PpcSnackBarComponent {
     private sanitizer: DomSanitizer,
   ) {}
 
+  /**
+   * Sanitizes snackbar HTML and returns safe markup for [innerHTML].
+   */
   get sanitizedContent() {
-    return this.sanitizer.bypassSecurityTrustHtml(this.message);
+    return this.sanitizer.sanitize(SecurityContext.HTML, this.message) ?? '';
   }
 
   dismiss() {

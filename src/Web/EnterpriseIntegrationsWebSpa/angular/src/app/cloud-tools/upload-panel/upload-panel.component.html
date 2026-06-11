@@ -13,13 +13,18 @@
       [clearFileTrigger]="clearFileTrigger">
     </app-file-upload>
 
+    <div class="d-flex flex-column gap-2">
+      <label class="s1-FW700 s1-FS14px s1-C-Charcoal" for="requestedBy">Requested By <span class="s1-mandatory-star">*</span></label>
+      <input placeholder="Name or Ticket Number" id="requestedBy" type="text" class="content-section-value" autocomplete="off"
+        maxlength="100" [value]="requestedBy" (input)="onRequestedByChange($event)" (paste)="onRequestedByPaste($event)">
+    </div>
+
     <ng-container *ngFor="let error of uploadErrors">
       <app-validation-error [errorMsg]="error" [width]="'100%'" [height]="'100%'">
       </app-validation-error>
     </ng-container>
 
-    <app-validation-error [errorMsg]="warningMessage" [width]="'100%'" [height]="'112px'" ,
-      [imgSrc]="'/assets/alert_orange_24_24.svg'" [validationClass]="'warning-validation-error-container'">
+    <app-validation-error [errorMsg]="warningMessage" [width]="'100%'" [height]="'112px'" variant="warning">
     </app-validation-error>
   </div>
 

@@ -1,11 +1,13 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { API_PATH_PPC, API_V1, APP_ROUTE_CONFIG_URL } from '../constants/constants';
 import { DataState } from './data-state';
-import { IsAuthorizedResponse } from 'src/app/models/users.interface';
+import { IsAuthorizedResponse, User, UserResponse } from 'src/app/models/user.model';
+import { UserApiService } from './user-api.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +17,44 @@ export class SsoService {
   originalUrl: string = '';
 
 
-  constructor(private router: Router, private http: HttpClient, private dataState: DataState) { }
+  constructor(
+    private readonly router: Router,
+    private readonly http: HttpClient,
+    private readonly dataState: DataState,
+    private readonly userApiService: UserApiService,
+  ) { }
+
+  private isLocalBaseUrl(baseUrl: string): boolean {
+    const normalized = (baseUrl ?? '').toLowerCase();
+    return normalized.includes('localhost') || normalized.includes('127.0.0.1');
+  }
+
+  private trimSlashes(value: string, fromStart: boolean): string {
+    if (!value) {
+      return '';
+    }
+
+    if (fromStart) {
+      let index = 0;
+      while (index < value.length && value.startsWith('/', index)) {
+        index += 1;
+      }
+      return value.slice(index);
+    }
+
+    let end = value.length;
+    while (end > 0 && value.endsWith('/', end)) {
+      end -= 1;
+    }
+    return value.slice(0, end);
+  }
+
+  private buildApiUrl(endpoint: string): string {
+    const baseUrl = this.trimSlashes(this.dataState.getBaseUrl() ?? '', false);
+    const cleanEndpoint = this.trimSlashes(endpoint, true);
+    const gatewayPath = this.isLocalBaseUrl(baseUrl) ? '' : `/${API_PATH_PPC}`;
+    return `${baseUrl}${gatewayPath}/${API_V1}/${cleanEndpoint}`;
+  }
 
   redirectToSSOLogin(): void {
     const { pathname, search } = globalThis.location;
@@ -35,7 +74,7 @@ export class SsoService {
     const payload = { redirectUrl: redirectPath };
 
     this.http.post<{ state: string }>(
-      `${this.dataState.getBaseUrl()}/${API_PATH_PPC}/${API_V1}/oauth/state`,
+      this.buildApiUrl('oauth/state'),
       payload
     )
     .subscribe({
@@ -82,55 +121,70 @@ export class SsoService {
   }
 
   automationLogin(obj: any): Observable<any> {
-    return this.http.post<any>(`${this.dataState.getBaseUrl()}/${API_PATH_PPC}/${API_V1}/user/qalogin`, obj);
+    return this.http.post<any>(this.buildApiUrl('user/qalogin'), obj);
   }
 
-  sso(obj: any): Observable<any> {
+  sso(obj: unknown): Observable<UserResponse> {
     let myGuid = uuidv4();
     const headers = new HttpHeaders({
       'x-requestid': myGuid,
       'Custom-Header': 'custom-value'
     });
     const requestOptions = { headers: headers };
-    return this.http.post<any>(`${this.dataState.getBaseUrl()}/${API_PATH_PPC}/${API_V1}/user/sso`, obj, requestOptions);
+    return this.http.post<any>(this.buildApiUrl('user/sso'), obj, requestOptions);
   }
 
   logout(): Observable<any> {
-    return this.http.get<any>(`${this.dataState.getBaseUrl()}/${API_PATH_PPC}/${API_V1}/user/logout`);
+    return this.http.get<any>(this.buildApiUrl('user/logout'));
   }
 
+  /**
+   * Loads authorization scopes and stores them in DataState for route/component checks.
+   */
   isAuthorized(): Observable<IsAuthorizedResponse> {
-    return this.http.get<IsAuthorizedResponse>(`${this.dataState.getBaseUrl()}/${API_PATH_PPC}/${API_V1}/user/IsAuthorized`).pipe(
+    return this.http.get<IsAuthorizedResponse>(this.buildApiUrl('user/IsAuthorized')).pipe(
       tap(res => {
         this.setUserPermissions(res);
-        this.setUserRegions(res);
-        this.setUserCountries(res);
+      }),
+      switchMap(res => this.hydrateUserFromApiIfMissing().pipe(map(() => res))),      
+    );
+  }
+
+  private hydrateUserFromApiIfMissing(): Observable<void> {
+    if (this.dataState.getUser()) {
+      return of(void 0);
+    }
+
+    return this.userApiService.getUser().pipe(
+      tap(userDto => {
+        if (!userDto) {
+          return;
+        }
+        const user = new User({
+          firstName: userDto.firstName,
+          lastName: userDto.lastName,
+          emailAddress: userDto.emailAddress,
+          userKey: userDto.userKey,
+        });
+        this.dataState.setUser(user);
+      }),
+      map(() => void 0),
+      catchError((error) => {
+        console.error('Failed to hydrate user from API:', error);
+        return of(void 0);
       }),
     );
   }
 
-  private setUserCountries(res: IsAuthorizedResponse) {
-    const countries = res?.country;
-    if (this.isValidArray(countries)) {
-      this.dataState.setUserCountries(countries);
-    }
-  }
-
-  private setUserRegions(res: IsAuthorizedResponse) {
-    const regions = res?.region;
-    if (this.isValidArray(regions)) {
-      this.dataState.setUserRegions(regions);
-    }
-  }
-
+  /**
+   * Stores application-scoped user permissions in DataState.
+   */
   private setUserPermissions(res: IsAuthorizedResponse) {
-    const permissions = res?.permissions;
-    if (this.isValidArray(permissions)) {
-      this.dataState.setUserPermissions(permissions);
+    const scopedPermissions = res?.userPermissions;
+    if (Array.isArray(scopedPermissions) && scopedPermissions.length > 0) {
+      this.dataState.setUserPermissions(scopedPermissions);
+      return;
     }
-  }
-
-  private isValidArray(arr: any[]): boolean {
-    return Array.isArray(arr) && arr.length > 0;
+    this.dataState.clearUserPermissions();
   }
 }

@@ -17,8 +17,31 @@ export interface InsightFilterPageModel {
   CountryColumn: string;
 }
 
-export type InsightFilterConfigModel = 
-| InsightFilterPageModel
-| {
-  PageConfig: Record<string, InsightFilterPageModel>
-  }
+export interface BulkUpdateFraudEventResponseItem {
+  countrySecurityKey: string;
+  eventId: string;
+  subscriptionId: string;
+  eventStatus: string;
+  resolvedReason: string;
+  vendorId: string;
+}
+
+export interface BulkUpdateFraudEventRequest {
+  eventTime: string[];
+  severity: string[];
+  pac: string[];
+  region: string[];
+  country: string[];
+  eventStatus: string[];
+  reseller: string[];
+  customer: string[];
+  confidenceLevel: string[];
+  eventType: string[];
+  pageNumber: number;
+  pageSize: number;
+}
+
+export interface BulkUpdateFraudEventResponse {
+  items: BulkUpdateFraudEventResponseItem[];
+  totalRows: number;
+}

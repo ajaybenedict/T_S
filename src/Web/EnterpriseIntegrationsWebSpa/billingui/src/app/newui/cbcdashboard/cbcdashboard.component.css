@@ -1,11 +1,11 @@
 .dashboard-wrapper {
-    height: 90vh !important;
+    height: calc(100vh - 120px);
 }
 .dashboard-container {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    height: 100% !important;
+    gap: 24px;   
+    height: calc(100vh - 155px) !important; 
     padding: 24px 24px 0px 24px;
     overflow: hidden;
 }

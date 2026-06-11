@@ -1,0 +1,307 @@
+/* Custom accent color overrides */
+.mat-mdc-checkbox.mat-accent {
+  --mdc-checkbox-selected-focus-icon-color: #005758;
+  --mdc-checkbox-selected-hover-icon-color: #005758;
+  --mdc-checkbox-selected-pressed-icon-color: #005758;
+  --mdc-checkbox-selected-icon-color: #005758;
+  --mdc-checkbox-unselected-focus-icon-color: #005758;
+  --mdc-checkbox-unselected-hover-icon-color: #005758;
+  --mdc-checkbox-unselected-icon-color: #005758;
+  --mdc-checkbox-unselected-pressed-icon-color: #005758;
+}
+
+/* Checkbox checked and indeterminate background */
+.mat-mdc-checkbox-checked .mdc-checkbox__background,
+.mat-mdc-checkbox-indeterminate .mdc-checkbox__background {
+  background-color: #005758 !important;
+  border-color: #005758 !important;
+}
+
+/* White checkmark color */
+.mdc-checkbox__checkmark-path {
+  stroke: white !important;
+}
+
+/* Scoped ripple and styling for specific checkboxes */
+mat-checkbox.checkboxcls {
+  position: relative;
+  width: 24px;
+
+  .mdc-checkbox__ripple,
+  .mat-mdc-checkbox-ripple .mat-ripple-element {
+    background-color: #005758 !important;
+    border-radius: 2px !important;
+    width: 24px !important;
+    height: 24px !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    transition: opacity 250ms ease-out, background-color 250ms ease-out !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    box-shadow: 0 0 4px 1px #007b7b, 0 0 8px 2px #007b7b inset !important;
+  }
+
+  &:hover .mdc-checkbox__ripple,
+  &:hover .mat-mdc-checkbox-ripple .mat-ripple-element {
+    opacity: 0.2 !important;
+  }
+}
+
+.mat-mdc-dialog-container {
+  width: 480px;
+  height: 264px;
+  border-radius: 8px;
+  background: #FFFFFF;
+  box-shadow: 0px 0px 8px 0px #00000029;
+}
+
+.pipe-charcoalcolor {
+  color: #003031;
+}
+
+.pipe-blackcolor {
+  color: #262626;
+}
+
+.pipe-greycolor {
+  color: #75716E;
+}
+
+.highlight-group-header .invoice-issue-highlight {
+  color: #CD163F !important;
+}
+
+.selected-row {
+  background-color: #005758 !important;
+}
+
+.selected-row * {
+  color: white !important;
+  fill: white !important;
+}
+
+.selected-row span.no-fill-override svg rect {
+  fill: #005758 !important;
+}
+
+/* Selected row: make checkbox background white and tick mark green */
+.selected-row .mat-mdc-checkbox .mdc-checkbox__background {
+  background-color: white !important;
+  border-color: white !important;
+}
+
+/* Green tickmark on selected row */
+.selected-row .mdc-checkbox__checkmark-path {
+  stroke: #005758 !important;
+  /* green tick */
+}
+
+
+.mat-mdc-table tbody {
+  outline: 1px solid #E4E5E6 !important;
+}
+
+
+/* Only apply when columns-limited is true (i.e. side panel open) */
+.side-open .limit-header th:nth-child(n+3),
+.side-open .limit-groupheader td:nth-child(n+3),
+.side-open .limit-singlerow td:nth-child(n+5),
+.side-open .limit-multirow td:nth-child(n+4) {
+  display: none !important;
+}
+
+.mat-toolbar {
+  background: #EBEEEF;
+  border: 1px solid #E4E5E6;
+  height: 40px;
+}
+
+
+.mat-toolbar .action-icon {
+  rotate: 180deg !important;
+}
+
+
+.filterbutton {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #E4E5E6;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+
+
+.btn {
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0%;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* PRIMARY */
+.btn.primary {
+  background-color: #005758;
+  color: white;
+}
+
+.btn.primary:hover {
+  background-color: #2E7B7C;
+}
+
+.btn.primary:active {
+  background-color: #004C4D;
+}
+
+/* SECONDARY */
+.btn.secondary {
+  background-color: transparent;
+  border: 1px solid #005758;
+}
+
+.btn.secondary:hover {
+  background-color: #0057581A;
+  border: 1px solid #005758;
+}
+
+.btn.secondary:active {
+  background-color: hsla(181, 100%, 17%, 0.2);
+  border: 1px solid #005758;
+}
+
+.with-border table,
+.with-border th,
+.with-border td {
+  border: 1px solid #ccc;
+  border-collapse: collapse;
+}
+
+/* styles.css (global) */
+/* Make the overlay pane use fixed positioning & remove transforms that cause drift */
+::ng-deep .cdk-overlay-pane.fixed-overlay-dialog {
+  position: fixed !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+/* Safety: ensure the dialog container also respects fixed positioning */
+::ng-deep .mat-mdc-dialog-container.fixed-overlay-dialog {
+  position: fixed !important;
+  transform: none !important;
+}
+
+app-host-menu-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.side-open tr.limit-singlerow.highlight-selected-row td:nth-child(2),
+.side-open tr.limit-singlerow.highlight-selected-row td:nth-child(3),
+.side-open tr.limit-singlerow.highlight-selected-row td:nth-child(4) {
+  background-color: #EBEEEF;
+}
+
+
+.side-open tr.limit-multirow.highlight-selected-row td:nth-child(1),
+.side-open tr.limit-multirow.highlight-selected-row td:nth-child(2),
+.side-open tr.limit-multirow.highlight-selected-row td:nth-child(3) {
+  background-color: #EBEEEF;
+
+}
+
+.side-open tr.highlight-selected-group td:nth-child(1) {
+  border-left: 2px solid #005758;
+}
+
+
+
+.column-item.cdk-drag-dragging .drag-icon,
+.column-item.cdk-drag-dragging .drag-icon img {
+  cursor: grabbing !important;
+}
+
+
+.font-arial {
+  font-family: Arial, sans-serif !important;
+}
+
+.inline-flex {
+  display: inline-flex;
+}
+
+.text-bold-16 {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.text-regular-16 {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+}
+
+.text-bold-14 {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 150%;
+  letter-spacing: 0%;
+}
+
+.text-regular-14 {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 150%;
+  letter-spacing: 0%;
+}
+
+.muted-text {
+  color: #75716E;
+}
+
+.separator {
+  width: 16px;
+  padding: 0 6px;
+  color: #E4E5E6;
+}
+
+.invoice-icon-wrapper {
+  width: 29px;
+  height: 23px;
+  padding-left: 4px;
+  gap: 10px;
+  border-radius: 4px;
+}
+
+.issue-wrapper {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.issue-count {
+  color: #CD163F;
+  width: 9px;
+  margin-top: 2px;
+  opacity: 1;
+}
+
+.reseller-wrapper {
+  width: 100%;
+}
+
+.reseller-subtext {
+  display: block;
+}

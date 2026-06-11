@@ -95,6 +95,9 @@
 }
 
 /* font-size */
+.s1-FS10px {
+    font-size: 10px !important;
+}
 .s1-FS12px {
     font-size: 12px !important;
 }
@@ -127,6 +130,9 @@
 /* padding */
 .s1-P12px {
     padding: 12px !important;
+}
+.s1-P20px {
+    padding: 20px !important;
 }
 .s1-P24px {
     padding: 24px !important;
@@ -189,6 +195,9 @@
 .s1-C-Forest {
     color: #38853C !important;
 }
+.s1-C-Sunset {
+    color: #FF6200 !important;
+}
 /* used for links */
 .s1-C-LegacyOcean {
     color: #00558C !important;
@@ -225,6 +234,11 @@
     border-bottom: 1px solid #005758;              
     color: #75716E;
     height: 48px !important;
+}
+.s1-mandatory-star {
+    color: #CD163F;
+    font-weight: 700;
+    font-size: 14px;
 }
 /* s1-data-table-actioner (approve/decline) related styles*/
 .actioner-details-container {
@@ -411,3 +425,57 @@ mat-progress-bar {
   display: none !important;
 }
 /* --------------- */
+/* S1 Data table - C3 Dashboard - Multi Year Tag */
+.s1-data-table-multi-year-tag {
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #005758;
+    color: #005758;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 150%;
+}
+/* separator */
+.s1-separator-H16px {
+    height: 16px;
+    border-left: 1px solid #E4E5E6;
+    width: 0px;
+}
+/* ---------- */
+/* borders */
+.s1-border-all-1px-Sunset {
+    border: 1px solid #FF6200;
+}
+.s1-border-all-1px-Teal {
+    border: 1px solid #005758;
+}
+.s1-border-all-1px-Cherry {
+    border: 1px solid #CD163F;
+}
+.s1-border-all-1px-NG2 {
+    border: 1px solid #E4E5E6;
+}
+.s1-border-bottom-1px-NG2 {
+    border-bottom: 1px solid #E4E5E6;
+}
+.s1-border-top-1px-NG2 {
+    border-top: 1px solid #E4E5E6;
+}
+/* --------- */
+/* gap */
+.s1-gap-8 {
+    gap: 8px;
+}
+.s1-gap-10 {
+    gap: 10px;
+}
+.s1-gap-12 {
+    gap: 12px;
+}
+.s1-gap-16 {
+    gap: 16px;
+}
+.s1-gap-20 {
+    gap: 20px;
+}
+/* -------- */

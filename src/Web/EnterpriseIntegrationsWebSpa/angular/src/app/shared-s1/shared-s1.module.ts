@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { S1SearchBarComponent } from './s1-search-bar/s1-search-bar.component';
 import { S1DetailsCardComponent } from './s1-details-card/s1-details-card.component';
 import { S1TextDisplayComponent } from './s1-text-display/s1-text-display.component';
-import { S1CardDataTableComponent } from './s1-card-data-table/s1-card-data-table.component';
 import { S1MenuComponent } from './s1-menu/s1-menu.component';
 import { S1FilterNumericFieldComponent } from './s1-filter-numeric-field/s1-filter-numeric-field.component';
 import { S1DateRangePickerComponent } from './s1-date-range-picker/s1-date-range-picker.component';
@@ -22,8 +21,11 @@ import { S1ChipComponent } from './s1-chip/s1-chip.component';
 import { S1TableColumnManagerComponent } from './s1-table-column-manager/s1-table-column-manager.component';
 import { C3DataTableStatusTooltipComponent } from './c3-data-table-status-tooltip/c3-data-table-status-tooltip.component';
 import { StatusTooltipDirective } from './directives/status-tooltip.directive';
+import { EllipsisTooltipDirective } from './directives/ellipsis-tooltip.directive';
 import { S1CheckboxDropdownComponent } from './s1-checkbox-dropdown/s1-checkbox-dropdown.component';
 import { S1DropDownButtonComponent } from './s1-drop-down-button/s1-drop-down-button.component';
+import { S1SingleDescriptionCheckboxComponent } from './s1-single-description-checkbox/s1-single-description-checkbox.component';
+import { S1TagComponent } from './s1-tag/s1-tag.component';
 const modules = [
   CommonModule,
   FormsModule,
@@ -35,8 +37,7 @@ const sharedComponents = [
   S1DataTableComponent,
   S1SearchBarComponent,
   S1DetailsCardComponent,    
-  S1TextDisplayComponent,
-  S1CardDataTableComponent,
+  S1TextDisplayComponent,  
   S1MenuComponent,
   S1FilterNumericFieldComponent,
   S1DateRangePickerComponent,  
@@ -53,16 +54,19 @@ const sharedComponents = [
   S1TableColumnManagerComponent,
   S1CheckboxDropdownComponent,
   S1DropDownButtonComponent,
+  S1SingleDescriptionCheckboxComponent,
+  S1TagComponent,
 ];
 
 const sharedDirectives = [
   StatusTooltipDirective,
+  EllipsisTooltipDirective,
 ];
 
 @NgModule({
   declarations: [
     ...sharedComponents,
-    ...sharedDirectives,    
+    ...sharedDirectives,
   ],
   imports: [
     ...modules

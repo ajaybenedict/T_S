@@ -20,6 +20,7 @@ export class CloudToolsColumnFactory {
       cellAlignment: 'start',
       formatter: config.formatter,
       isClickable,
+      enableEllipsisTooltip: config.enableEllipsisTooltip,
     };
   }
 
@@ -44,6 +45,7 @@ export class CloudToolsColumnFactory {
         key: 'status',
         name: 'Status',
         width: '9%',
+        enableEllipsisTooltip: true,
         formatter: d => CloudToolsHelper.styleStatusColumn(d.statusId, d.status),
       },
       isClickable
@@ -58,6 +60,7 @@ export class CloudToolsColumnFactory {
         key: 'errorMessage',
         name: 'Error Message',
         width: '9%',
+        enableEllipsisTooltip: true,
         formatter: d => CloudToolsHelper.formatTransactionResponse(
           d,
           r => CloudToolsHelper.isTransactionErrorResponse(r)
@@ -76,6 +79,7 @@ export class CloudToolsColumnFactory {
         id: 101,
         key: 'errorDetails',
         name: 'Error Details',
+        enableEllipsisTooltip: true,
         formatter: d => CloudToolsHelper.formatTransactionResponse(
           d,
           r => CloudToolsHelper.isTransactionErrorResponse(r)

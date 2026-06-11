@@ -31,11 +31,9 @@
   align-items: center;
   gap: 8px;
   opacity: 1;
-  border-width: 1px;
   padding: 8px 12px;
   background: #F8F8F8;
   border: 1px solid #E4E5E6 !important;
-  border: none;
   height: 100%;
 }
 
@@ -44,11 +42,10 @@
   align-items: center;
   gap: 8px;
   opacity: 1;
-  border-width: 1px;
   padding: 8px 12px;
   background: white;
-  border-right: 1px solid #E4E5E6 !important;
   border: none;
+  border-right: 1px solid #E4E5E6 !important;  
   height: 100%;
 }
 

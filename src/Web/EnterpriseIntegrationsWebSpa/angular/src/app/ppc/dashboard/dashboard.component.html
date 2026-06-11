@@ -1,27 +1,28 @@
 <ng-container>
     <app-ppc-nav-tabs [tabs]="navTabs" [selectedIndex]="activeTab" (tabChange)="tabChangeEventHandler($event)">
-        <button s1-button [iconOnly]="true" aria-label="Columns" (click)="columnManagerToggle(true)" tabHeaderAction *ngIf="activeTab === 0">
+        <button s1-button [iconOnly]="true" aria-label="Columns" (click)="columnManagerToggle(true)" tabHeaderAction *ngIf="canShowColumnManager">
             <img src="/assets/column_manager_icon_40_40.svg" alt="ColumnManager" class="default">
-            <img src="/assets/column_manager_hover_icon_40_40.svg" alt="ColumnManager" class="hover">            
+            <img src="/assets/column_manager_hover_icon_40_40.svg" alt="ColumnManager" class="hover">
         </button>
-    </app-ppc-nav-tabs>    
+    </app-ppc-nav-tabs>
     <!-- Define Templates for Each Tab -->
     <ng-template #needsApprovalTab>
         <div class="dashboard-container" [ngClass]="{'details-open': isOrderLineItemsVisible }">
             <div class="data-table">
-                <app-s1-data-table [tableColumns]="needsApprovalColumns" [tableData]="tableData" [clearSelectionRowTrigger]="clearSelectedRowTrigger"
+                <app-s1-data-table [tableColumns]="needsApprovalColumns" [tableData]="tableData" [clearSelectionRowTrigger]="clearSelectedRowTrigger" [scrollToSelectedRowTrigger]="scrollSelectedRowTrigger"
                     (actionEmitter)="tableActionEventHandler($event)" [showProgressBar]="showTableProgressBar"
                     (sortChangeEmitter)="sortEventHandler($event)" [activeSortColumnID]="1" [activeSortDirection]="sortDirection.DESCENDING"
                     (rowEmitter)="rowClickHandler($event)" [enableWarningHover]="true"></app-s1-data-table>
             </div>
             <!-- details card -->
-            <div class="details-card" *ngIf="isOrderLineItemsVisible">  
+            <div class="details-card" *ngIf="isOrderLineItemsVisible">
                 <!-- Loader -->
                 <div class="details-loader" *ngIf="isOrderLineItemsAPIInProgress"></div>
                 <!-- Content -->
                 <div class="details-content" *ngIf="!isOrderLineItemsAPIInProgress && needsApprovalDetailsCardInput">
-                    <s1-details-card 
+                    <s1-details-card
                         [inputData]="needsApprovalDetailsCardInput"
+                        [canPerformActions]="hasApprovalPermission"
                         (outputAction)="detailsCardOutputActionHandler($event)"
                         (dismissEmit)="detailsCardDimissHandler()"
                     ></s1-details-card>
@@ -29,13 +30,13 @@
             </div>
         </div>
     </ng-template>
-    
+
     <ng-template #approvedTab>
         <div class="dashboard-container" [ngClass]="{'details-open': isOrderLineItemsVisible }">
             <div class="data-table">
-                <app-s1-data-table [tableColumns]="approvedColumns" [tableData]="tableData" [showProgressBar]="showTableProgressBar" [clearSelectionRowTrigger]="clearSelectedRowTrigger"
+                <app-s1-data-table [tableColumns]="approvedColumns" [tableData]="tableData" [showProgressBar]="showTableProgressBar" [clearSelectionRowTrigger]="clearSelectedRowTrigger" [scrollToSelectedRowTrigger]="scrollSelectedRowTrigger"
                 (sortChangeEmitter)="sortEventHandler($event)" [activeSortColumnID]="1" [activeSortDirection]="sortDirection.DESCENDING"
-                (rowEmitter)="rowClickHandler($event)"></app-s1-data-table>
+                (rowEmitter)="rowClickHandler($event)" [enableWarningHover]="true"></app-s1-data-table>
             </div>
             <!-- details card -->
             <div class="details-card" *ngIf="isOrderLineItemsVisible">
@@ -43,20 +44,19 @@
                 <div class="details-loader" *ngIf="isOrderLineItemsAPIInProgress"></div>
                 <!-- Content -->
                 <div class="details-content" *ngIf="!isOrderLineItemsAPIInProgress && approvedDeclinedDetailsCardInput">
-                    <s1-details-card [inputData]="approvedDeclinedDetailsCardInput" (outputAction)="detailsCardOutputActionHandler($event)"
-                        (dismissEmit)="detailsCardDimissHandler()"></s1-details-card>
+                    <s1-details-card [inputData]="approvedDeclinedDetailsCardInput" (outputAction)="detailsCardOutputActionHandler($event)" (dismissEmit)="detailsCardDimissHandler()"></s1-details-card>
                 </div>
             </div>
         </div>
     </ng-template>
-    
+
     <ng-template #declinedTab>
         <div class="dashboard-container" [ngClass]="{'details-open': isOrderLineItemsVisible }">
             <div class="data-table">
-                <app-s1-data-table [tableColumns]="declinedColumns" [tableData]="tableData" [clearSelectionRowTrigger]="clearSelectedRowTrigger"
+                <app-s1-data-table [tableColumns]="declinedColumns" [tableData]="tableData" [clearSelectionRowTrigger]="clearSelectedRowTrigger" [scrollToSelectedRowTrigger]="scrollSelectedRowTrigger"
                     (actionEmitter)="tableActionEventHandler($event)" [showProgressBar]="showTableProgressBar"
                     (sortChangeEmitter)="sortEventHandler($event)" [activeSortColumnID]="1" [activeSortDirection]="sortDirection.DESCENDING"
-                    (rowEmitter)="rowClickHandler($event)"></app-s1-data-table>
+                    (rowEmitter)="rowClickHandler($event)" [enableWarningHover]="true"></app-s1-data-table>
             </div>
             <!-- details card -->
             <div class="details-card" *ngIf="isOrderLineItemsVisible">
@@ -64,18 +64,16 @@
                 <div class="details-loader" *ngIf="isOrderLineItemsAPIInProgress"></div>
                 <!-- Content -->
                 <div class="details-content" *ngIf="!isOrderLineItemsAPIInProgress && approvedDeclinedDetailsCardInput">
-                    <s1-details-card [inputData]="approvedDeclinedDetailsCardInput"
-                        (outputAction)="detailsCardOutputActionHandler($event)"
-                        (dismissEmit)="detailsCardDimissHandler()"></s1-details-card>
+                    <s1-details-card [inputData]="approvedDeclinedDetailsCardInput" [canPerformActions]="hasApprovalPermission" (outputAction)="detailsCardOutputActionHandler($event)" (dismissEmit)="detailsCardDimissHandler()"></s1-details-card>
                 </div>
             </div>
         </div>
     </ng-template>
 </ng-container>
-<s1-table-column-manager 
-    *ngIf="columnManagerData.length"
+<s1-table-column-manager
+    *ngIf="columnManagerData.length && canShowColumnManager"
   [columns]="columnManagerData"
-  [visible]="showColumnManager" 
+  [visible]="showColumnManager"
   (columnsChange)="onColumnManagerChange($event)"
   (resetToDefaultEmitter)="onColumnManagerReset()"
   (panelClose)="columnManagerToggle(false)">

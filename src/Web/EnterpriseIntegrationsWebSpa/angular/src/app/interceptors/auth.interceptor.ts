@@ -32,7 +32,7 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     // for running the App in localhost----------
-    /* if (sessionStorage.getItem('jwtToken') === null) {
+    if (sessionStorage.getItem('jwtToken') === null) {
       return next.handle(request); // If no JWT token, continue without modification
     }
 
@@ -45,7 +45,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
       request = request.clone({
         setHeaders: headers
-      }); */
+      });
       // ---------localhost code --------------
       return next.handle(request).pipe(
         catchError((error: HttpErrorResponse) => {
@@ -60,9 +60,9 @@ export class AuthInterceptor implements HttpInterceptor {
       );
     }
     // for running the App in localhost----
-    /* else {
+    else {
       return next.handle(request);
     }
-  } */
+  }
   // ------localhost code--------
 }

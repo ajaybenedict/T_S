@@ -1,0 +1,80 @@
+<!-- Invoice -->
+<ng-template #invoice let-col="col" let-data="data" let-order="order">
+  <div class="invoice-cell">
+    <div class="inline-flex">
+      <strong
+        class="pipe-charcoalcolor invoice-issue-highlight font-arial text-bold-16">
+        {{ col.valueGetter(data, order)?.[0] ?? '' }}
+        ({{ col.valueGetter(data, order)?.[1] ?? '' }})
+      </strong>
+
+      <span class="no-fill-override invoice-icon-wrapper">
+       <img src="assets/cbc/erp_badge.svg" alt="Invoice Icon" class="invoice-icon" />
+      </span>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Issue Count -->
+<ng-template #issueCount let-col="col" let-data="data" let-order="order">
+  <div class="issue-wrapper" *ngIf="order.issueCount > 0">
+    <span class="font-arial text-regular-16 issue-count">
+      {{ col.valueGetter(data, order)?.[0] ?? '' }}
+    </span>
+
+    <span>
+      <img src="assets/cbc/error_icon_16_16.svg" alt="Issue Icon" class="issue-icon" />
+    </span>
+  </div>
+</ng-template>
+
+<!-- Order Details -->
+<ng-template #orderDetails let-col="col" let-data="data" let-order="order">
+  <ng-container
+    *ngIf="col.valueGetter(data, order)?.[0] | salesOrderDetailsFormat:col.valueGetter(data, order)?.[1] as details">
+
+    <span class="font-arial text-bold-14">
+      {{ details.salesorderheaderid }}
+    </span>
+
+    <br />
+
+    <span class="font-arial text-regular-14 muted-text">
+      {{ details.formattedDate }}
+    </span>
+
+    <span class="separator"> | </span>
+
+    <span class="font-arial text-regular-14 muted-text">
+      {{ details.formattedTime }}
+    </span>
+  </ng-container>
+</ng-template>
+
+<!-- Normal Text - With grey Color Format -->
+<ng-template #greyTextFormat let-col="col" let-data="data" let-order="order">
+  <span class="pipe-greycolor font-arial text-regular-14">
+    {{ col.valueGetter(data, order)?.[0] ?? '' }}
+  </span>
+</ng-template>
+
+<!-- Country Format -->
+<ng-template #countryformat let-col="col" let-data="data" let-order="order">
+  <span class="pipe-blackcolor font-arial text-bold-14">
+    {{ col.valueGetter(data, order)?.[0] ?? '' }}
+  </span>
+</ng-template>
+
+<!-- Reseller Details -->
+<ng-template #resellerdetails let-col="col" let-data="data" let-order="order">
+  <div class="reseller-wrapper">
+    <strong class="pipe-blackcolor font-arial text-bold-14">
+      {{ col.valueGetter(data, order)?.[0] ?? '' }}
+    </strong>
+
+    <span
+      class="pipe-greycolor font-arial text-regular-14 reseller-subtext">
+      {{ col.valueGetter(data, order)?.[1] ?? '' }}
+    </span>
+  </div>
+</ng-template>

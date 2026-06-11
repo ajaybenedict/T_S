@@ -14,6 +14,7 @@ export class ESTColumns {
           id: 2,
           key: 'subscriptionId',
           name: 'Subscription ID',
+          enableEllipsisTooltip: true,
           formatter: d =>
             CloudToolsHelper.formatTransactionPayload(
               d,
@@ -28,6 +29,7 @@ export class ESTColumns {
           id: 3,
           key: 'customerId',
           name: 'Customer ID',
+          enableEllipsisTooltip: true,
           formatter: d =>
             CloudToolsHelper.formatTransactionPayload(
               d,

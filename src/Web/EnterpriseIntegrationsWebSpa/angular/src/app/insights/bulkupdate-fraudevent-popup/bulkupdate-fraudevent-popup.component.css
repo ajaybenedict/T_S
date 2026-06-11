@@ -1,0 +1,56 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.panel-container {
+    background-color: #FFFFFF;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #D9D8D7;
+    height: calc(100vh - 68px);
+}
+
+.panel-header {
+    height: 56px;
+    flex-shrink: 0;
+}
+
+.panel-content-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.filters-container {
+    flex-shrink: 0;
+}
+
+.table-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.paginator-container {
+    flex-shrink: 0;
+    background: #fff;
+    border-top: 1px solid #E4E5E6;
+}
+
+.panel-footer {
+    flex-shrink: 0;
+    height: 76px;
+    border-top: 1px solid #E4E5E6;
+}
+
+.filters-row {
+    display: flex;
+    gap: 16px;
+}
+
+.flex-field {
+    flex: 1;
+    min-width: 0;
+}

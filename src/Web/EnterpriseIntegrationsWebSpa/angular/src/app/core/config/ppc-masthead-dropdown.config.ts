@@ -1,5 +1,5 @@
 import { PPCMastheadDropdown, PPCMastheadDropdownCategory } from "src/app/models/ppc-masthead-dropdown.model";
-import { APP_ROUTE_CONFIG_URL, INSIGHT_DASHBOARD_ROUTE } from "../constants/constants";
+import { APP_ROUTE_CONFIG_URL, CLOUD_TOOLS_ROUTE, INSIGHT_DASHBOARD_ROUTE } from "../constants/constants";
 
 export const ppcMastheadDropdownConfig: PPCMastheadDropdown[] = [
     {
@@ -15,7 +15,7 @@ export const ppcMastheadDropdownConfig: PPCMastheadDropdown[] = [
         navigationURL: `/${APP_ROUTE_CONFIG_URL.C3_DASHBOARD}`,
         isEnabled: true,
         category: PPCMastheadDropdownCategory.General,
-    },    
+    },
     {
         title: 'MS PAC Subscription Data',
         iconURL: '/assets/insights_dropdown_icon_24_24.svg',
@@ -52,13 +52,6 @@ export const ppcMastheadDropdownConfig: PPCMastheadDropdown[] = [
         category: PPCMastheadDropdownCategory.Insights,
     },
     {
-        title: 'Operation Tools',
-        iconURL: '/assets/insights_dropdown_icon_24_24.svg',
-        navigationURL: `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}`,
-        isEnabled: true,
-        category: PPCMastheadDropdownCategory.CloudTools,
-    },
-    {
         title: 'Regional Overview',
         iconURL: '/assets/insights_dropdown_icon_24_24.svg',
         navigationURL: `/${APP_ROUTE_CONFIG_URL.INSIGHTS}/${INSIGHT_DASHBOARD_ROUTE.ION_REGIONAL_OVERVIEW}`,
@@ -86,4 +79,60 @@ export const ppcMastheadDropdownConfig: PPCMastheadDropdown[] = [
         isEnabled: true,
         category: PPCMastheadDropdownCategory.Insights,
     },
+    {
+        title: 'Reseller Churn',
+        iconURL: '/assets/insights_dropdown_icon_24_24.svg',
+        navigationURL: `/${APP_ROUTE_CONFIG_URL.INSIGHTS}/${INSIGHT_DASHBOARD_ROUTE.RESELLER_CHURN_URL}`,
+        isEnabled: true,
+        category: PPCMastheadDropdownCategory.Insights,
+    },
+  {
+    title: 'User Usage Report',
+    iconURL: '/assets/insights_dropdown_icon_24_24.svg',
+    navigationURL: `/${APP_ROUTE_CONFIG_URL.INSIGHTS}/${INSIGHT_DASHBOARD_ROUTE.USER_USAGE_REPORT_URL}`,
+    isEnabled: true,
+    category: PPCMastheadDropdownCategory.Insights,
+  },
+  {
+    title: 'Order KPI',
+    iconURL: '/assets/insights_dropdown_icon_24_24.svg',
+    navigationURL: `/${APP_ROUTE_CONFIG_URL.INSIGHTS}/${INSIGHT_DASHBOARD_ROUTE.KPI_REPORT_URL}`,
+    isEnabled: true,
+    category: PPCMastheadDropdownCategory.Insights,
+  },
+  {
+    title: 'EST Manager',
+    iconURL: '/assets/insights_dropdown_icon_24_24.svg',
+    navigationURL: `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}/${CLOUD_TOOLS_ROUTE.EST_MANAGER}`,
+    isEnabled: true,
+    category: PPCMastheadDropdownCategory.CloudTools,
+  },
+  {
+    title: 'PCR Cleanup',
+    iconURL: '/assets/insights_dropdown_icon_24_24.svg',
+    navigationURL: `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}/${CLOUD_TOOLS_ROUTE.PCR_CLEANUP}`,
+    isEnabled: true,
+    category: PPCMastheadDropdownCategory.CloudTools,
+  },
+  {
+    title: 'Sandbox Cleanup',
+    iconURL: '/assets/insights_dropdown_icon_24_24.svg',
+    navigationURL: `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}/${CLOUD_TOOLS_ROUTE.SANDBOX_CLEANUP}`,
+    isEnabled: true,
+    category: PPCMastheadDropdownCategory.CloudTools,
+  },
+  {
+    title: 'Update MPNID',
+    iconURL: '/assets/insights_dropdown_icon_24_24.svg',
+    navigationURL: `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}/${CLOUD_TOOLS_ROUTE.UPDATE_MPNID}`,
+    isEnabled: true,
+    category: PPCMastheadDropdownCategory.CloudTools,
+  },
+  {
+    title: 'Subscription Transfer',
+    iconURL: '/assets/insights_dropdown_icon_24_24.svg',
+    navigationURL: `/${APP_ROUTE_CONFIG_URL.CLOUD_TOOLS}/${CLOUD_TOOLS_ROUTE.SUBS_TRANSFER}`,
+    isEnabled: true,
+    category: PPCMastheadDropdownCategory.CloudTools,
+  }
 ];

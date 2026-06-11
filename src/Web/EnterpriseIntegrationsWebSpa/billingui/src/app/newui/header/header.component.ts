@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  ChangeDetectorRef,
   EventEmitter,
   Injector,
   ViewChild,
@@ -10,9 +11,15 @@ import { loadRemoteModule } from '@angular-architects/module-federation';
 import { customCalendarHeaderButtons } from 'src/app/config/date-filter-buttons.config';
 import { DateRangeService } from 'src/app/services/date-range.service';
 import { REMOTE_ENTRY_URL } from 'src/app/constants/constants';
-import { FILTER_PANEL_BUTTON_CONFIG, RESET_BUTTON_CONFIG, TAB_BUTTON_CONFIGS } from 'src/app/config/filter-panel-buttons.config';
+import {
+  FILTER_PANEL_BUTTON_CONFIG,
+  RESET_BUTTON_CONFIG,
+  TAB_BUTTON_CONFIGS
+} from 'src/app/config/filter-panel-buttons.config';
 import { FilterDataAPIService } from 'src/app/services/filterdata-api.service';
-import { Country, Vendor } from 'src/app/interface/filter-api.interface';
+import { Country, Vendor } from 'src/app/interface/cbc-dashboard-api.interface';
+import { CheckBox, CheckboxGroup, TabButton } from 'src/app/interface/button.interface';
+import { TabCounts, CheckboxLists, DateRange } from 'src/app/interface/component-data.interface';
 
 @Component({
   selector: 'app-header',
@@ -23,73 +30,166 @@ export class HeaderComponent implements AfterViewInit {
 
   @ViewChild('datefilter', { read: ViewContainerRef }) datefilterVc!: ViewContainerRef;
 
-  isFilterOpen!: boolean;
+  isFilterOpen = false;
 
-  filterPanelButtonConfig = FILTER_PANEL_BUTTON_CONFIG;
-  resetButtonConfig = RESET_BUTTON_CONFIG;
-  tabButtonConfig = TAB_BUTTON_CONFIGS;
+  filterPanelButtonConfig: TabButton[] = FILTER_PANEL_BUTTON_CONFIG;
+  resetButtonConfig: TabButton[] = RESET_BUTTON_CONFIG;
+  tabButtonConfig: Record<string, TabButton[]> = TAB_BUTTON_CONFIGS;
 
-
-  // Final applied filters (used outside the panel)
-  appliedCheckboxLists: { [key: string]: any[] } = {
+  appliedCheckboxLists: CheckboxLists = {
     Country: [],
     Vendor: [],
     Issues: []
   };
 
-  // Temporary filters inside panel before Apply
-  workingCheckboxLists: { [key: string]: any[] } = {
+  workingCheckboxLists: CheckboxLists = {
     Country: [],
     Vendor: [],
     Issues: []
   };
 
-  checkboxList: any[] = [];
+  checkboxList: (CheckBox | CheckboxGroup)[] = [];
+  filteredCheckboxList: (CheckBox | CheckboxGroup)[] = [];
+  originalCheckboxList: (CheckBox | CheckboxGroup)[] = []; // Keep original for search restoration
 
-  tabCounts: { [key: string]: number } = {
+  tabCounts: TabCounts = {
     Country: 0,
     Vendor: 0,
     Issues: 0
   };
 
-  appliedTabCounts: { [key: string]: number } = {
+  appliedTabCounts: TabCounts = {
     Country: 0,
     Vendor: 0,
     Issues: 0
   };
 
-  activeTab: string = '';
-  headername: string = 'Filters';
-  searchText: string = '';
-  filteredCheckboxList: any[] = [];
-  searchPlaceholder: string = 'Search';
+  activeTab = '';
+  headername = 'Filters';
+  searchText = '';
+  searchPlaceholder = 'Search';
 
   tabs: string[] = ['Vendor', 'Country', 'Issues'];
 
-
-
+  selectedValues: CheckboxLists = {
+    Country: [],
+    Vendor: [],
+    Issues: []
+  };
 
   constructor(
     private readonly injector: Injector,
     private readonly dateRangeService: DateRangeService,
-    private readonly filterDataAPIService: FilterDataAPIService
+    private readonly filterDataAPIService: FilterDataAPIService,
+    private readonly cdr: ChangeDetectorRef
   ) { }
-
 
   async ngAfterViewInit(): Promise<void> {
     await this.initializeHeaderService();
     await this.loadDateRangePicker();
+    await this.preLoadCountryData();
     this.filterButtonChange('Country');
   }
 
-  // Helper function to show/hide the filter pills
-  hasActiveFilters(): boolean {
-    return Object.values(this.appliedTabCounts).some(count => count > 0);
+  // ------------------ UTILITIES ------------------
+
+  private clone(data: CheckboxLists | (CheckBox | CheckboxGroup)[] | TabCounts): any {
+    return structuredClone(data);
   }
 
+  private updateCheckboxState(list: (CheckBox | CheckboxGroup)[], checked: boolean): (CheckBox | CheckboxGroup)[] {
+    return list.map((cb: CheckBox | CheckboxGroup) => {
+      if ('checkboxes' in cb) {
+        return { ...cb };
+      }
+      return { ...cb, checked };
+    });
+  }
 
-  private async initializeHeaderService() {
-    const serviceModule = await loadRemoteModule({
+  private normalizeGroupState(group: CheckboxGroup): CheckboxGroup {
+    const checkboxes = group.checkboxes?.map(cb => ({ ...cb })) || [];
+    const allChecked = checkboxes.length > 0 && checkboxes.every(cb => cb.checked);
+    const someChecked = checkboxes.some(cb => cb.checked);
+
+    return {
+      ...group,
+      checkboxes,
+      checked: allChecked,
+      indeterminate: someChecked && !allChecked,
+    } as CheckboxGroup;
+  }
+
+  resetCountryGroups(): void {
+    const countryList = (this.workingCheckboxLists['Country'] as CheckboxGroup[]).map(group =>
+      this.normalizeGroupState({
+        ...group,
+        checkboxes: group.checkboxes?.map(cb => ({ ...cb, checked: false })) || []
+      })
+    );
+
+    // Create new array reference to ensure change detection
+    this.workingCheckboxLists['Country'] = [...countryList];
+    this.appliedCheckboxLists['Country'] = this.clone(countryList);
+
+    // Reset tab counts
+    this.tabCounts['Country'] = 0;
+    this.appliedTabCounts['Country'] = 0;
+
+    // Trigger change detection
+    this.cdr.detectChanges();
+  }
+
+  private getSelectedCount(list: (CheckBox | CheckboxGroup)[]): number {
+    return list.filter((cb: CheckBox | CheckboxGroup) => {
+      if ('checkboxes' in cb) {
+        return false;
+      }
+      return cb.checked;
+    }).length;
+  }
+
+  private setActiveList(tabKey: string, list: (CheckBox | CheckboxGroup)[]): void {
+    if (this.activeTab === tabKey) {
+      this.checkboxList = this.clone(list) as (CheckBox | CheckboxGroup)[];
+      this.originalCheckboxList = this.clone(list) as (CheckBox | CheckboxGroup)[]; // Preserve original for search
+      this.filteredCheckboxList = this.clone(list) as (CheckBox | CheckboxGroup)[];
+    }
+  }
+
+  private async preLoadCountryData(): Promise<void> {
+    return new Promise((resolve) => {
+      const payload = ["ALL"];
+      this.filterDataAPIService.getCountryNames(payload).subscribe((res: Country[]) => {
+        const groupMap = new Map<string, any>();
+        for (const item of res) {
+          let group = groupMap.get(item.erpCode);
+          if (!group) {
+            group = {
+              id: item.erpCode,
+              groupTitle: item.erpCode,
+              checkboxes: []
+            };
+            groupMap.set(item.erpCode, group);
+          }
+          group.checkboxes.push({
+            displayName: item.name,
+            key: item.code,
+            checked: false
+          });
+        }
+        const countryData = Array.from(groupMap.values());
+        this.workingCheckboxLists['Country'] = countryData;
+        this.appliedCheckboxLists['Country'] = this.clone(countryData);
+        this.setActiveList('Country', countryData);
+        resolve();
+      });
+    });
+  }
+
+  // ------------------ INIT ------------------
+
+  private async initializeHeaderService(): Promise<void> {
+    const serviceModule: any = await loadRemoteModule({
       type: 'module',
       remoteEntry: REMOTE_ENTRY_URL,
       exposedModule: './S1HeaderConfigService',
@@ -100,252 +200,354 @@ export class HeaderComponent implements AfterViewInit {
     headerServiceInstance.setButtons(customCalendarHeaderButtons);
   }
 
-  private async loadDateRangePicker() {
-    const dateModule = await loadRemoteModule({
+  private async loadDateRangePicker(): Promise<void> {
+    const dateModule: any = await loadRemoteModule({
       type: 'module',
       remoteEntry: REMOTE_ENTRY_URL,
       exposedModule: './ppcdaterange',
     });
 
-
-
-    const compRef = this.datefilterVc.createComponent<typeof dateModule.S1DateRangePickerComponent>(
+    const compRef = this.datefilterVc.createComponent(
       dateModule.S1DateRangePickerComponent
     );
 
-    const instance = compRef.instance as InstanceType<typeof dateModule.S1DateRangePickerComponent>;
-
+    const instance = compRef.instance as any;
 
     setTimeout(() => {
       const today = new Date();
       const start = new Date();
       start.setDate(today.getDate() - 1);
+      instance.range?.patchValue?.({ start, end: today });
+    });
 
-      if (instance.range?.patchValue) {
-        instance.range.patchValue({
-          start,
-          end: today
-        });
-      }
-    }, 0);
-
-    const eventinstance = compRef.instance as {
-      dateRangeChanged: EventEmitter<{ start: string; end: string }>;
-    };
-
-
-    eventinstance.dateRangeChanged.subscribe((range) => {
+    (compRef.instance as {
+      dateRangeChanged: EventEmitter<DateRange>;
+    }).dateRangeChanged.subscribe((range: DateRange) => {
       this.dateRangeService.setDateRange(range);
     });
 
     compRef.changeDetectorRef.detectChanges();
   }
 
-  redirecttoTabs(tabKey: string) {
-    this.tabButtonConfig[tabKey][0].selected = false;
+  // ------------------ FILTER LOGIC ------------------
 
-    // Deselect all buttons
-    this.filterPanelButtonConfig.forEach(btn => btn.selected = false);
+  filterButtonChange(tabKey: string): void {
+    this.activeTab = tabKey;
 
-    // Select the tab that matches the clicked pill
-    const selectedBtn = this.filterPanelButtonConfig.find(btn => btn.displayName === tabKey);
-    if (selectedBtn) {
-      selectedBtn.selected = true;
+    if (!this.workingCheckboxLists[tabKey].length) {
+      const list = this.loadCheckboxList(tabKey);
+      this.workingCheckboxLists[tabKey] = this.clone(list) as (CheckBox | CheckboxGroup)[];
+      this.appliedCheckboxLists[tabKey] = this.clone(list) as (CheckBox | CheckboxGroup)[];
     }
+
+    this.checkboxList = this.clone(this.workingCheckboxLists[tabKey]) as (CheckBox | CheckboxGroup)[];
+    this.originalCheckboxList = this.clone(this.workingCheckboxLists[tabKey]) as (CheckBox | CheckboxGroup)[]; // Preserve original
+    this.filteredCheckboxList = this.clone(this.checkboxList) as (CheckBox | CheckboxGroup)[];
+    this.searchText = '';
+    this.searchPlaceholder = `Search for ${tabKey}`;
+  }
+
+  redirecttoTabs(tabKey: string): void {
+    this.filterPanelButtonConfig.forEach((btn: TabButton) => btn.selected = false);
+
+    const selectedBtn = this.filterPanelButtonConfig.find(
+      (btn: TabButton) => btn.displayName === tabKey
+    );
+    if (selectedBtn) selectedBtn.selected = true;
 
     this.isFilterOpen = true;
     this.filterButtonChange(tabKey);
   }
 
-  filterButtonChange(tabKey: string) {
-    this.activeTab = tabKey;
-
-    // If first time loading, load and copy data
-    if (this.workingCheckboxLists[tabKey].length === 0) {
-      const originalList = this.loadCheckboxList(tabKey);
-
-      // Save to both applied and working
-      this.appliedCheckboxLists[tabKey] = JSON.parse(JSON.stringify(originalList));
-      this.workingCheckboxLists[tabKey] = JSON.parse(JSON.stringify(originalList));
-    }
-
-    // Use working list in the panel
-    this.checkboxList = this.workingCheckboxLists[tabKey];
-    this.searchText = '';
-    this.filteredCheckboxList = [...this.checkboxList];
-    this.searchPlaceholder = `Search for ${tabKey}`;
-  }
-
-
-
-
-  onSearchChange() {
-    const search = this.searchText.toLowerCase().trim();
-
-    if (!search) {
-      this.filteredCheckboxList = [...this.checkboxList];
-    } else {
-      this.filteredCheckboxList = this.checkboxList.filter(cb =>
-        cb.displayName.toLowerCase().includes(search)
-      );
-    }
-  }
-
-  onResetAllTabs() {
-
-    Object.keys(this.workingCheckboxLists).forEach(tab => {
-      this.workingCheckboxLists[tab] = this.workingCheckboxLists[tab].map(cb => ({
-        ...cb,
-        checked: false
-      }));
-
-    });
-
-
-    this.tabCounts = {
-      Country: 0,
-      Vendor: 0,
-      Issues: 0
-    };
-    this.appliedTabCounts = this.tabCounts;
-
-
-    this.checkboxList = [...this.workingCheckboxLists[this.activeTab]];
-    this.filteredCheckboxList = [...this.checkboxList];
-    this.searchText = '';
-  }
-
-
   loadCheckboxList(tabKey: string): any[] {
-    if (this.workingCheckboxLists[tabKey].length > 0) {
+    if (this.workingCheckboxLists[tabKey].length) {
       return this.workingCheckboxLists[tabKey];
     }
 
+    const handleResponse = (data: any[]) => {
+      this.workingCheckboxLists[tabKey] = data;
+      this.appliedCheckboxLists[tabKey] = this.clone(data);
+      this.setActiveList(tabKey, data);
+    };
+
     if (tabKey === 'Country') {
-      this.filterDataAPIService.getCountryNames()
-        .subscribe((response: Country[]) => {
-          const transformed = response.map(item => ({
-            displayName: item.name,
-            key: item.code,
-            checked: false,
-          }));
-
-          this.workingCheckboxLists[tabKey] = transformed;
-          this.appliedCheckboxLists[tabKey] = JSON.parse(JSON.stringify(transformed));
-
-          if (this.activeTab === tabKey) {
-            this.checkboxList = [...transformed];
-            this.filteredCheckboxList = [...transformed];
-          }
-        });
+      // Data is pre-loaded via preLoadCountryData(), return the pre-loaded data
+      return this.workingCheckboxLists['Country'];
     } else if (tabKey === 'Vendor') {
-      this.filterDataAPIService.getVendorNames()
-        .subscribe((response: Vendor[]) => {
-          const transformed = response.map(item => ({
-            displayName: item.vendorName,
-            key: item.vendorKey,
-            checked: false,
-          }));
-
-          this.workingCheckboxLists[tabKey] = transformed;
-          this.appliedCheckboxLists[tabKey] = JSON.parse(JSON.stringify(transformed));
-
-          if (this.activeTab === tabKey) {
-            this.checkboxList = [...transformed];
-            this.filteredCheckboxList = [...transformed];
-          }
-        });
-    }
-    else if (tabKey === 'Issues') {
+      this.filterDataAPIService.getVendorNames().subscribe((res: Vendor[]) => {
+        handleResponse(res.map(item => ({
+          displayName: item.vendorName,
+          key: item.vendorKey,
+          checked: false
+        })));
+      });
+    } else if (tabKey === 'Issues') {
       return [
         { displayName: 'None', key: 1, checked: false },
         { displayName: 'Issues Only', key: 2, checked: false },
-        { displayName: 'CleanOrders', key: 3, checked: false },
-
+        { displayName: 'CleanOrders', key: 3, checked: false }
       ];
-    } else {
-      return [];
     }
-    return []; // Return empty until async data is available
+
+    return [];
+  }
+
+  // ------------------ SEARCH ------------------
+
+  onSearchChange(): void {
+    const search = this.searchText.toLowerCase().trim();
+
+    if (this.activeTab === 'Country') {
+      if (search) {
+        this.filteredCheckboxList = (this.originalCheckboxList as CheckboxGroup[])
+          .map((group: CheckboxGroup) => {
+            // Check if group title matches
+            const groupMatches = group.groupTitle?.toLowerCase().includes(search);
+
+            // Filter checkboxes that match search
+            const filteredCheckboxes = group.checkboxes?.filter((cb: CheckBox) =>
+              cb.displayName.toLowerCase().includes(search)
+            ) || [];
+
+            // Include group if title matches OR if any checkbox matches
+            if (groupMatches || filteredCheckboxes.length > 0) {
+              return {
+                ...group,
+                checkboxes: groupMatches ? group.checkboxes : filteredCheckboxes
+              };
+            }
+            return null;
+          })
+          .filter((group: CheckboxGroup | null) => group !== null) as CheckboxGroup[];
+      } else {
+        // Restore full list with all checkboxes when search is cleared
+        this.filteredCheckboxList = this.clone(this.originalCheckboxList) as (CheckBox | CheckboxGroup)[];
+      }
+    } else {
+      // Search in flat data
+      this.filteredCheckboxList = search
+        ? (this.originalCheckboxList as CheckBox[]).filter((cb: CheckBox) =>
+          cb.displayName.toLowerCase().includes(search)
+        )
+        : [...(this.checkboxList as CheckBox[])];
+    }
+  }
+
+  // ------------------ CHECKBOX ------------------
+
+  onCheckboxChange(updatedList: (CheckBox | CheckboxGroup)[]): void {
+    try {
+      if (this.activeTab === 'Country') {
+
+        const groups = this.workingCheckboxLists['Country'] as CheckboxGroup[];
+
+        const updatedGroups = groups.map(group => {
+          const updated = (updatedList as CheckboxGroup[]).find(g => g.id === group.id);
+
+          return updated
+            ? {
+              ...group,
+              checkboxes: updated.checkboxes.map(cb => ({ ...cb }))
+            }
+            : group;
+        });
+
+        this.workingCheckboxLists['Country'] = updatedGroups;
+
+        this.originalCheckboxList = (this.originalCheckboxList as CheckboxGroup[]).map(group => {
+          const updated = (updatedList as CheckboxGroup[]).find(g => g.id === group.id);
+
+          return updated
+            ? this.normalizeGroupState({
+              ...group,
+              checkboxes: updated.checkboxes.map(cb => ({ ...cb }))
+            })
+            : group;
+        });
+
+        const selectedCount = updatedGroups.reduce((sum: number, group: CheckboxGroup) => {
+          return sum + (group.checkboxes?.filter(cb => cb.checked).length || 0);
+        }, 0);
+
+        this.tabCounts[this.activeTab as keyof TabCounts] = selectedCount;
+
+      } else {
+
+        const workingList = this.workingCheckboxLists[this.activeTab] as CheckBox[];
+
+        const updatedWorkingList = workingList.map(item => {
+          const updated = (updatedList as CheckBox[]).find(u => u.key === item.key);
+
+          return updated
+            ? { ...item, checked: updated.checked }
+            : item;
+        });
+
+        this.workingCheckboxLists[this.activeTab] = updatedWorkingList;
+        this.checkboxList = this.clone(updatedWorkingList) as (CheckBox | CheckboxGroup)[];
+
+        this.originalCheckboxList = (this.originalCheckboxList as CheckBox[]).map(item => {
+          const updated = (updatedList as CheckBox[]).find(u => u.key === item.key);
+
+          return updated
+            ? { ...item, checked: updated.checked }
+            : item;
+        });
+
+        this.tabCounts[this.activeTab as keyof TabCounts] =
+          this.getSelectedCount(updatedWorkingList);
+      }
+
+      this.onSearchChange();
+
+      // safer than detectChanges alone in dynamic UI cases
+      this.cdr.markForCheck();
+      this.cdr.detectChanges();
+
+    } catch (error) {
+      console.error('Error in onCheckboxChange:', error);
+    }
   }
 
   get selectedCheckboxCount(): number {
-    return this.checkboxList.filter(cb => cb.checked).length;
+    return this.getSelectedCount(this.checkboxList);
   }
 
-  onCheckboxChange(updatedList: any[]) {
-    // Only update the checked state of each item in the working list
-    updatedList.forEach(updatedItem => {
-      const workingItem = this.workingCheckboxLists[this.activeTab].find(item => item.key === updatedItem.key);
-      if (workingItem) {
-        workingItem.checked = updatedItem.checked;
-      }
+  // ------------------ APPLY / RESET ------------------
 
-      const originalItem = this.checkboxList.find(item => item.key === updatedItem.key);
-      if (originalItem) {
-        originalItem.checked = updatedItem.checked;
-      }
-    });
+  onApplyFilters(): void {
+    Object.keys(this.workingCheckboxLists).forEach((tab: string) => {
+      this.appliedCheckboxLists[tab] = this.clone(this.workingCheckboxLists[tab]) as (CheckBox | CheckboxGroup)[];
+      this.appliedTabCounts[tab as keyof TabCounts] = this.tabCounts[tab as keyof TabCounts];
 
-    // Recalculate selected count
-    const selectedCount = this.workingCheckboxLists[this.activeTab].filter(cb => cb.checked).length;
-
-    // Update tab count
-    this.tabCounts = {
-      ...this.tabCounts,
-      [this.activeTab]: selectedCount
-    };
-
-    // Reapply the search to reflect changes
-    this.onSearchChange();
-  }
-
-
-
-  onApplyFilters() {
-    Object.keys(this.workingCheckboxLists).forEach(tab => {
-      // Copy filters to applied
-      this.appliedCheckboxLists[tab] = JSON.parse(JSON.stringify(this.workingCheckboxLists[tab]));
-
-
-      this.appliedTabCounts[tab] = this.tabCounts[tab];
-
-      if (this.tabButtonConfig[tab]?.length > 0) {
-        this.tabButtonConfig[tab][0].selectedCount = this.tabCounts[tab];
-        this.tabButtonConfig[tab][0].hasCloseBtn = true;
-
+      const config = this.tabButtonConfig[tab]?.[0];
+      if (config) {
+        config.selectedCount = this.tabCounts[tab as keyof TabCounts];
+        config.hasCloseBtn = true;
       }
     });
-
+    
+    this.logSelectedValues('Applied Filters');
     this.isFilterOpen = false;
   }
 
+  onResetAllTabs(): void {
+    Object.keys(this.workingCheckboxLists).forEach((tab: string) => {
+      if (tab === 'Country') {
+        const countryGroups = (this.workingCheckboxLists[tab] as CheckboxGroup[]).map(group =>
+          this.normalizeGroupState({
+            ...group,
+            checkboxes: group.checkboxes?.map(cb => ({ ...cb, checked: false })) || []
+          })
+        );
 
+        // Create new array reference for change detection
+        this.workingCheckboxLists[tab] = [...countryGroups];
+      } else {
+        // Reset flat checkboxes
+        this.workingCheckboxLists[tab] =
+          this.updateCheckboxState(this.workingCheckboxLists[tab], false);
+      }
 
-  onClearTab(tabKey: string) {
-    // reset all checkboxes for that tab
-    this.workingCheckboxLists[tabKey] = this.workingCheckboxLists[tabKey].map(cb => ({
-      ...cb,
-      checked: false
-    }));
+      this.tabCounts[tab as keyof TabCounts] = 0;
+      this.appliedTabCounts[tab as keyof TabCounts] = 0;
+    });
 
-    // force refresh if currently active
-    if (this.activeTab === tabKey) {
-      this.checkboxList = [...this.workingCheckboxLists[tabKey]];
-      this.filteredCheckboxList = [...this.checkboxList];
-      this.searchText = ''; // optional: reset search input
-    }
+    this.checkboxList = this.clone(this.workingCheckboxLists[this.activeTab]) as (CheckBox | CheckboxGroup)[];
+    this.originalCheckboxList = this.clone(this.workingCheckboxLists[this.activeTab]) as (CheckBox | CheckboxGroup)[]; // Preserve original
+    this.filteredCheckboxList = this.clone(this.checkboxList) as (CheckBox | CheckboxGroup)[];
+    this.searchText = '';
+    this.cdr.detectChanges();
 
-    // update count
-    this.tabCounts = {
-      ...this.tabCounts,
-      [tabKey]: 0
-    };
-
-    this.appliedTabCounts = {
-      ...this.appliedTabCounts,
-      [tabKey]: 0
-    };
+    this.logSelectedValues('After reset all tabs');
   }
 
+  onClearTab(tabKey: string): void {
+    if (tabKey === 'Country') {
+      // Clear checkboxes within groups and reset parent states
+      const countryGroups = (this.workingCheckboxLists[tabKey] as CheckboxGroup[]).map(group =>
+        this.normalizeGroupState({
+          ...group,
+          checkboxes: group.checkboxes?.map(cb => ({ ...cb, checked: false })) || []
+        })
+      );
+      // Create new array reference to ensure change detection
+      this.workingCheckboxLists[tabKey] = [...countryGroups];
+    } else {
+      // Clear flat checkboxes
+      this.workingCheckboxLists[tabKey] =
+        this.updateCheckboxState(this.workingCheckboxLists[tabKey], false);
+    }
+
+    this.tabCounts[tabKey as keyof TabCounts] = 0;
+    this.appliedTabCounts[tabKey as keyof TabCounts] = 0;
+
+    if (this.activeTab === tabKey) {
+      this.checkboxList = this.clone(this.workingCheckboxLists[tabKey]) as (CheckBox | CheckboxGroup)[];
+      this.originalCheckboxList = this.clone(this.workingCheckboxLists[tabKey]) as (CheckBox | CheckboxGroup)[]; // Preserve original
+      this.filteredCheckboxList = this.clone(this.checkboxList) as (CheckBox | CheckboxGroup)[];
+      this.searchText = '';
+    }
+
+    this.cdr.detectChanges();
+    this.logSelectedValues(`After clear tab ${tabKey}`);
+  }
+
+  // ------------------ UI HELPERS ------------------
+
+  hasActiveFilters(): boolean {
+    return Object.values(this.appliedTabCounts).some(count => count > 0);
+  }
+
+  canApplyFilters(): boolean {
+    return Object.values(this.tabCounts).some(count => count > 0);
+  }
+
+  canResetFilters(): boolean {
+    return Object.values(this.tabCounts).some(count => count > 0);
+  }
+
+  private getSelectedValues(): CheckboxLists {
+    const selectedValues: CheckboxLists = {};
+
+    Object.keys(this.workingCheckboxLists).forEach((tab: string) => {
+      const selected: any[] = [];
+
+      if (tab === 'Country') {
+        // Extract selected items from grouped data
+        (this.workingCheckboxLists[tab] as CheckboxGroup[]).forEach((group: CheckboxGroup) => {
+          group.checkboxes?.forEach((cb: CheckBox) => {
+            if (cb.checked) {
+              selected.push({
+                groupTitle: group.groupTitle,
+                ...cb
+              });
+            }
+          });
+        });
+      } else {
+        // Extract selected items from flat data
+        (this.workingCheckboxLists[tab] as CheckBox[]).forEach((item: CheckBox) => {
+          if (item.checked) {
+            selected.push(item);
+          }
+        });
+      }
+
+      if (selected.length > 0) {
+        selectedValues[tab] = selected;
+      }
+    });
+
+    return selectedValues;
+  }
+
+  private logSelectedValues(action: string): void {
+    const selectedValues = this.getSelectedValues();
+    this.selectedValues = selectedValues;
+  }
+
+  trackByGroupId(index: number, group: any): any {
+    return group.id;
+  }
 }

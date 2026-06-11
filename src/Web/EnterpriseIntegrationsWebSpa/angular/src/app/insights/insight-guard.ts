@@ -1,15 +1,20 @@
 import { ActivatedRouteSnapshot, CanActivateChildFn } from "@angular/router";
 import { inject } from "@angular/core";
 import { DataState } from "../core/services/data-state";
-import { PermissionsEnum } from "../core/config/permissions.config";
+import { ApplicationIdEnum } from "../core/config/permissions.config";
 import { PermissionsLoaderDialogService } from "../core/services/permissions-loader-dialog.service";
 import { ROUTE_DATA_KEYS } from "../core/constants/constants";
 
+/**
+ * Insight child-route guard using application-scoped permissions.
+ * Defaults to Insight applicationId when route data does not provide one.
+ */
 export const insightCanActivateGuard: CanActivateChildFn = (route: ActivatedRouteSnapshot) => {         
     const dataState = inject(DataState);
     const routeLoaderSVC = inject(PermissionsLoaderDialogService);
 
-    const userPermissions = dataState.getUserPermissions();
+    // Use route applicationId when present; otherwise default to Insight.
+    const applicationId = Number(route.data?.[ROUTE_DATA_KEYS.APPLICATION_ID] ?? ApplicationIdEnum.Insight);
     const requiredPermissions: number[] = route.data[ROUTE_DATA_KEYS.PERMISSIONS];
     const countryRegionCheck = route.data?.[ROUTE_DATA_KEYS.COUNTRY_REGION_CHECK] === true;
 
@@ -18,14 +23,12 @@ export const insightCanActivateGuard: CanActivateChildFn = (route: ActivatedRout
         // Do not close loader here
         return true;
     }
-    const requiredSet = new Set<number>(requiredPermissions);
-    const isGlobalAdmin = userPermissions.includes(PermissionsEnum.GlobalAdmin);
-    const hasAnyRequired = userPermissions.some(p => requiredSet.has(p));
+    const hasAnyRequired = dataState.hasPermission(requiredPermissions, applicationId);
 
     // If user has permission(s)
-    if (isGlobalAdmin || hasAnyRequired) {
+    if (hasAnyRequired) {
         // If the route also requires country/region access, validate that.
-        if (countryRegionCheck && !dataState.hasCountryRegionAccess()) {
+        if (countryRegionCheck && !dataState.hasCountryRegionAccess(applicationId)) {
             routeLoaderSVC.showDialog('NoCountryRegionAccess');
             return false;
         }

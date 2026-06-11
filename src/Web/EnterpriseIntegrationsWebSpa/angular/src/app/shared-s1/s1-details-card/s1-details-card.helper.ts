@@ -2,6 +2,7 @@ import { OrderLine } from "src/app/models/ppc/order-line.interface";
 import { S1DataTableColumn } from "src/app/models/s1/s1-data-table.interface";
 import { C3DetailsCardActionEnum } from "src/app/models/s1/s1-details-card.interface";
 import { S1Menu } from "src/app/models/s1/s1-menu.interface";
+import { C3_COLUMN_CONSTANTS } from "src/app/core/constants/c3-dashboard-column.constants";
 
 export class S1DetailsCardHelper {
     public static initTablecolumns(): S1DataTableColumn[] {
@@ -9,7 +10,8 @@ export class S1DetailsCardHelper {
             cellAlignment: 'start',
             headerAlignment: 'start',
             columnType: 'html',
-            isSortable: false
+            isSortable: false,
+            enableEllipsisTooltip: true
         };
 
         // small helper to return a formatter that wraps a property in a span with classes
@@ -18,45 +20,37 @@ export class S1DetailsCardHelper {
 
         const colsConfig: Array<Partial<S1DataTableColumn> & { displayName: string; columnKey: string; columnWidth?: string; key?: string; backgroundColor?: string; formatter: (d: OrderLine) => string; }> = [
             {
-                displayName: 'Vendor',
-                columnKey: 'Vendor',
+                ...C3_COLUMN_CONSTANTS.details.vendor,
                 formatter: makeFormatter('vendorName', 's1-C-Charcoal')
             },
             {
-                displayName: 'Qty',
-                columnKey: 'Qty',
+                ...C3_COLUMN_CONSTANTS.details.qty,
                 formatter: makeFormatter('qty', 's1-C-Charcoal')
             },
             {
-                displayName: 'Fx',
-                columnKey: 'Fx',
+                ...C3_COLUMN_CONSTANTS.details.currency,
                 formatter: makeFormatter('fx', 's1-C-Charcoal')
             },
             {
-                displayName: 'Value',
-                columnKey: 'Value',
+                ...C3_COLUMN_CONSTANTS.details.value,
                 backgroundColor: '#F8F8F8',
                 formatter: makeFormatter('value', 's1-C-CG10')
             },
             {
-                displayName: 'Product Name',
-                columnKey: 'productName',
+                ...C3_COLUMN_CONSTANTS.details.productName,
                 key: 'partNumber',
                 formatter: makeFormatter('partNumber', 's1-C-CG10')
             },
             {
-                displayName: 'Billing Frequency',
-                columnKey: 'billingFrequency',
+                ...C3_COLUMN_CONSTANTS.details.billingFrequency,
                 formatter: makeFormatter('billingFrequency', 's1-C-Stone')
             },
             {
-                displayName: 'Billing Term',
-                columnKey: 'billingTerm',
+                ...C3_COLUMN_CONSTANTS.details.billingTerm,
                 formatter: makeFormatter('billingType', 's1-C-CG10')
             },
             {
-                displayName: 'Order Type',
-                columnKey: 'orderType',
+                ...C3_COLUMN_CONSTANTS.details.orderType,
                 formatter: makeFormatter('orderType', 's1-C-Stone')
             },
         ];

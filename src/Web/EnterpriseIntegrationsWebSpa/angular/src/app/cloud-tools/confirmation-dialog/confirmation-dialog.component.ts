@@ -9,7 +9,7 @@ import { CLOUD_TOOLS_CONFIRMATION_DIALOG,  } from 'src/app/core/constants/consta
 export class ConfirmationDialogComponent {
   @Output() cancelAction = new EventEmitter<void>();
   @Output() confirmAction = new EventEmitter<void>();
-  @Input() headerText: string = CLOUD_TOOLS_CONFIRMATION_DIALOG.DEFAAULT_HEADER;
+  @Input() headerText: string = CLOUD_TOOLS_CONFIRMATION_DIALOG.DEFAULT_HEADER;
   @Input() contentText: string = CLOUD_TOOLS_CONFIRMATION_DIALOG.DEFAULT_CONTENT;
 
 

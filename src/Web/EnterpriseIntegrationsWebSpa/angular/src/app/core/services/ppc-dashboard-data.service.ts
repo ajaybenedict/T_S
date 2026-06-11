@@ -56,12 +56,20 @@ export class PPCDashboardDataService {
       SortOrder: SortDirectionEnum.DESCENDING,
       Status: '1,2,3,5,7',
       StatusFilter: 1,
+      Discontinued: false,
+      DiscontinuedFilter: 0,
+      OnHold: false,
+      OnHoldFilter: 0,
+      MultiYearContractFilter: 0,
+      MultiYearContract: false,
     };
 
     ppcFilterCount: PPCFilterCount = {
         ApprovalType: 0,
         Country: 0,
         OrderValue: 0,
+        BillingTerm: 0,
+        ResellerStatus: 0,
     }
 
     // Order API
@@ -74,6 +82,8 @@ export class PPCDashboardDataService {
     private readonly selectedOrderValue = new BehaviorSubject<S1FilterNumericFieldOutput | null>(null);
     private readonly selectedApprovalType = new BehaviorSubject<S1DescriptionCheckbox[] | null>(null);
     private readonly selectedCountry = new BehaviorSubject<S1GroupCheckbox[] | null>(null);
+    private readonly selectedBillingTerm = new BehaviorSubject<S1DescriptionCheckbox[] | null>(null);
+    private readonly selectedResellerStatus = new BehaviorSubject<S1DescriptionCheckbox[] | null>(null);
     // Filters - Count
     private readonly sidepanelFilterCount = new BehaviorSubject<PPCFilterCount>(this.ppcFilterCount);
     // active tab id
@@ -91,6 +101,8 @@ export class PPCDashboardDataService {
     selectedOrderValue$ = this.selectedOrderValue.asObservable();
     selectedApprovalType$ = this.selectedApprovalType.asObservable();
     selectedCountry$ = this.selectedCountry.asObservable();
+    selectedBillingTerm$ = this.selectedBillingTerm.asObservable();
+    selectedResellerStatus$ = this.selectedResellerStatus.asObservable();
     // Filters - Count
     sidepanelFilterCount$ = this.sidepanelFilterCount.asObservable();
     // active tab id
@@ -149,6 +161,14 @@ export class PPCDashboardDataService {
 
     setSelectedCountry(value: S1GroupCheckbox[] | null) {
         this.selectedCountry.next(value);
+    }
+
+    setSelectedBillingTerm(value: S1DescriptionCheckbox[] | null) {
+        this.selectedBillingTerm.next(value);
+    }
+
+    setSelectedResellerStatus(value: S1DescriptionCheckbox[] | null) {
+        this.selectedResellerStatus.next(value);
     }
 
     setSidepanelFilterCount(value: PPCFilterCount) {

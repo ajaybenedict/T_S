@@ -1,39 +1,42 @@
-import { TableColumn, GroupedTableColumns } from "../interface/data-table-columns.interface";
+import { GroupedTableColumns, FlattenedTableColumns } from "../interface/data-table-columns.interface";
 
-export const ORDER_LEVEL_TABLE_COLUMNS: TableColumn[] = [
+export const ORDER_LEVEL_TABLE_COLUMNS: FlattenedTableColumns[] = [
   {
-    columnName: 'LN', key: 'lineNumber', className: 'linelevelrow',
+    columnName: 'LN', key: 'lineNumber', templateId: 'countryformat',  valueGetter: (rowData) => [rowData.lineNumber],
   },
   {
-    columnName: 'TD SKU', key: 'techDataSKU', className: 'linelevelrow',
+    columnName: 'TD SKU', key: 'techDataSKU', templateId: 'greyTextFormat', valueGetter: (rowData) => [rowData.techDataSKU]
   },
   {
-    columnName: 'Fx', key: 'purchaseCurrency', className: 'linelevelrow',
+    columnName: 'Fx', key: 'purchaseCurrency', templateId: 'countryformat', valueGetter: (rowData) => [rowData.purchaseCurrency]
   },
   {
-    columnName: 'Qty', key: 'quantity', className: 'linelevelrow',
+    columnName: 'Qty', key: 'quantity', templateId: 'countryformat', valueGetter: (rowData) => [rowData.quantity]
   },
   {
-    columnName: 'VND Unit', key: 'cost', className: 'linelevelrow',
+    columnName: 'VND Unit', key: 'cost', templateId: 'greyTextFormat', valueGetter: (rowData) => [rowData.cost]
   },
   {
-    columnName: 'VND Total', key: 'cost', className: 'linelevelrow',
+    columnName: 'VND Total', key: 'cost', templateId: 'greyTextFormat' , valueGetter: (rowData) => [rowData.cost]
   },
   {
-    columnName: 'RES Unit', key: 'prize', className: 'linelevelrow',
+    columnName: 'RES Unit', key: 'price', templateId: 'greyTextFormat' , valueGetter: (rowData) => [rowData.prize]
   },
   {
-    columnName: 'RES Total', key: 'prize', className: 'linelevelrow',
+    columnName: 'RES Total', key: 'price', templateId: 'greyTextFormat'  , valueGetter: (rowData) => [rowData.prize]   
   },
   {
-    columnName: 'End User', key: 'endUserCompanyName', className: 'linelevelrow',
+    columnName: 'End User', key: 'endUserCompanyName', templateId: 'greyTextFormat' , valueGetter: (rowData) => [rowData.endUserCompanyName]
+  },
+  {
+    columnName: 'Subscription', key: 'subscriptionId', templateId: 'greyTextFormat', valueGetter: (rowData) => [rowData.subscriptionId]
   },
 
 ];
 
 
 
-export const ORDER_SECOND_LEVEL_TABLE_COLUMNS: TableColumn[] = [
+export const ORDER_SECOND_LEVEL_TABLE_COLUMNS: FlattenedTableColumns[] = [
   {
     columnName: 'Product Info', key: 'description', className: 'linelevelrow',
   },
@@ -54,213 +57,135 @@ export const ORDER_SECOND_LEVEL_TABLE_COLUMNS: TableColumn[] = [
   }
 ];
 
-export const BILLING_COLUMNS: GroupedTableColumns[] = [
+const COMMON_BILLING_COLUMNS: GroupedTableColumns[] = [
   {
     columnName: 'Invoice ID',
     key: 'invoiceId',
     groupHeaderPosition: 'left',
-    isCheckbox:true,
+    isCheckbox: true,
+    isGroupKey: true,
     isFrozen: true,
     showInGroupHeader: true,
-    pipe: 'InvoiceIDFormat',
-    pipeArgs: ['invoiceNumber'],
     className: 'invoicetbl',
-    valueGetter: (rowData, _) => rowData.invoiceId,
+    valueGetter: (rowData, orderData) => [
+      rowData.invoiceId,
+      rowData.invoiceNumber
+    ],
+    templateId: 'invoice'
   },
   {
     columnName: 'IssueCount',
     key: 'issueCount',
     className: 'statuscol',
-    parentKey:'salesOrderNumber',
-    pipe: 'IssueCountFormat',
-    valueGetter: (_, orderData) => orderData.issueCount,
+    parentKey: 'salesOrderNumber',
+    valueGetter: (_, orderData) => [orderData.issueCount],
+    templateId: 'issueCount'
   },
   {
     columnName: 'OrderCount',
     key: 'lineCount',
     className: 'ordercountcol',
-    parentKey:'salesOrderNumber',
-    pipe: 'PriceFormat',
-    valueGetter: (_, orderData) => orderData.lineCount,
+    parentKey: 'salesOrderNumber',
+    valueGetter: (_, orderData) => [orderData.lineCount],
+    templateId: 'greyTextFormat'
   },
   {
     columnName: 'Order Details',
-    key: 'salesOrderNumber',  
-    isGroupColumn: true,      
+    key: 'salesOrderNumber',
+    isGroupColumn: true,
     className: 'orderdtl',
-    pipe: 'orderDetailsFormat',
-    pipeArgs: ['orderDate'],
-    valueGetter: (_, orderData) => orderData.salesOrderNumber,
+    valueGetter: (rowData, orderData) => [
+      orderData.salesOrderHeaderId,
+      rowData.orderDate
+    ],
+    templateId: 'orderDetails'
   },
- 
+  {
+    columnName: 'Fx',
+    key: 'currencyCode',
+    className: 'fx',
+    valueGetter: (_, orderData) => [orderData.currency],
+    templateId: 'countryformat'
+  },
   {
     columnName: 'Total RP',
     key: 'totalResellerCost',
-    pipe: 'PriceFormat',
     className: 'rp',
-    valueGetter: (_, orderData) => orderData.totalResellerCost,
+    valueGetter: (_, orderData) => [orderData.totalResellerCost],
+    templateId: 'greyTextFormat'
   },
   {
     columnName: 'Total VC',
     key: 'totalVendorCost',
-    pipe: 'PriceFormat',
     className: 'vc',
-    valueGetter: (_, orderData) => orderData.totalVendorCost,
+    valueGetter: (_, orderData) => [orderData.totalVendorCost],
+    templateId: 'greyTextFormat'
   },
   {
     columnName: 'End User',
     key: 'endUserCompanyName',
     className: 'enduser',
-    valueGetter: (_, orderData) => orderData.endUserCompanyName,
-  },
-   {
-    columnName: 'Fx',
-    key: 'currencyCode',
-    pipe: 'CountryFormat',
-    className: 'fx',
-    valueGetter: (_, orderData) => orderData.currencyCode,
+    valueGetter: (_, orderData) => [orderData.endUserCompanyName],
   },
   {
     columnName: 'Reseller Details',
     key: 'resellerName',
     groupHeaderPosition: 'right',
     showInGroupHeader: true,
-    pipe: 'ResellerDetailFormat',
-    pipeArgs: ['resellerId'],
     className: 'resellerdtl',
-    valueGetter: (_, orderData) => orderData.resellerName,
+    valueGetter: (rowData, orderData) => [
+      rowData.resellerName,
+      rowData.resellerId
+    ],
+    templateId: 'resellerdetails'
   },
   {
-    columnName: 'Cs',    
+    columnName: 'Cs',
     key: 'consolidation',
     groupHeaderPosition: 'right',
     showInGroupHeader: true,
     className: 'cs',
-    valueGetter: (_, orderData) => orderData.consolidation
+    valueGetter: (rowData, orderData) => [rowData.consolidation]
   },
   {
     columnName: 'Country',
     key: 'erpName',
     groupHeaderPosition: 'right',
     showInGroupHeader: true,
-    pipe: 'CountryFormat',
     className: 'country',
-    valueGetter: (_, orderData) => orderData.erpName
-  },
-  {
-    columnName: 'Action',
-    key: 'erpName',
-    groupHeaderPosition: 'right',
-    showInGroupHeader: true,
-    className: 'action',
-    actionKeys: ['Approve', 'Decline'],
-    actionsIsDropdown: true, 
-    isStatus: false,
-    valueGetter: (_, orderData) => orderData.erpName
-
+    valueGetter: (rowData, orderData) => [rowData.country],
+    templateId: 'countryformat'
   }
 ];
 
-export const BILLING_ACTIONED_COLUMNS: GroupedTableColumns[] = [
-  {
-    columnName: 'Invoice ID',
-    key: 'invoiceId',
-    groupHeaderPosition: 'left',
-    isCheckbox:true,
-    isFrozen: true,
-    showInGroupHeader: true,
-    pipe: 'InvoiceIDFormat',
-    pipeArgs: ['invoiceNumber'],
-    className: 'invoicetbl',
-    valueGetter: (rowData, _) => rowData.invoiceId,
-  },
-  {
-    columnName: 'IssueCount',
-    key: 'issueCount',
-    className: 'statuscol',
-    parentKey:'salesOrderNumber',
-    pipe: 'IssueCountFormat',
-    valueGetter: (_, orderData) => orderData.issueCount,
-  },
-  {
-    columnName: 'OrderCount',
-    key: 'lineCount',
-    className: 'ordercountcol',
-    parentKey:'salesOrderNumber',
-    pipe: 'PriceFormat',
-    valueGetter: (_, orderData) => orderData.lineCount,
-  },
-  {
-    columnName: 'Order Details',
-    key: 'salesOrderNumber',  
-    isGroupColumn: true,      
-    className: 'orderdtl',
-    pipe: 'orderDetailsFormat',
-    pipeArgs: ['orderDate'],
-    valueGetter: (_, orderData) => orderData.salesOrderNumber,
-  },
-  {
-    columnName: 'Fx',
-    key: 'currencyCode',
-    pipe: 'CountryFormat',
-    className: 'fx',
-    valueGetter: (_, orderData) => orderData.currencyCode,
-  },
-  {
-    columnName: 'Total RP',
-    key: 'totalResellerCost',
-    pipe: 'PriceFormat',
-    className: 'rp',
-    valueGetter: (_, orderData) => orderData.totalResellerCost,
-  },
-  {
-    columnName: 'Total VC',
-    key: 'totalVendorCost',
-    pipe: 'PriceFormat',
-    className: 'vc',
-    valueGetter: (_, orderData) => orderData.totalVendorCost,
-  },
-  {
-    columnName: 'End User',
-    key: 'endUserCompanyName',
-    className: 'enduser',
-    valueGetter: (_, orderData) => orderData.endUserCompanyName,
-  },
-  {
-    columnName: 'Reseller Details',
-    key: 'resellerName',
-    groupHeaderPosition: 'right',
-    showInGroupHeader: true,
-    pipe: 'ResellerDetailFormat',
-    pipeArgs: ['resellerId'],
-    className: 'resellerdtl',
-    valueGetter: (_, orderData) => orderData.resellerName,
-  },
-  {
-    columnName: 'Cs',    
-    key: 'consolidation',
-    groupHeaderPosition: 'right',
-    showInGroupHeader: true,
-    className: 'cs',
-    valueGetter: (_, orderData) => orderData.consolidation
-  },
-  {
-    columnName: 'Country',
-    key: 'erpName',
-    groupHeaderPosition: 'right',
-    showInGroupHeader: true,
-    pipe: 'CountryFormat',
-    className: 'country',
-    valueGetter: (_, orderData) => orderData.erpName
-  },
-  {
-    columnName: 'Status',
-    key: 'status',
-    groupHeaderPosition: 'right',
-    showInGroupHeader: true,
-    className: 'action', 
-    isStatus: true,
-    actionsIsDropdown: true
+const ACTION_COLUMN: GroupedTableColumns = {
+  columnName: 'Actions',
+  key: 'actions',
+  groupHeaderPosition: 'right',
+  showInGroupHeader: true,
+  className: 'action',
+  actionKeys: ['Approve', 'Decline'],
+  actionsIsDropdown: true,
+  isStatus: false
+};
 
-  }
+const STATUS_COLUMN: GroupedTableColumns = {
+  columnName: 'Status',
+  key: 'statusCode',
+  groupHeaderPosition: 'right',
+  showInGroupHeader: true,
+  className: 'action',
+  isStatus: true,
+  actionsIsDropdown: true,
+   valueGetter: (rowData, orderData) => [orderData.statusCode],
+};
+
+export const BILLING_COLUMNS: GroupedTableColumns[] = [
+  ...COMMON_BILLING_COLUMNS,
+  ACTION_COLUMN
+];
+
+export const BILLING_ACTIONED_COLUMNS: GroupedTableColumns[] = [
+  ...COMMON_BILLING_COLUMNS,
+  STATUS_COLUMN
 ];

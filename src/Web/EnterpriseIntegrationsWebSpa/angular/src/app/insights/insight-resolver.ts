@@ -5,18 +5,16 @@ import { catchError, map, of } from "rxjs";
 import { InsightResolverResponse, InsightsDashboardResponse } from "../models/insights/insights-dashboard-api-response.interface";
 import { ReportCandidate, routeToReportCandidates } from "../core/config/insight-dashboard.config";
 import { DataState } from "../core/services/data-state";
-import { PermissionsEnum } from "../core/config/permissions.config";
+import { ApplicationIdEnum } from "../core/config/permissions.config";
 
-function candidateIsAllowed(userPerms: PermissionsEnum[], cand: ReportCandidate): boolean {
+function candidateIsAllowed(dataState: DataState, cand: ReportCandidate): boolean {
   // If no permissionKey defined => public (allowed)
   if (cand.permissionKey === undefined || cand.permissionKey === null) return true;
 
-  // Global admin override
-  if (userPerms.includes(PermissionsEnum.GlobalAdmin)) return true;
-
-  // Normalize permissionKey to array and check any match
+  // Normalize permissionKey to array and check any match using app-scoped permission checks;
+  // GlobalAdmin bypass is handled within dataState.hasPermission (see its implementation).
   const req = Array.isArray(cand.permissionKey) ? cand.permissionKey : [cand.permissionKey];
-  return req.some(r => userPerms.includes(r as PermissionsEnum));
+  return dataState.hasPermission(req, ApplicationIdEnum.Insight);
 }
 
 export const insightDashboardResolverFn: ResolveFn<InsightResolverResponse | null> = (route: ActivatedRouteSnapshot) => {
@@ -36,10 +34,9 @@ export const insightDashboardResolverFn: ResolveFn<InsightResolverResponse | nul
     }
 
     candidates.sort((a, b) => (a.priority || 0) - (b.priority || 0));
-    const userPerms = dataState.getUserPermissions();
 
     // filter allowed candidate
-    const allowedCandidate = candidates.filter(c => candidateIsAllowed(userPerms, c));
+    const allowedCandidate = candidates.filter(c => candidateIsAllowed(dataState, c));
 
     if (!allowedCandidate) {
         console.warn(`No accessible report for "${urlKey}".`);

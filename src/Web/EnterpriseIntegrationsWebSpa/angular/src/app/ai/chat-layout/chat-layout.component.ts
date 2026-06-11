@@ -1,18 +1,20 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { Overlay, PositionStrategy } from '@angular/cdk/overlay';
 import { Component, ElementRef, HostBinding, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { catchError, filter, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
-import { DisplayEntity } from 'src/app/AIAssistant/models/display-entity';
+import { Router } from '@angular/router';
+import { catchError, filter, finalize, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
 import { breadcrumbConfig } from 'src/app/core/config/breadcrumb.config';
-import { REVENUE_AI_BREADCRUMB } from 'src/app/core/constants/constants';
+import { APP_ROUTE_CONFIG_URL, HUB_AI_BREADCRUMB, REVENUE_AI_BREADCRUMB } from 'src/app/core/constants/constants';
 import { AIAssistantService } from 'src/app/core/services/ai/ai-assistant.service';
 import { AIDataService } from 'src/app/core/services/ai/ai-data.service';
+import { processAssistantToolOutputs } from 'src/app/core/services/ai/ai-message-renderer.helper';
 import { AIThreadMessageService } from 'src/app/core/services/ai/ai-thread-message.service';
 import { AIThreadService } from 'src/app/core/services/ai/ai-thread.service';
 import { IonDataDiscoveryApiDataService } from 'src/app/core/services/AIAssistant/ion-data-discovery.service';
 import { JsonHelper } from 'src/app/core/services/AIAssistant/json-helper';
 import { DataState } from 'src/app/core/services/data-state';
 import { PpcSnackBarService } from 'src/app/core/services/ppc-snack-bar.service';
+import { ApplicationIdEnum } from 'src/app/core/config/permissions.config';
 import { Assistant, AssistantInLocalStorage, AssistantMessage, Prompt, ToolFunctionOutput } from 'src/app/models/ai/assistant.interface';
 import { ThreadResponse } from 'src/app/models/ai/thread.interface';
 
@@ -45,9 +47,9 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
   declare systemMessage: string;
   declare assistant: Assistant;
   declare messageId: string;
-  declare threadList: ThreadResponse[];
-  declare recentThreadList: ThreadResponse[];
-  declare olderThreadList: ThreadResponse[];
+  threadList: ThreadResponse[] = [];
+  recentThreadList: ThreadResponse[] = [];
+  olderThreadList: ThreadResponse[] = [];
   declare currThreadId: string;
   declare deletedThreadId: string;
   declare threadIdSubs: Subscription;
@@ -64,6 +66,7 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
   message = "";
   messages: AssistantMessage[] = [];
   showLoader = false;
+  showThreadTitleLoader = false;
   chatInProgress = false;
   showMore = false;
   isIon = false; // hardcoded to false and not changed anywhere. Logic can be changed later.
@@ -83,6 +86,7 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
     private readonly apiDataSVC: IonDataDiscoveryApiDataService, // Need to use factory service in future.
     private readonly snackbarSVC: PpcSnackBarService,
     private readonly overlay: Overlay,
+    private readonly router: Router,
   ) { }
 
   @HostListener('window:resize', ['$event'])
@@ -99,7 +103,12 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
       map(res => breadcrumbConfig.find(el => el.navigationURL === res)),
       filter(Boolean), // emits value only when a match was found
     ).subscribe({
-      next: res => this.breadcrumbInput = `${res.displayValue}$${REVENUE_AI_BREADCRUMB}`
+      next: res => {
+        const assistantBreadcrumb = this.router.url.includes(APP_ROUTE_CONFIG_URL.LANDING_PAGE)
+          ? HUB_AI_BREADCRUMB
+          : REVENUE_AI_BREADCRUMB;
+        this.breadcrumbInput = `${res.displayValue}$${assistantBreadcrumb}`;        
+      }
     });
     this.threadIdSubs = this.aiDataSVC.threadId$.subscribe({
       next: res => this.threadId = res
@@ -174,13 +183,15 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
   }
 
   initAssistant() {
-    this.assistantId = 1;
+    const isLandingPage = this.router.url.includes(APP_ROUTE_CONFIG_URL.LANDING_PAGE);
+    this.assistantId = isLandingPage ? 3 : 1;
+    const applicationId = isLandingPage ? ApplicationIdEnum.StreamOneHub : ApplicationIdEnum.Insight;
     this.aiDataSVC.setAssistantId(this.assistantId);
     this.threadId = null;
     this.aiDataSVC.setThreadId(this.threadId);
     this.getDefaultAssistant();
     this.assistantInStorage = this.aiDataSVC.setAssistantInStorage();
-    this.aiAssistantSVC.getAssistant(this.assistantId).pipe(
+    this.aiAssistantSVC.getAssistant(this.assistantId, applicationId).pipe(
       switchMap((assistant) => {
         if (!assistant) {
           this.systemMessage = 'No assistant found!';
@@ -221,6 +232,7 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
   resetFlags() {
     this.showMore = false;
     this.showLoader = false;
+    this.showThreadTitleLoader = false;
     this.aiDataSVC.setChatInProgress(false);
     this.aiDataSVC.setSubmitMessage(false);
   }
@@ -242,7 +254,7 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
       const storedDefaultAssistant = localStorage.getItem("defaultAssistant");
       // If "defaultAssistant" exists in localStorage, assign it; otherwise, use a fallback value
       if (storedDefaultAssistant) {
-        this.aiDataSVC.setAssistantId(parseInt(storedDefaultAssistant));
+        this.aiDataSVC.setAssistantId(Number.parseInt(storedDefaultAssistant));
       } else {
         this.aiDataSVC.setAssistantId(1);
       }
@@ -300,6 +312,7 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
       this.aiDataSVC.setThreadId(this.threadId);
     }
     this.currThreadId = this.threadId;
+    this.showLoader = true;
     return this.threadMessageSVC.getAllMessagesForThread(this.assistantId, this.threadId).pipe(
       tap(res => {
         if(res.data?.length) {
@@ -316,6 +329,7 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
           this.aiDataSVC.setMessageList([]);
         }
       }),
+      finalize(() => this.showLoader = false),
     );
   }
 
@@ -328,17 +342,21 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
   }
 
   private createThreadWithTitle(title: string) {
-    this.showLoader = true;
+    // Guard: ensure assistantId is initialized before creating thread
+    if (!this.assistantId) {
+      console.warn('ChatLayoutComponent: assistantId not initialized yet. Deferring thread creation.');
+      return;
+    }
+
+    this.showThreadTitleLoader = true;
     this.createThread(title).subscribe({
-      next: (res) => {
-        this.showLoader = false;
-      },
       error: (err) => {
-        this.showLoader = false;
-        console.error(err);
+        this.showThreadTitleLoader = false;
+        console.error('Error creating thread with title:', err);
       },
       complete: () => {
-        this.showLoader = false;
+        // Hide loader only after POST + GET thread completion
+        this.showThreadTitleLoader = false;
         this.aiDataSVC.setSubmitMessage(true);
         this.aiDataSVC.setChatInProgress(true);
       }
@@ -363,12 +381,14 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
     this.message = prompt;
 
     if (isFirstMessage) {
+      // Dedicated loader for title-generation API; keeps existing loaders independent.
+      this.showThreadTitleLoader = true;
       this.aiAssistantSVC.getChatSummaryTitle(this.message).pipe(
         tap((title) => {
           this.aiDataSVC.setChatTitle(title);
           this.aiDataSVC.setMessage(this.message);
           this.aiDataSVC.setChatInProgress(true);
-        })
+        }),
       ).subscribe();
     } else {
       this.aiDataSVC.setMessage(this.message);
@@ -403,51 +423,15 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
     this.showMore = !this.showMore;
   }
 
+  /** Applies shared tool-output rendering logic used by both chat views (Sonar duplicate-code fix). */
   processAiMessage(item: AssistantMessage, outputData: ToolFunctionOutput[]): void {
-    item.components = [];
-
-    if (item.role !== "assistant" || !outputData) return;
-
-    let isData = false;
-    let isError = false;
-
-    outputData.forEach((func: ToolFunctionOutput) => {
-      const hasData = Array.isArray(func.data) && func.data.length > 0;
-      if (hasData) {
-        isData = true;
-        item.isData = true;
-
-        const displayEntity: DisplayEntity | null = this.apiDataSVC.getDisplayComponent(func.function, func.arguments);
-
-        if (displayEntity) {
-          const component = {
-            outputComponent: displayEntity.displayComponent,
-            compInputs: {
-              apiDataService: this.apiDataSVC,
-              assistantService: this.aiDataSVC,
-              configuration: displayEntity.configuration,
-              dataSource: func.data,
-              pagination: func.pagination,
-              function: func.function,
-              arguments: func.arguments,
-              threadId: this.threadId ?? undefined,
-              messageId: item.id
-            },
-            compOutputs: null,
-          };
-          item.components?.push(component);
-        }
-      }
-
-      if (func.isError) isError = true;
-    });
-
-    if (!isData) {
-      item.content[0].response = isError
-        ? "There was an error processing your request."
-        : "Your prompt did not return any results. Please try a different prompt.";
-    }
-
+    processAssistantToolOutputs(
+      item,
+      outputData,
+      this.apiDataSVC,
+      this.aiDataSVC,
+      this.threadId ?? undefined,
+    );
     this.messageId = item.id;
   }
 
@@ -487,6 +471,7 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
     this.message = "";
     this.messages = [];
     this.showLoader = false;
+    this.showThreadTitleLoader = false;
     this.chatInProgress = false;
     this.showMore = false;
     this.isIon = false;

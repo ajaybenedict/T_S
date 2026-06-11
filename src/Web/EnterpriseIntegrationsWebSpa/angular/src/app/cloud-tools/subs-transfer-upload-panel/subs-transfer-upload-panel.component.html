@@ -1,0 +1,79 @@
+<aside class="d-flex flex-column panel-container">
+    <header class="d-flex justify-content-between align-items-center panel-header s1-P-16-20-px">
+        <span class="s1-C-Teal s1-FW700 s1-FS16px">Subscription Transfer</span>
+        <button type="button" s1-button [iconOnly]="true" (click)="closeHandler()">
+            <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss" class="default">
+            <img src="/assets/dismiss_btn_hover_red_24_24.svg" alt="dismiss" class="hover">
+        </button>
+    </header>
+    <mat-progress-bar *ngIf="showOverlay" mode="indeterminate" class="header-progress-bar"></mat-progress-bar>
+    <!-- Panel Content -->
+    <div class="panel-content-container d-flex flex-column s1-P-16-20-px" [formGroup]="panelForm">
+        <app-ppc-overlay [show]="showOverlay"></app-ppc-overlay>
+        <div class="section-holder d-flex flex-column gap-2">
+            <label class="s1-FW700 s1-FS14px s1-C-Charcoal" for="subsTransferRegion">Region <span class="s1-mandatory-star">*</span></label>
+            <app-select-dropdown [label]="'Destination region'" [options]="regionDropdownOptions" [formControlName]="formControlList.REGION"></app-select-dropdown>
+        </div>
+        <div class="section-holder d-flex flex-column gap-2">
+            <label class="s1-FW700 s1-FS14px s1-C-Charcoal" for="subsTransferType">Transfer Type <span class="s1-mandatory-star">*</span></label>
+            <app-select-dropdown id="subsTransferType" [label]="'Select ALL or NCE'" [options]="transferTypeDropdownOptions" [formControlName]="formControlList.TRANSFER_TYPE"></app-select-dropdown>
+        </div>
+        <div class="section-holder d-flex flex-column gap-2">
+            <label class="s1-FW700 s1-FS14px s1-C-Charcoal" for="subsTransferMpnId">MPNID <span class="s1-mandatory-star">*</span></label>
+            <input placeholder="ID to retrieve customer list" id="subsTransferMpnId" type="number" class="content-section-value" autocomplete="off" [formControlName]="formControlList.MPN_ID">
+        </div>
+        <div class="section-holder d-flex flex-column gap-2">
+            <label class="s1-FW700 s1-FS14px s1-C-Charcoal" for="subsTransferSourcePartnerTenantId">Source Partner Tenant ID <span class="s1-mandatory-star">*</span></label>
+            <input
+                placeholder="Source tenant ID for transfer origin"
+                id="subsTransferSourcePartnerTenantId"
+                type="text"
+                class="content-section-value"
+                autocomplete="off"
+                maxlength="36"
+                (input)="onSourcePartnerTenantIdInput($event)"
+                [formControlName]="formControlList.SOURCE_PARTNER_TENANT_ID">
+        </div>
+        <div class="section-holder d-flex flex-column gap-2">
+            <label class="s1-FW700 s1-FS14px s1-C-Charcoal" for="subsTransferSourcePartnerName">Source Partner Name</label>
+            <input
+                placeholder="Uses `tdsynnexpartner` if empty"
+                id="subsTransferSourcePartnerName"
+                type="text"
+                class="content-section-value"
+                autocomplete="off"
+                [formControlName]="formControlList.SOURCE_PARTNER_NAME"
+            >
+        </div>
+        <div class="section-holder d-flex flex-column gap-2">
+            <label class="s1-FW700 s1-FS14px s1-C-Charcoal" for="subsTransferEmail">Email <span class="s1-mandatory-star">*</span></label>
+            <input
+                placeholder="Notification email"
+                id="subsTransferEmail"
+                type="text"
+                class="content-section-value"
+                autocomplete="off"
+                appEmailValidator
+                emailValidatorMode="validateWithForm"
+                [emailValidatorAllowMultiple]="false"
+                [emailValidatorAllowedDomains]="emailAllowedDomains"
+                [formControlName]="formControlList.EMAIL">
+        </div>
+        <div class="section-holder d-flex flex-column gap-2">
+            <label class="s1-FW700 s1-FS14px s1-C-Charcoal" for="requestedBy">Requested By <span class="s1-mandatory-star">*</span></label>
+            <input placeholder="Requested By" id="requestedBy" type="text" class="content-section-value" autocomplete="off" maxlength="100" (input)="onRequestedByInput($event)" (paste)="onRequestedByPaste($event)" [formControlName]="formControlList.REQUESTED_BY">
+        </div>
+        <ng-container *ngFor="let error of uploadErrors">
+            <app-validation-error [errorMsg]="error" [width]="'100%'" [height]="'auto'">
+            </app-validation-error>
+        </ng-container>
+        <app-validation-error [errorMsg]="warningMessage" [width]="'100%'" [height]="'112px'" variant="warning">
+        </app-validation-error>
+    </div>
+    <!-- Panel Footer -->
+    <div class="panel-footer">
+        <div class="d-flex flex-row align-items-center justify-content-center s1-P-16-20-px">
+            <button type="button" s1-button btnType="primary" [fullWidth]="true" [disabled]="panelForm.invalid || showOverlay" (click)="onProceedClick()">Proceed</button>
+        </div>
+    </div>
+</aside>

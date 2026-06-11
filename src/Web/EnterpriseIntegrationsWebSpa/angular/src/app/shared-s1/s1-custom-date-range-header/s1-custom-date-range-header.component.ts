@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { S1CustomHeaderButtons } from 'src/app/models/s1/s1-date-range-picker.interface';
 import { customCalendarHeaderButtons } from 'src/app/core/config/s1-custom-date-range-header';
-import { MatCalendar, MatDateRangePicker } from '@angular/material/datepicker';
+import { DateRange, MatCalendar, MatDateRangePicker } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_FORMATS, MatDateFormats } from '@angular/material/core';
 import { S1HeaderConfigService } from 'src/app/core/services/s1-header-config.service';
 
@@ -17,7 +17,8 @@ import { S1HeaderConfigService } from 'src/app/core/services/s1-header-config.se
 export class S1CustomDateRangeHeaderComponent<D> implements OnDestroy{
 
   private readonly _destroyed = new Subject<void>();
-  buttonsList: S1CustomHeaderButtons[] = customCalendarHeaderButtons;
+  private baseButtons: S1CustomHeaderButtons[] = this.cloneButtons(customCalendarHeaderButtons);
+  buttonsList: S1CustomHeaderButtons[] = this.cloneButtons(customCalendarHeaderButtons);
   
   constructor(
     private readonly _calendar: MatCalendar<D>,
@@ -30,20 +31,119 @@ export class S1CustomDateRangeHeaderComponent<D> implements OnDestroy{
     this.configService.buttonsList$
     .pipe(takeUntil(this._destroyed))
     .subscribe(buttons => {
-      this.buttonsList = buttons.length ? buttons : customCalendarHeaderButtons;
+      this.baseButtons = this.cloneButtons(buttons.length ? buttons : customCalendarHeaderButtons);
+      this.syncButtonsWithCalendarSelection();
       this.cdr.markForCheck(); // trigger change detection
     });
-    _calendar.stateChanges.pipe(takeUntil(this._destroyed)).subscribe(() => cdr.markForCheck());
+    _calendar.stateChanges.pipe(takeUntil(this._destroyed)).subscribe(() => {
+      this.syncButtonsWithCalendarSelection();
+      cdr.markForCheck();
+    });
+  }
+
+  private cloneButtons(buttons: S1CustomHeaderButtons[]): S1CustomHeaderButtons[] {
+    return buttons.map(button => ({ ...button }));
+  }
+
+  /**
+   * Keeps preset selection aligned with the currently selected calendar range.
+   * This ensures selection is retained when the picker/header is recreated.
+   */
+  private syncButtonsWithCalendarSelection(): void {
+    const selectedValue = this._calendar.selected;
+    const selectedRange = selectedValue instanceof DateRange ? selectedValue : null;
+    const targetButtonId = this.resolveButtonIdFromRange(selectedRange) ?? this.getDefaultButtonId();
+
+    this.applySelectedButton(targetButtonId);
+  }
+
+  /**
+   * Resolves which preset button should be active for the selected range.
+   * - exact "today - N days -> today" matches preset N-day button
+   * - same start/end date maps to "Custom"
+   * - all other ranges map to "Custom"
+   */
+  private resolveButtonIdFromRange(range: DateRange<D> | null): string | null {
+    if (!range?.start || !range?.end) {
+      return null;
+    }
+
+    const startDate = this.toNormalizedDate(range.start);
+    const endDate = this.toNormalizedDate(range.end);
+
+    if (!startDate || !endDate) {
+      return null;
+    }
+
+    if (startDate.getTime() === endDate.getTime()) {
+      return this.getCustomButtonId();
+    }
+
+    const today = this.stripTime(new Date());
+    if (endDate.getTime() !== today.getTime()) {
+      return this.getCustomButtonId();
+    }
+
+    const matchedPreset = this.baseButtons.find(button => {
+      if (button.days <= 0) {
+        return false;
+      }
+
+      const expectedStart = new Date(today);
+      expectedStart.setDate(expectedStart.getDate() - button.days);
+      return startDate.getTime() === expectedStart.getTime();
+    });
+
+    return matchedPreset?.id ?? this.getCustomButtonId();
+  }
+
+  /**
+   * Type guard to check if a value is a Date or has a toDate() method.
+   * Supports both native Date objects and date adapters (e.g., Moment.js, Luxon).
+   */
+  private isDateLike(value: unknown): value is Date | { toDate(): Date } {
+    return value instanceof Date || 
+           (value !== null && typeof value === 'object' && 'toDate' in value && 
+            typeof (value as any).toDate === 'function');
+  }
+
+  private toNormalizedDate(value: D): Date | null {
+    const rawValue = value as unknown;
+
+    if (this.isDateLike(rawValue)) {
+      const date = rawValue instanceof Date ? rawValue : rawValue.toDate();
+      return this.stripTime(date);
+    }
+
+    const parsedDate = new Date(rawValue as string | number);
+    return Number.isNaN(parsedDate.getTime()) ? null : this.stripTime(parsedDate);
+  }
+
+  private stripTime(date: Date): Date {
+    const normalizedDate = new Date(date);
+    normalizedDate.setHours(0, 0, 0, 0);
+    return normalizedDate;
+  }
+
+  private getCustomButtonId(): string {
+    return this.baseButtons.find(button => button.days === 0)?.id ?? 'custom';
+  }
+
+  private getDefaultButtonId(): string {
+    return this.baseButtons.find(button => button.selected)?.id ?? this.baseButtons[0]?.id ?? this.getCustomButtonId();
+  }
+
+  private applySelectedButton(buttonId: string): void {
+    this.buttonsList = this.baseButtons.map(button => ({
+      ...button,
+      selected: button.id === buttonId,
+    }));
   }
 
   btnClickHandler(btn: S1CustomHeaderButtons) {
-    // clear the already selected btn if any
-    const prevBtn = this.buttonsList.find(el => el.selected);
-    if(prevBtn) prevBtn.selected = !prevBtn.selected;
-    // marks the newly selected btn
-    const currBtn = this.buttonsList.find(el => el.id == btn.id);        
-    if(currBtn) currBtn.selected = true;
-    
+    this.applySelectedButton(btn.id);
+    this.configService.setButtons(this.cloneButtons(this.buttonsList));
+
     this.selectRange(btn.days);
   }
 

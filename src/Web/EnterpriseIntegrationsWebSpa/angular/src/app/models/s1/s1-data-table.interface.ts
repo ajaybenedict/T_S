@@ -15,6 +15,11 @@ export interface S1DataTableColumn {
     dropdown?: S1Menu;
     columnID: number; // for sorting
     isClickable?: boolean;
+    /**
+     * Enables ellipsis tooltip handling for this column.
+     * Defaults to false when omitted.
+     */
+    enableEllipsisTooltip?: boolean;
 }
 
 export interface S1DataTableAction {
@@ -39,4 +44,18 @@ export interface S1DataTableNoData {
     title?: string;
     context?: string;
     imgSrc?: string;
+}
+
+export interface TableStatusInfo {
+    show: boolean;
+    iconSrc: string;
+    tooltipTitle: string;
+    tooltipContent: string;
+}
+
+export interface TableRowViewModel<T> {
+    raw: T;
+    formattedHtmlByColumn: Record<string, string>;
+    warning: boolean;
+    statusInfo: TableStatusInfo;
 }

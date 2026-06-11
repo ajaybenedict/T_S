@@ -13,15 +13,71 @@
     border-right: 1px solid #E4E5E6;
     border-left: 1px solid #E4E5E6;
     border-bottom: 1px solid #E4E5E6;
-    height: 84px;      
+    min-height: 84px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.action-container--compare {
+    min-height: 102px;
+    gap: 20px;
+}
+
+.action-dropdown-container {
+    max-width: 270px;
+    width: 100%;
 }
 
 .first-row {
-    gap: 12px;
+    gap: 20px;
+    width: 100%;
+}
+
+.compare-row-field-container {
+    flex: 1;
+    min-width: 0;    
+}
+
+.compare-row-field-container > div {
+    flex: 1;
+    min-width: 0;
+}
+
+.compare-row-field {
+    display: flex;
+    width: 100%;
+}
+
+.compare-row-field > * {
+    flex: 1;
+    min-width: 0;
+}
+
+.compare-values-row {
+    padding: 12px;
+    background-color: #F8F8F8;
+    border: 1px solid #E4E5E6;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    box-sizing: border-box;    
+}
+
+.compare-values-field {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    background-color: #FFFFFF;
+}
+
+.compare-values-field > * {
+    flex: 1;
+    min-width: 0;
 }
 
 .dynamic-row {
     gap: 12px;
+    width: 100%;
 }
 
 .row-action-holder {
@@ -61,5 +117,48 @@
 }
 
 .expression-row-input {
-    width: 12vw;
+    flex: 1 1 12vw;
+    min-width: 100px;
+}
+
+.compare-region-holder {    
+    gap: 24px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E4E5E6;
+    border-right: 1px solid #E4E5E6;
+    border-left: 1px solid #E4E5E6;
+    min-height: 84px;
+    padding: 20px;    
+}
+
+.compare-criteria-toggle-holder {
+    min-width: 180px;
+}
+
+.compare-criteria-dropdown-holder {
+    flex: 1;
+    min-width: 0;
+}
+
+@media (max-width: 1024px) {
+    .expression-row-input {
+        flex: 1 1 140px;
+        min-width: 120px;
+    }
+
+    .first-row > .d-flex,
+    .dynamic-row > .d-flex {
+        flex-wrap: wrap;
+    }
+
+    .action-dropdown-container {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .expression-row-input {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
 }

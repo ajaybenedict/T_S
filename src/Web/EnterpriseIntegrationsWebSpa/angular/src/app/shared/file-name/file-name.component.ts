@@ -7,7 +7,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, 
 })
 export class FileNameComponent {
     
-  @Input('fileName') _fileName: string | null | undefined = '';  
+  @Input() fileName: string | null | undefined = '';  
   @Input() declare isDownloadable: boolean;
   @Input() isClosable = false;
   @Output() downloadClicked = new EventEmitter<boolean>();

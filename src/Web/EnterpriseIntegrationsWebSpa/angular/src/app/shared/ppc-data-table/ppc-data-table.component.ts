@@ -51,7 +51,7 @@ export class PpcDataTableComponent implements OnInit {
   isLoading: boolean = false;
 
   ngOnInit(): void {
-    const columnNames = this.tableColumns.map((tableColumn: PPCTableColumnData) => tableColumn.columnName);    
+    const columnNames = (this.tableColumns ?? []).map((tableColumn: PPCTableColumnData) => tableColumn.columnName);
     this.displayedColumns = columnNames;
   }
   setIsLoading(value: boolean) {

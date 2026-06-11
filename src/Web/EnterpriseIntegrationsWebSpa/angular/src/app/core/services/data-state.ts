@@ -1,9 +1,10 @@
 import { BehaviorSubject, Observable } from "rxjs";
 import { TAB_VALUE_NEEDSAPPROVAL } from "../constants/constants";
 import { ElementRef, Injectable } from "@angular/core";
-import { PermissionsEnum } from "../config/permissions.config";
+import { ApplicationIdEnum, PermissionsEnum } from "../config/permissions.config";
+import { User, UserPermissionScope } from "../../models/user.model";
 
-@Injectable({providedIn: 'root'})
+@Injectable({providedIn: 'platform'})
 export class DataState {
 
     private baseUrl = new BehaviorSubject<string>('');
@@ -14,24 +15,20 @@ export class DataState {
     private orderLinkTypeSetting = new BehaviorSubject<any>(TAB_VALUE_NEEDSAPPROVAL);
     private dateFilter = new BehaviorSubject<any>(null);
     private selectedFilterData = new BehaviorSubject<any>(null);
-    private readonly firstNameSubject = new BehaviorSubject<string | null>(null);
-    private readonly userEmailSubject = new BehaviorSubject<string | null>(null);
+    private readonly userSubject = new BehaviorSubject<User | null>(null);
     private readonly showRoutingLoaderSubject = new BehaviorSubject<boolean>(false);
     private readonly hasDashboardAPIError = new BehaviorSubject<boolean>(false);
     private readonly ppcSidepanelStatus = new BehaviorSubject<'Opened'|'Closed' | null>(null);
     private ppcFilterPanelAnchorElement?: ElementRef;
     private readonly currentURL = new BehaviorSubject<string>('');
     private readonly aiPanelStatus = new BehaviorSubject<'Opened' | 'Closed' | null>(null);
-    private readonly userPermissions: PermissionsEnum[] = [];
-    private readonly userRegions: string[] = [];
-    private readonly userCountries: string[] = [];
+    private readonly userPermissionScopes = new Map<number, UserPermissionScope>();
 
     private readonly redirectUrlSubject: BehaviorSubject<string | null> =
     new BehaviorSubject<string | null>(null);
 
     redirectUrl$: Observable<string | null> = this.redirectUrlSubject.asObservable();
-    firstName$ = this.firstNameSubject.asObservable();
-    userEmail$ = this.userEmailSubject.asObservable();
+    user$ = this.userSubject.asObservable();
     ppcSidepanelStatus$ = this.ppcSidepanelStatus.asObservable();
     showRoutingLoader$ = this.showRoutingLoaderSubject.asObservable();
     hasDashboardAPIError$ = this.hasDashboardAPIError.asObservable();
@@ -55,56 +52,126 @@ export class DataState {
       this.redirectUrlSubject.next(url);
     }
 
-    hasPermission(requiredPermissions: number[]): boolean {
-      return (
-        this.userPermissions.length > 0 &&
-        requiredPermissions.length > 0 &&
-        (
-          this.userPermissions.includes(PermissionsEnum.GlobalAdmin) ||
-          requiredPermissions.some(permission => this.userPermissions.includes(permission))
-        )
-      );
+    /**
+     * Returns true when the user has at least one required permission for the given application.
+     */
+    hasPermission(requiredPermissions: number[], applicationId: number): boolean {
+        if (!this.isValidNumberArray(requiredPermissions)) {
+            return false;
+        }
+
+        if (this.hasGlobalAccess()) {
+            return true;
+        }
+
+        const userPermissions = this.getUserPermissions(applicationId) as number[];
+        return (
+            userPermissions.length > 0 &&
+            requiredPermissions.some(permission => userPermissions.includes(permission))
+        );
     }
 
-    hasCountryRegionAccess() {
-        return this.isValidStringArray(this.userRegions) && this.isValidStringArray(this.userCountries);
+    /**
+     * Returns true when non-empty country and region values exist for the given application.
+     */
+    hasCountryRegionAccess(applicationId: number): boolean {
+        const scope = this.resolveScopeForCountryRegion(applicationId);
+
+        if (!scope) {
+            return false;
+        }
+
+        return this.isValidStringArray(scope.region) && this.isValidStringArray(scope.country);
     }
 
-    setUserPermissions(permissions: PermissionsEnum[]) {
-      if(permissions.length > 0) {
-        this.userPermissions.length = 0;
-        this.userPermissions.push(...permissions);
-      }
-    }
+    /**
+     * Replaces all cached permission scopes with latest IsAuthorized payload data.
+     */
+    setUserPermissions(permissionScopes: UserPermissionScope[]) {
+        this.userPermissionScopes.clear();
 
-    getUserPermissions(): PermissionsEnum[] {
-        return [...this.userPermissions];
-    }
+        if (!Array.isArray(permissionScopes) || permissionScopes.length === 0) {
+            return;
+        }
 
-    setUserRegions(regions: string[]) {
-        if(regions.length> 0) {
-            this.userRegions.length = 0;
-            this.userRegions.push(...regions);
+        for (const scope of permissionScopes) {
+            if (!scope || typeof scope.applicationId !== 'number') {
+                continue;
+            }
+
+            const permissionIds = this.isValidNumberArray(scope.permissionIds) ? scope.permissionIds : [];
+            const region = this.isValidStringArray(scope.region) ? scope.region : [];
+            const country = this.isValidStringArray(scope.country) ? scope.country : [];
+
+            this.userPermissionScopes.set(scope.applicationId, {
+                applicationId: scope.applicationId,
+                permissionIds,
+                region,
+                country,
+            });
         }
     }
 
-    getUserRegions() {
-        return [...this.userRegions];
+    /**
+     * Returns permission ids for one application only.
+     */
+    getUserPermissions(applicationId: number): PermissionsEnum[] {
+        const scopedPermissions = this.userPermissionScopes.get(applicationId)?.permissionIds ?? [];
+        return [...scopedPermissions] as PermissionsEnum[];
     }
 
-    setUserCountries(countries: string[]) {
-        if(countries.length> 0) {
-            this.userCountries.length = 0;
-            this.userCountries.push(...countries);
-        }
+    /**
+     * Updates region list for one application scope.
+     */
+    setUserRegions(regions: string[], applicationId: number) {
+        const existingScope = this.userPermissionScopes.get(applicationId) ?? {
+            applicationId,
+            permissionIds: [],
+            region: [],
+            country: [],
+        };
+
+        this.userPermissionScopes.set(applicationId, {
+            ...existingScope,
+            region: this.isValidStringArray(regions) ? [...regions] : [],
+        });
     }
 
-    getUserCountries() {
-        return [...this.userCountries];
+    /**
+     * Updates country list for one application scope.
+     */
+    setUserCountries(countries: string[], applicationId: number) {
+        const existingScope = this.userPermissionScopes.get(applicationId) ?? {
+            applicationId,
+            permissionIds: [],
+            region: [],
+            country: [],
+        };
+
+        this.userPermissionScopes.set(applicationId, {
+            ...existingScope,
+            country: this.isValidStringArray(countries) ? [...countries] : [],
+        });
+    }
+
+    /**
+     * Returns region list for one application scope.
+     */
+    getUserRegions(applicationId: number) {
+        const scope = this.resolveScopeForCountryRegion(applicationId);
+        return [...(scope?.region ?? [])];
+    }
+
+    /**
+     * Returns country list for one application scope.
+     */
+    getUserCountries(applicationId: number) {
+        const scope = this.resolveScopeForCountryRegion(applicationId);
+        return [...(scope?.country ?? [])];
     }
 
     clearUserPermissions() {
-      this.userPermissions.length = 0;
+            this.userPermissionScopes.clear();
     }
 
     setShowRoutingLoader(value: boolean) {
@@ -184,25 +251,16 @@ export class DataState {
         return this.sortData.next(sortdata);
     }
 
-    setFirstName(name: string): void {
-        this.firstNameSubject.next(name);
-        localStorage.setItem('firstName', name);
+    setUser(user: User | null): void {
+        this.userSubject.next(user);
     }
 
-    hydrateFirstName(): void {
-        const name = localStorage.getItem('firstName');
-        if (name) {
-            this.firstNameSubject.next(name);
-        }
+    getUser(): User | null {
+        return this.userSubject.value;
     }
 
-    clearFirstName(): void {
-        this.firstNameSubject.next(null);
-        localStorage.removeItem('firstName');
-    }
-
-    setUserEmail(email: string) {
-        this.userEmailSubject.next(email);
+    clearUser(): void {
+        this.userSubject.next(null);
     }
 
     setPPCSidepanelStatus(value: 'Opened' | 'Closed') {
@@ -225,7 +283,33 @@ export class DataState {
         this.aiPanelStatus.next(value);
     }
 
-    private isValidStringArray(arr: string[]): boolean {
-        return arr.length > 0 && arr.every(s => s.trim().length > 0);
+    private isValidStringArray(arr: string[] | undefined): arr is string[] {
+        return Array.isArray(arr) && arr.length > 0 && arr.every(s => typeof s === 'string' && s.trim().length > 0);
+    }
+
+    private isValidNumberArray(arr: number[] | undefined): arr is number[] {
+        return Array.isArray(arr) && arr.length > 0 && arr.every(n => typeof n === 'number');
+    }
+
+   /**
+     * Reads one permission scope by application id.
+     * StreamOneHub + GlobalAdmin always uses StreamOneHub scope across modules.
+     */
+    private resolveScopeForCountryRegion(applicationId: number): UserPermissionScope | null {
+        // StreamOneHub GlobalAdmin can operate across modules and should always use
+        // StreamOneHub region/country regardless of requested module application id.
+        if (this.hasGlobalAccess()) {
+            return this.userPermissionScopes.get(ApplicationIdEnum.StreamOneHub) ?? null;
+        }
+
+        return this.userPermissionScopes.get(applicationId) ?? null;
+    }
+
+    /**
+     * StreamOneHub + GlobalAdmin grants cross-module access.
+     */
+    private hasGlobalAccess(): boolean {
+        const landingPermissions = this.userPermissionScopes.get(ApplicationIdEnum.StreamOneHub)?.permissionIds ?? [];
+        return landingPermissions.includes(PermissionsEnum.GlobalAdmin);
     }
 }

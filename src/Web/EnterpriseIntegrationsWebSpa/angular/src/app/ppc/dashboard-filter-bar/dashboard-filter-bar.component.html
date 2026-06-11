@@ -10,10 +10,26 @@
         <div class="dynamic-btn-container" [hidden]="!isPanelDismissed">
             <!-- Reset Btn-->
             <app-s1-filter-buttons                 
-                [hidden]="!(buttons.ApprovalType || buttons.Country || buttons.OrderValue)" 
+                [hidden]="!(buttons.ApprovalType || buttons.Country || buttons.OrderValue || buttons.BillingTerm || buttons.ResellerStatus)" 
                 [input]="resetBtn"                
                 (btnClick)="btnClickHandler($event)"
-            ></app-s1-filter-buttons>  
+            ></app-s1-filter-buttons> 
+            <!-- Billing Term Btn -->
+            <app-s1-filter-buttons 
+                [hidden]="!buttons.BillingTerm" 
+                [input]="buttons.BillingTerm" 
+                ppcFilterSidepanelTrigger
+                (btnClick)="btnClickHandler($event)" 
+                (closeBtnClick)="closeBtnHandler($event)"
+            ></app-s1-filter-buttons>
+            <!-- Reseller Status Btn -->
+            <app-s1-filter-buttons 
+                [hidden]="!buttons.ResellerStatus" 
+                [input]="buttons.ResellerStatus" 
+                ppcFilterSidepanelTrigger
+                (btnClick)="btnClickHandler($event)" 
+                (closeBtnClick)="closeBtnHandler($event)"
+            ></app-s1-filter-buttons>
             <!-- Approval type Btn-->
             <app-s1-filter-buttons 
                 [hidden]="!buttons.ApprovalType" 

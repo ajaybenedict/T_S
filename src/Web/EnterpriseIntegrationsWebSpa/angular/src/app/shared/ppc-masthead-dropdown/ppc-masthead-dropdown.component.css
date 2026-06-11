@@ -16,6 +16,9 @@
     border: 1px solid #E4E5E6;
     background-color: #FFFFFF;
     padding: 16px;
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .masthead-items-container {
     width: 274px;
@@ -30,10 +33,18 @@
     gap: 16px;
     height: 40px;
     align-items: center;
+    width: 100%;
+    border: none;
+    background: none;
+    text-align: left;
 }
 .masthead-item:hover {
     background-color: #F8F8F8;
     cursor: pointer;
+}
+.masthead-item:focus-visible {
+    outline: 2px solid #005758;
+    outline-offset: 1px;
 }
 .masthead-item.active {
     background-color: #EBEEEF;

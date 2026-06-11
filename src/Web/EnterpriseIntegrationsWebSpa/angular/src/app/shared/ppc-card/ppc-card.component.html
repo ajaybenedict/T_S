@@ -1,22 +1,24 @@
-<div class="ppc-card" [ngClass]="{'ppc-cursor-pointer': _isActive}" (click)="navigate()">
+<div class="ppc-card" [ngClass]="{'ppc-cursor-pointer': isActive}" (click)="navigate()" (keydown.enter)="navigate()"
+    (keydown.space)="navigate(); $event.preventDefault()" [attr.role]="isActive ? 'button' : null"
+    [attr.tabindex]="isActive ? 0 : -1" [attr.aria-disabled]="!isActive ? 'true' : null">
     <div>
-        <img [src]="_headerImgSrc" alt="SKUs bulk upload" class="ppc-card-header-img">
-        <span class="ppc-card-coming-soon-text" *ngIf="!_isActive">{{_comingSoonText}}</span>
+        <img [src]="headerImgSrc" alt="SKUs bulk upload" class="ppc-card-header-img">
+        <span class="ppc-card-coming-soon-text" *ngIf="!isActive">{{comingSoonText}}</span>
     </div>
     <mat-divider class="ppc-card-divider"></mat-divider>
     <div class="ppc-card-content-wrapper">
         <div class="ppc-card-content-header">
-            {{_contentHeader}}
+            {{contentHeader}}
         </div>
         <div class="ppc-card-content-desc">
-            {{_contentDesc}}
+            {{contentDesc}}
         </div>
-        <div class="ppc-card-action-wrapper-animate" (click)="navigate()" *ngIf="_isActive">
-            <span class="ppc-card-action-text">{{_actionText}}</span>
-            <img [src]="_actionImgSrc" alt="proceed-arrow" class="ppc-card-action-arrow">
+        <div class="ppc-card-action-wrapper ppc-card-action-wrapper-animate" *ngIf="isActive">
+            <span class="ppc-card-action-text">{{actionText}}</span>
+            <img [src]="actionImgSrc" alt="proceed-arrow" class="ppc-card-action-arrow">
         </div>
-        <div *ngIf="!_isActive">
-            <img [src]="_actionImgSrc" alt="proceed-arrow">
+        <div class="ppc-card-action-wrapper" *ngIf="!isActive">
+            <img [src]="actionImgSrc" alt="proceed-arrow">
         </div>
     </div>
 </div>

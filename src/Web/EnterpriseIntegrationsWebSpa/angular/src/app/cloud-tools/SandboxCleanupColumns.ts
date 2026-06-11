@@ -14,6 +14,7 @@ export class SandboxCleanupColumns {
           id: 2,
           key: 'domain',
           name: 'Domain Name',
+          enableEllipsisTooltip: true,
           formatter: d =>
             CloudToolsHelper.formatTransactionPayload(
               d,
@@ -28,6 +29,7 @@ export class SandboxCleanupColumns {
           id: 3,
           key: 'outputMessage',
           name: 'Output',
+          enableEllipsisTooltip: true,
           formatter: (_) =>
             `<span class="s1-FW700 s1-C-Charcoal">${outputMessage}</span>`,
         },

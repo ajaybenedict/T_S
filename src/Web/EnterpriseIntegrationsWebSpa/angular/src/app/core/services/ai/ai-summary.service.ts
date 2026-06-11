@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { DataState } from "../data-state";
 import { CORE_PATH_AI, API_V1 } from "../../constants/constants";
 import { Observable } from "rxjs";
+import { readChatCompletionText } from "./ai-streaming.helper";
 
 @Injectable({providedIn: 'root'})
 
@@ -12,6 +13,10 @@ export class AISummaryService {
 
     private readonly apiBaseUrl = `${this.dataState.getCoreBaseUrl()}/${CORE_PATH_AI}/${API_V1}/assistant`;
 
+    /**
+     * Streams assistant summary text from chat-completions.
+     * Sonar refactor: shared stream parser lives in ai-streaming.helper.
+     */
     getSummary(systemPrompt: string, jsonData: string) {
         const body = {
             model: "gpt-4o",
@@ -28,55 +33,9 @@ export class AISummaryService {
         const url = `${this.apiBaseUrl}/chat-completions`;
 
         return new Observable<string>((observer) => {
-            fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "text/event-stream", // streaming response
-                },
-                body: JSON.stringify(body),
-            })
-                .then(async (response) => {
-                    if (!response.ok || !response.body) {
-                        throw new Error("Failed to fetch chat summary stream.");
-                    }
-
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder();
-                    let accumulatedText = "";
-
-                    // Read the stream chunk by chunk
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-
-                        const chunk = decoder.decode(value, { stream: true });
-
-                        // Most streaming APIs send data prefixed with "data:"
-                        const lines = chunk.split("\n").filter(line => line.trim().startsWith("data:"));
-
-                        for (const line of lines) {
-                            const jsonStr = line.replace(/^data:\s*/, "").trim();
-                            if (jsonStr === "[DONE]") {
-                                observer.next(accumulatedText.trim());
-                                observer.complete();
-                                return;
-                            }
-
-                            try {
-                                const data = JSON.parse(jsonStr);
-                                const delta = data?.choices?.[0]?.delta?.content;
-                                if (delta) {
-                                    accumulatedText += delta;
-                                }
-                            } catch (e) {
-                                console.warn("Error parsing stream chunk:", e);
-                            }
-                        }
-                    }
-
-                    // Complete if stream ends without explicit [DONE]
-                    observer.next(accumulatedText.trim() || "");
+            readChatCompletionText(url, body)
+                .then((summaryText) => {
+                    observer.next(summaryText || "");
                     observer.complete();
                 })
                 .catch((err) => {

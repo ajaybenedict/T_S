@@ -7,6 +7,9 @@ import { CloudToolsColumnFactory } from "./CloudToolsColumnFactory";
 import { ESTColumns } from "./ESTColumns";
 import { PCRCleanupColumns } from "./PCRCleanupColumns";
 import { SandboxCleanupColumns } from "./SandboxCleanupColumns";
+import { UpdateMPNIDColumns } from "./UpdateMPNIDColumns";
+import { SubsTransferColumns } from "./SubsTransferColumns";
+import { UTC_TIMEZONE } from "../core/constants/constants";
 
 
 export class CloudToolsTableColumnBuilder {
@@ -38,9 +41,10 @@ export class CloudToolsTableColumnBuilder {
         cellAlignment: 'start',
         formatter: (d: any) => d.updatedDate
           ? `${CloudToolsHelper.getOrderDateTime(d.updatedDate, 'date', datePipe)}
-                     | ${CloudToolsHelper.getOrderDateTime(d.updatedDate, 'time', datePipe)}`
+                     | ${CloudToolsHelper.getOrderDateTime(d.updatedDate, 'time', datePipe)} | ${UTC_TIMEZONE}`
           : '',
-        isClickable: true,
+        isClickable: isClickable,
+        enableEllipsisTooltip: true,
       });
     }
 
@@ -59,6 +63,10 @@ export class CloudToolsTableColumnBuilder {
         return SandboxCleanupColumns.base(msg);
       case CloudToolType.PCRCleanup:
         return PCRCleanupColumns.base(msg);
+      case CloudToolType.UpdateMPNID:
+        return UpdateMPNIDColumns.base(msg);
+      case CloudToolType.SubscriptionTransfer:
+        return SubsTransferColumns.base(msg);
     }
   }
 }

@@ -8,6 +8,7 @@ import { DashboardFilterBarComponent } from './dashboard-filter-bar/dashboard-fi
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { SharedModule } from '../shared/shared.module';
 import { PPCFilterSidepanelDirective } from './ppc-filter-sidepanel/ppc-filter-sidepanel.directive';
+import { ResellerOverviewSidePanelComponent } from 'src/app/ppc/reseller-overview-side-panel/reseller-overview-side-panel.component';
 
 const routes: Routes = [
   {
@@ -20,7 +21,7 @@ const modules = [
   SharedModule,
   SharedS1Module,
   MaterialPPCModule,
-]
+];
 
 const components = [
   PpcFilterSidepanelComponent,
@@ -28,18 +29,16 @@ const components = [
   DashboardFilterBarComponent,
   DashboardComponent,
   PPCFilterSidepanelDirective,
+  ResellerOverviewSidePanelComponent,
 ];
 
 @NgModule({
   declarations: [
-    components,
+    ...components,
   ],
   imports: [
-    modules,
+    ...modules,
     RouterModule.forChild(routes),
-  ],
-  exports: [
-    components
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

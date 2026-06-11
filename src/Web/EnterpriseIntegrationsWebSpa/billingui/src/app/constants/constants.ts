@@ -20,9 +20,14 @@ export const API_ENTRY_URL = resolveEnvironment().API_ENTRY_URL;
 export const REMOTE_ENTRY_BASEURL = resolveEnvironment().REMOTE_BASE;
 export const HOST_ENTRY_BASEURL = resolveEnvironment().HOST_BASE;
 
-
+export const APJCOUNTRY_CODE = 'SAP68APJ';
 
 export const ACTION_STATUS_TYPE_MAP: Record<string, number> = {
   Approve: 1,
   Decline: 7
 };
+
+/** Paginator - Page size */
+export const DEFAULT_PAGE_SIZE = 10;
+/** Paginator - Page size options. */
+export const DEFAULT_PAGE_SIZE_OPTIONS = [10, 50, 100, 200, 300, 500];

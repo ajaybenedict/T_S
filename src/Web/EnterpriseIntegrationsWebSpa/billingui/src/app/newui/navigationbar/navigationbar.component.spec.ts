@@ -1,13 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NavigationbarComponent } from './navigationbar.component';
+import { configureTestBed } from 'src/app/testing/test-bed.helper';
 
 describe('NavigationbarComponent', () => {
   let component: NavigationbarComponent;
   let fixture: ComponentFixture<NavigationbarComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
+    await configureTestBed({
       declarations: [ NavigationbarComponent ]
     })
     .compileComponents();

@@ -1,9 +1,81 @@
 import { DatePipe } from "@angular/common";
 import { CloudToolsStatusIdEnum, NormalizedTransactionDetailsResponse, TransactionDetails, TransactionDetailsPayload, Transactions } from "../models/cloud-tools/cloud-tools.interface";
+import { DialogType, PPCDialogData } from "../models/ppc-dialog-data.model";
 import { S1DataTableColumn } from "../models/s1/s1-data-table.interface";
 import { S1Menu } from "../models/s1/s1-menu.interface";
+import { CLOUD_TOOLS_CONFIRMATION_DIALOG, CLOUD_TOOLS_UPLOAD_WARNING, UTC_TIMEZONE } from "../core/constants/constants";
+
+type CloudToolsDisplayValue = string | number | null | undefined;
 
 export class CloudToolsHelper {
+
+  /**
+   * Filename-safe character validation and sanitization.
+   * Allowed: A-Z, a-z, 0-9, spaces, hyphens (-), underscores (_)
+   * Disallowed: everything else
+   */
+  private static readonly INVALID_FILENAME_CHARS_PATTERN = /[^a-zA-Z0-9 _-]/g;
+
+  /**
+   * Sanitizes a string by removing all except allowed characters.
+   * @param value The string to sanitize
+   * @returns The sanitized string with only allowed characters
+   */
+  public static sanitizeFilenameString(value: string): string {
+    return value.replace(this.INVALID_FILENAME_CHARS_PATTERN, '');
+  }
+
+  static getCustomerTenantId(payload: TransactionDetailsPayload | null | undefined): string {
+    if (!payload) return '';
+
+    const extendedPayload = payload as TransactionDetailsPayload & {
+      customerTenantId?: string;
+      customFields?: {
+        customerTenantId?: string;
+        customerId?: string;
+      };
+    };
+
+    return (
+      extendedPayload.customerTenantId ??
+      extendedPayload.customerId ??
+      extendedPayload.customFields?.customerTenantId ??
+      extendedPayload.customFields?.customerId ??
+      ''
+    );
+  }
+
+  public static getPpcDialogData(
+    type: Extract<DialogType, 'SubsTransferCustomerPreviewConfirmation' | 'SubsTransferNoCustomerFound'>
+  ): PPCDialogData {
+    switch (type) {
+      case 'SubsTransferCustomerPreviewConfirmation':
+        return {
+          header: CLOUD_TOOLS_CONFIRMATION_DIALOG.DEFAULT_HEADER,
+          content: CLOUD_TOOLS_CONFIRMATION_DIALOG.CUSTOMER_PREVIEW_CONTENT,
+          primaryBtnName: 'Confirm',
+          primaryBtnAction: 'confirm',
+          validationErrorMsg: CLOUD_TOOLS_UPLOAD_WARNING.CUSTOMER_PREVIEW_MSG,
+          type,
+        };
+
+      case 'SubsTransferNoCustomerFound':
+        return {
+          header: CLOUD_TOOLS_CONFIRMATION_DIALOG.DEFAULT_HEADER,
+          content: CLOUD_TOOLS_CONFIRMATION_DIALOG.NO_CUSTOMER_FOUND_CONTENT,
+          primaryBtnName: 'Rework',
+          primaryBtnAction: 'rework',
+          type,
+        };
+
+      default:
+        return this.throwUnsupportedDialogType(type);
+    }
+  }
+
+  private static throwUnsupportedDialogType(value: never): never {
+    throw new Error(`CloudToolsHelper.getPpcDialogData: unsupported dialog type '${value}'.`);
+  }
 
   public static getDefaultColumns(datePipe: DatePipe): S1DataTableColumn[] {
     return [
@@ -11,13 +83,14 @@ export class CloudToolsHelper {
         displayName: 'Transaction Details',
         columnKey: 'transactionDetails', formatter: (data: Transactions) =>
           `<div class="s1-FW700">${data.id}</div>
-            <div class="s1-C-Stone">${CloudToolsHelper.getOrderDateTime(data.createdOn, 'date', datePipe)} | ${CloudToolsHelper.getOrderDateTime(data.createdOn, 'time', datePipe)}</div>`,
+            <div class="s1-C-Stone">${CloudToolsHelper.getOrderDateTime(data.createdOn, 'date', datePipe)} | ${CloudToolsHelper.getOrderDateTime(data.createdOn, 'time', datePipe)} | ${UTC_TIMEZONE}</div>`,
         isSortable: false,
         columnType: 'html',
         headerAlignment: 'start',
         cellAlignment: 'start',
         columnID: 1,
         isClickable: true,
+        enableEllipsisTooltip: true,
       },
       {
         displayName: 'Task Type',
@@ -42,6 +115,33 @@ export class CloudToolsHelper {
         isClickable: true,
       },
     ];
+  }
+
+  private static readonly SUBS_TRANSFER_COLUMN_CONFIG = [
+    { columnID: 0, columnKey: 'region', displayName: 'Region' },
+    { columnID: 1, columnKey: 'customerTenantId', displayName: 'Customer Tenant ID' },
+    { columnID: 2, columnKey: 'sourcePartnerName', displayName: 'Source Partner Name' },
+    { columnID: 3, columnKey: 'sourcePartnerTenantId', displayName: 'Source Partner Tenant ID' },
+    { columnID: 4, columnKey: 'customerEmailId', displayName: 'Customer Email ID' },
+  ];
+
+  private static readonly DEFAULT_COLUMN_CONFIG: Partial<S1DataTableColumn> = {
+    isSortable: false,
+    cellAlignment: 'start',
+    columnType: 'text',
+    headerAlignment: 'start',
+  };
+
+  private static createColumn(config: { columnID: number; columnKey: string; displayName: string }): S1DataTableColumn {
+    return {
+      ...this.DEFAULT_COLUMN_CONFIG,
+      ...config,
+      key: config.columnKey,
+    } as S1DataTableColumn;
+  }
+
+  public static getSubsTransferCustomerPreviewColumns(): S1DataTableColumn[] {
+    return this.SUBS_TRANSFER_COLUMN_CONFIG.map(config => this.createColumn(config));
   }
 
   public static getCloudToolsMenu() {
@@ -141,7 +241,7 @@ export class CloudToolsHelper {
   */
   static formatTransactionPayload(
     data: TransactionDetails,
-    extractor: (payload: TransactionDetailsPayload) => string | number | null | undefined
+    extractor: (payload: TransactionDetailsPayload) => CloudToolsDisplayValue
   ): string {
     const payload = this.normalizeTransactionPayload(data.payload);
     if (!payload) return '';
@@ -149,6 +249,49 @@ export class CloudToolsHelper {
     return `
     <span class="s1-FW700 s1-FS14px s1-C-Charcoal">
       ${extractor(payload) ?? ''}
+    </span>
+  `;
+  }
+
+  /**
+  * Formats a direct property from the TransactionDetails object for table display.
+  *
+  * This helper is similar to formatTransactionPayload but extracts from direct
+  * properties on TransactionDetails (like azurePlan, budget) rather than from
+  * the nested payload.
+  *
+  * Use this for properties defined at the top level of TransactionDetails.
+  *
+  * @param data Transaction row data
+  * @param extractor Function used to extract a displayable value from TransactionDetails
+  * @returns Formatted HTML string for table rendering
+  *
+  * @example
+  * // Extract azurePlan property
+  * CloudToolsHelper.formatTransactionDetails(
+  *   data,
+  *   d => d.azurePlan ? 'Azure Plan' : 'No Plan'
+  * )
+  *
+  * @example
+  * // Extract budget property
+  * CloudToolsHelper.formatTransactionDetails(
+  *   data,
+  *   d => d.budget ? 'Budgeted' : 'Not Budgeted'
+  * )
+  */
+  static formatTransactionDetails(
+    data: TransactionDetails,
+    extractor: (details: TransactionDetails) => CloudToolsDisplayValue
+  ): string {
+    if (!data) return '';
+
+    const value = extractor(data);
+    if (value == null) return '';
+
+    return `
+    <span class="s1-FW700 s1-FS14px s1-C-Charcoal">
+      ${value}
     </span>
   `;
   }
@@ -203,6 +346,32 @@ export class CloudToolsHelper {
     return null;
   }
 
+  /**
+   * Extracts ErrorMessage from transaction response regardless of response shape.
+   *
+   * The API may return `response` as either a JSON string or an already parsed
+   * object, and error key casing can vary by endpoint.
+   *
+   * @param response Raw transaction response from API
+   * @returns Error message string when present; otherwise empty string
+   */
+  static getTransactionErrorMessage(response: TransactionDetails['response']): string {
+    if (!response) return '';
+
+    let parsed: unknown;
+    try {
+      parsed = typeof response === 'string' ? JSON.parse(response) : response;
+    } catch {
+      return '';
+    }
+
+    if (!parsed || typeof parsed !== 'object') return '';
+
+    const normalized = parsed as { ErrorMessage?: unknown; errorMessage?: unknown };
+    const value = normalized.ErrorMessage ?? normalized.errorMessage;
+    return typeof value === 'string' ? value : '';
+  }
+
 
   static isTransactionSuccessResponse(
     response: unknown
@@ -241,7 +410,7 @@ export class CloudToolsHelper {
  */
   static formatTransactionResponse(
     data: TransactionDetails,
-    extractor: (response: NormalizedTransactionDetailsResponse) => string | number | null | undefined,
+    extractor: (response: NormalizedTransactionDetailsResponse) => CloudToolsDisplayValue,
     format: 'html' | 'text'
   ): string {
     const response = this.normalizeTransactionResponse(data.response);
@@ -283,5 +452,22 @@ export class CloudToolsHelper {
       default:
         return `<span class="s1-FW700 s1-FS12px s1-BR-4px s1-P-4-8-px s1-BG-LegacyOcean s1-C-LegacyOcean">${value}</span>`;
     }
+  }
+
+  /**
+   * Formats a boolean | null value for display.
+   *
+   * Converts:
+   *  - true         → 'Yes'
+   *  - false        → 'No'
+   *  - null/undefined → empty string
+   *
+   * @param value Boolean value or null
+   * @returns Formatted string representation
+   */
+  static formatBooleanValue(value: boolean | null | undefined): string {
+    if (value === true) return 'Yes';
+    if (value === false) return 'No';
+    return '';
   }
 }

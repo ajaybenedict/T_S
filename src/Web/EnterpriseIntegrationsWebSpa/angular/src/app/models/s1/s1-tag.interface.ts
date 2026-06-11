@@ -1,0 +1,1 @@
+export type S1TagType = 'Teal' | 'Cherry' | 'Sunset';

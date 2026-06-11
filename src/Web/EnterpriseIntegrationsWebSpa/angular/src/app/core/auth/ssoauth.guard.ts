@@ -3,7 +3,7 @@ import { ActivatedRouteSnapshot, CanActivate, CanMatch, Route, UrlSegment } from
 import { Observable, catchError, map, of } from 'rxjs';
 import { SsoService } from '../services/sso.service';
 import { PermissionsLoaderDialogService } from '../services/permissions-loader-dialog.service';
-import { INSIGHTS_DASHBOARD_PERMISSIONS, PermissionsEnum } from '../config/permissions.config';
+import { ApplicationIdEnum, CLOUD_TOOLS_DASHBOARD_PERMISSIONS, INSIGHTS_DASHBOARD_PERMISSIONS, PermissionsEnum } from '../config/permissions.config';
 import { DataState } from '../services/data-state';
 import { APP_ROUTE_CONFIG_URL, INSIGHT_NO_PERMISSION_REPORTS, ROUTE_DATA_KEYS } from '../constants/constants';
 import { DialogType } from 'src/app/models/ppc-dialog-data.model';
@@ -18,24 +18,33 @@ export class SsoauthGuard implements CanActivate, CanMatch {
     private readonly dataState: DataState,
   ) { }
 
-  //changed to canMatch for early match detection and better performance than canLoad.
+  /**
+   * Module-level authorization check before lazy module match.
+   */
   canMatch(route: Route, segments: UrlSegment[]): Observable<boolean> {
     this.routeLoader.showDialog('Loader');
     const urlParam = segments[1]?.path;
+
     return this.ssoService.isAuthorized().pipe(
-      map(res => {
-        // Need to allow navigation to below dashboards without any restrictions.
-        if (urlParam && INSIGHT_NO_PERMISSION_REPORTS.includes(urlParam)) {
+      map(() => {
+        const applicationId = this.readApplicationId(route);
+        const requiredPermissions = this.getModulePermissionsForCanMatch(applicationId, urlParam);
+        if (requiredPermissions.length === 0) {
           return true;
         }
-        const userPerms = [...res.permissions];
-        const required = INSIGHTS_DASHBOARD_PERMISSIONS;
-        const hasPermission = userPerms.includes(PermissionsEnum.GlobalAdmin) ||
-          required.some(p => userPerms.includes(p));
+
+        if (applicationId === null) {
+          this.routeLoader.showDialog('PermissionError');
+          return false;
+        }
+
+        const hasPermission = this.dataState.hasPermission(requiredPermissions, applicationId);
+
         if (!hasPermission) {
           this.routeLoader.showDialog('PermissionError');
           return false;
         }
+
         // success - do not close the loader here in case of returning true and it will be closed in the component/guard.
         return true;
       }),
@@ -50,16 +59,38 @@ export class SsoauthGuard implements CanActivate, CanMatch {
     );
   }
 
+  /**
+   * Returns module-level permission set for top-level modules.
+   */
+  private getModulePermissionsForCanMatch(applicationId: ApplicationIdEnum | null, urlParam: string | undefined): PermissionsEnum[] {
+    if (applicationId === ApplicationIdEnum.Insight) {
+      // Need to allow navigation to below dashboards without any restrictions.
+      if (urlParam && INSIGHT_NO_PERMISSION_REPORTS.includes(urlParam)) {
+        return [];
+      }
+      return INSIGHTS_DASHBOARD_PERMISSIONS;
+    }
+
+    if (applicationId === ApplicationIdEnum.CloudTools) {
+      return CLOUD_TOOLS_DASHBOARD_PERMISSIONS;
+    }
+
+    return [];
+  }
+
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     this.routeLoader.showDialog('Loader');
 
     return this.ssoService.isAuthorized().pipe(
-      map(res => this.handleAuthCheck(res, route)),
+      map(() => this.handleAuthCheck(route)),
       catchError(error => this.handleAuthError(error))
     );
   }
 
-  private handleAuthCheck(res: any, route: ActivatedRouteSnapshot): boolean {
+  /**
+   * Route-level authorization check using route data applicationId + permissions.
+   */
+  private handleAuthCheck(route: ActivatedRouteSnapshot): boolean {
     const requiredPerms: number[] = route.data[ROUTE_DATA_KEYS.PERMISSIONS];
     const needsCountryRegionCheck = route.data[ROUTE_DATA_KEYS.COUNTRY_REGION_CHECK] === true;
 
@@ -67,16 +98,17 @@ export class SsoauthGuard implements CanActivate, CanMatch {
       return this.complete(true);
     }
 
-    if (res?.permissions?.length <= 0) {
+    const applicationId = this.readApplicationId(route);
+    if (applicationId === null) {
       return this.rejectWith('PermissionError');
     }
 
-    const hasAccess = this.dataState.hasPermission([...requiredPerms]);
+    const hasAccess = this.dataState.hasPermission([...requiredPerms], applicationId);
     if (!hasAccess) {
       return this.rejectWith('PermissionError');
     }
 
-    if (needsCountryRegionCheck && !this.countryRegionCheck()) {
+    if (needsCountryRegionCheck && !this.countryRegionCheck(applicationId)) {
       return this.rejectWith('NoCountryRegionAccess');
     }
 
@@ -106,7 +138,18 @@ export class SsoauthGuard implements CanActivate, CanMatch {
     return false;
   }
 
-  countryRegionCheck(): boolean {
-    return this.dataState.hasCountryRegionAccess();
+  /**
+   * Country/region check for routes that require geo scoping.
+   */
+  countryRegionCheck(applicationId: number): boolean {
+    return this.dataState.hasCountryRegionAccess(applicationId);
+  }
+
+  /**
+   * Reads and validates applicationId from route data.
+   */
+  private readApplicationId(route: Route | ActivatedRouteSnapshot): ApplicationIdEnum | null {
+    const value = route.data?.[ROUTE_DATA_KEYS.APPLICATION_ID];
+    return typeof value === 'number' && Number.isFinite(value) ? value as ApplicationIdEnum : null;
   }
 }

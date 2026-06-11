@@ -5,7 +5,10 @@
     height: calc(100vh - 380px);
     border-radius: 8px;
     border: 1px solid #E4E5E6;  
-    position: relative;      
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .card-container:hover {
@@ -69,9 +72,8 @@
 
 .card-footer {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr minmax(0, 4fr);
     height: 48px;
-    border: 1px solid #E4E5E6;
 }
 
 .footer-total {    
@@ -93,9 +95,34 @@
 }
 
 .footer-summary {
-    display: grid;
-    grid-template-columns: 3fr 1fr 1fr;
-    border-right: 1px solid #E4E5E6;
+    display: contents;
+}
+
+.card-goto-btn {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 60px;
+    height: 60px;
+    opacity: 0;
+    visibility: hidden;    
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    outline: none;    
+    background-color: #EBEEEF;
+    z-index: 100;
+    cursor: pointer;
+    pointer-events: none;
+    border-top: 1px solid #005758;
+    border-right: 1px solid #005758;
+    border-bottom: none;
+    border-left: none;
+    border-radius: 0px 8px 0px 8px;
+}
+
+.card-container:hover .card-goto-btn {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 .footer-summary > div,
@@ -106,6 +133,7 @@
 }
 
 .footer-actions {    
+    grid-column: 4;
     flex-direction: row;    
     gap: 8px;    
     justify-content: flex-end;

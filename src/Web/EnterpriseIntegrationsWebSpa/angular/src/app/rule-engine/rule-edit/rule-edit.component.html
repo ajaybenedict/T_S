@@ -1,103 +1,173 @@
-<form [formGroup]="form">
+<form [formGroup]="form">    
     <div class="rule-container">
-        <div class="rule-editor d-flex flex-column" [formArrayName]="formControlNameList.EXPRESSIONS">
-            <ng-container *ngFor="let expr of expressions.controls; let i=index" [formGroupName]="i">
-                <div class="first-row d-flex align-items-center" *ngIf="i==0; else dynamicRow">
-                    <span>If</span>
-                    <div class="d-flex">
-                        <div class="expression-row-input">
-                            <app-select-dropdown [formControlName]="formControlNameList.ATTRIBUTE"
-                                [label]="labels.ATTRIBUTE" [options]="attributeList"></app-select-dropdown>
+        <div class="rule-editor d-flex flex-column">
+            <span class="s1-FW700 s1-FS14px S1-C-Charcoal" *ngIf="tabList.length > 0">Rules Type</span>
+            <app-s1-filter-button-container *ngIf="tabList.length > 0" [btnList]="tabList" (btnClick)="tabClickHandler($event)"></app-s1-filter-button-container> 
+            <ng-container [ngSwitch]="selectedTab">
+                <!-- Conditional -->
+                <ng-container *ngSwitchCase="'Conditional'" [formArrayName]="formControlNameList.EXPRESSIONS">
+                    <ng-container *ngFor="let expr of expressions.controls; let i=index" [formGroupName]="i">
+                        <div class="first-row d-flex align-items-center" *ngIf="i==0; else dynamicRow">
+                            <span class="s1-FW700 s1-FS14px s1-C-Charcoal">If</span>
+                            <div class="d-flex flex-grow-1">
+                                <div class="expression-row-input">
+                                    <app-select-dropdown [formControlName]="formControlNameList.ATTRIBUTE"
+                                        [label]="labels.ATTRIBUTE" [options]="getAttributeOptionsForRow(i)"></app-select-dropdown>
+                                </div>
+                                <div class="expression-row-input">
+                                    <app-select-dropdown [formControlName]="formControlNameList.OPERATOR"
+                                        [label]="labels.OPERATOR" [options]="operatorOptions[i]"></app-select-dropdown>
+                                </div>
+                                <div class="expression-row-input">
+                                    <ng-container *ngIf="isDropdownValuetype(expr)">
+                                        <app-select-dropdown [formControlName]="formControlNameList.VALUE" [label]="labels.VALUE"
+                                            [options]="getValueDropdownOptionsWrapper(expr)"></app-select-dropdown>
+                                    </ng-container>
+                                    <ng-container *ngIf="!isDropdownValuetype(expr)">
+                                        <!-- a placeholder -->
+                                        <ng-container *ngIf="!hasAttribute(expr)">
+                                            <input type="text" class="value-input" [placeholder]="labels.VALUE">
+                                        </ng-container>
+                                        <!-- shown only for numeric without decimal -->
+                                        <ng-container *ngIf="isValueField(expr, 'numeric')">
+                                            <input type="text" appInputFilter="numeric" class="value-input" [placeholder]="labels.VALUE"
+                                                [formControlName]="formControlNameList.VALUE">
+                                        </ng-container>
+                                        <!-- shown only for decimal -->
+                                        <ng-container *ngIf="isValueField(expr, 'decimal')">
+                                            <input type="text" appInputFilter="decimal" class="value-input" [placeholder]="labels.VALUE"
+                                                [formControlName]="formControlNameList.VALUE">
+                                        </ng-container>
+                                        <!-- shown only for ResellerName -->
+                                        <ng-container *ngIf="isValueField(expr, 'stringWithSpecialChars')">
+                                            <input type="text" class="value-input" [placeholder]="labels.VALUE"
+                                                [formControlName]="formControlNameList.VALUE">
+                                        </ng-container>
+                                    </ng-container>
+                                </div>
+                            </div>
                         </div>
-                        <div class="expression-row-input">
-                            <app-select-dropdown [formControlName]="formControlNameList.OPERATOR"
-                                [label]="labels.OPERATOR" [options]="operatorOptions[i]"></app-select-dropdown>
+                        <ng-template #dynamicRow>
+                            <div class="dynamic-row d-flex align-items-center">
+                                <app-logical-operator [formControlName]="formControlNameList.LOGICAL_OPERATOR"></app-logical-operator>
+                                <div class="d-flex flex-grow-1">
+                                    <div class="expression-row-input">
+                                        <app-select-dropdown [formControlName]="formControlNameList.ATTRIBUTE" [label]="labels.ATTRIBUTE" [options]="getAttributeOptionsForRow(i)"></app-select-dropdown>
+                                    </div>
+                                    <div class="expression-row-input">
+                                        <app-select-dropdown [formControlName]="formControlNameList.OPERATOR" [label]="labels.OPERATOR" [options]="operatorOptions[i]"></app-select-dropdown>
+                                    </div>
+                                    <div class="expression-row-input">
+                                        <ng-container *ngIf="isDropdownValuetype(expr)">
+                                            <app-select-dropdown [formControlName]="formControlNameList.VALUE" [label]="labels.VALUE"
+                                                [options]="expr.get('filteredOptions')?.value"></app-select-dropdown>
+                                        </ng-container>
+                                        <ng-container *ngIf="!isDropdownValuetype(expr)">
+                                            <!-- a placeholder -->
+                                            <ng-container *ngIf="!hasAttribute(expr)">
+                                                <input type="text" class="value-input" [placeholder]="labels.VALUE" >
+                                            </ng-container>
+                                            <!-- shown only for numeric without decimal -->
+                                            <ng-container *ngIf="isValueField(expr, 'numeric')">
+                                                <input type="text" appInputFilter="numeric" class="value-input" [placeholder]="labels.VALUE"
+                                                    [formControlName]="formControlNameList.VALUE">
+                                            </ng-container>
+                                            <!-- shown only for decimal -->
+                                            <ng-container *ngIf="isValueField(expr, 'decimal')">
+                                                <input type="text" appInputFilter="decimal" class="value-input" [placeholder]="labels.VALUE"
+                                                    [formControlName]="formControlNameList.VALUE">
+                                            </ng-container>
+                                            <!-- shown only for ResellerName -->
+                                            <ng-container *ngIf="isValueField(expr, 'stringWithSpecialChars')">
+                                                <input type="text" class="value-input" [placeholder]="labels.VALUE"
+                                                    [formControlName]="formControlNameList.VALUE">
+                                            </ng-container>
+                                        </ng-container>
+                                    </div>
+                                </div>
+                                <div class="row-action-holder d-flex">
+                                    <button type="button" s1-button [iconOnly]="true" [customClass]="'delete-btn'" (click)="removeExpression(i)">
+                                        <img src="/assets/delete_icon_44_44.svg" class="default" alt="Delete">
+                                        <img src="/assets/delete_icon_hover_44_44.svg" class="hover" alt="Delete">
+                                    </button>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </ng-container>
+                    <button type="button" s1-button btnType="secondary" [customClass]="'add-btn'" [disabled]="isAddConditionDisabled()" (click)="addExpression()">
+                        Add Condition
+                    </button>
+                </ng-container>
+                <!-- Compare -->
+                <ng-container *ngSwitchCase="'Compare'">
+                    <ng-container *ngIf="isCompareFeatureEnabled" [formGroupName]="formControlNameList.COMPARE">
+                        <div class="first-row d-flex align-items-center">
+                            <span>If</span>
+                            <div class="d-flex compare-row-field-container">
+                                <div class="compare-row-field">
+                                    <app-select-dropdown [formControlName]="formControlNameList.COMPARE_ATTR1" [label]="labels.ATTRIBUTE"
+                                        [options]="compareAttributeOptions"></app-select-dropdown>
+                                </div>
+                                <div class="compare-row-field">
+                                    <app-select-dropdown [formControlName]="formControlNameList.COMPARE_LOGICAL_OPERATOR" [label]="labels.OPERATOR"
+                                        [options]="compareLogicalOperatorOptions"></app-select-dropdown>
+                                </div>
+                            </div>
                         </div>
-                        <div class="expression-row-input">
-                            <ng-container *ngIf="isDropdownValuetype(expr)">
-                                <app-select-dropdown [formControlName]="formControlNameList.VALUE" [label]="labels.VALUE"
-                                    [options]="getValueDropdownOptionsWrapper(expr)"></app-select-dropdown>
-                            </ng-container>
-                            <ng-container *ngIf="!isDropdownValuetype(expr)">
-                                <!-- a placeholder -->
-                                <ng-container *ngIf="!hasAttribute(expr)">
-                                    <input type="text" class="value-input" [placeholder]="labels.VALUE">
-                                </ng-container>
-                                <!-- shown only for numeric without decimal -->
-                                <ng-container *ngIf="isValueField(expr, 'numeric')">
-                                    <input type="text" appInputFilter="numeric" class="value-input" [placeholder]="labels.VALUE"
-                                        [formControlName]="formControlNameList.VALUE">
-                                </ng-container>
-                                <!-- shown only for decimal -->
-                                <ng-container *ngIf="isValueField(expr, 'decimal')">
-                                    <input type="text" appInputFilter="decimal" class="value-input" [placeholder]="labels.VALUE"
-                                        [formControlName]="formControlNameList.VALUE">
-                                </ng-container>
-                                <!-- shown only for ResellerName -->
-                                <ng-container *ngIf="isValueField(expr, 'stringWithSpecialChars')">
-                                    <input type="text" class="value-input" [placeholder]="labels.VALUE"
-                                        [formControlName]="formControlNameList.VALUE">
-                                </ng-container>
-                            </ng-container>
+                        <div class="compare-values-row">
+                            <div class="compare-values-field">
+                                <app-select-dropdown [formControlName]="formControlNameList.COMPARE_ATTR2" [label]="labels.ATTRIBUTE"
+                                    [options]="compareAttr2Options"></app-select-dropdown>
+                            </div>
+                            <div class="compare-values-field">
+                                <app-select-dropdown [formControlName]="formControlNameList.COMPARE_ARITHMETIC_OPERATOR" [label]="labels.OPERATOR"
+                                    [options]="compareArithmeticOperatorOptions"></app-select-dropdown>
+                            </div>
+                            <div class="compare-values-field">
+                                <app-select-dropdown [formControlName]="formControlNameList.COMPARE_ATTR3" [label]="labels.ATTRIBUTE"
+                                    [options]="compareAttr3Options"></app-select-dropdown>
+                            </div>
                         </div>
+                    </ng-container>
+                </ng-container>
+            </ng-container>
+        </div>
+        <ng-container [formGroup]="compareForm" *ngIf="showCompareResellerCriteria">
+            <div class="d-flex flex-column compare-region-holder">
+                <span class="s1-FW700 s1-FS14px s1-C-Charcoal">Criteria &nbsp;<span class="s1-mandatory-star">*</span></span>
+                <div class="d-flex gap-3">
+                    <div class="compare-criteria-toggle-holder">
+                        <app-s1-filter-button-container [btnList]="compareCriteriaTabList"
+                            (btnClick)="compareCriteriaClickHandler($event)"></app-s1-filter-button-container>
+                    </div>
+                    <div class="compare-criteria-dropdown-holder">
+                        <app-select-dropdown [formControlName]="formControlNameList.COMPARE_CRITERIA_VALUE"
+                            [label]="compareLabels.regionCountry" [options]="compareCriteriaValueOptions"></app-select-dropdown>
                     </div>
                 </div>
-                <ng-template #dynamicRow>
-                    <div class="dynamic-row d-flex align-items-center">
-                        <app-logical-operator [formControlName]="formControlNameList.LOGICAL_OPERATOR"></app-logical-operator>
-                        <div class="d-flex">
-                            <div class="expression-row-input">
-                                <app-select-dropdown [formControlName]="formControlNameList.ATTRIBUTE" [label]="labels.ATTRIBUTE" [options]="attributeList"></app-select-dropdown>
-                            </div>
-                            <div class="expression-row-input">
-                                <app-select-dropdown [formControlName]="formControlNameList.OPERATOR" [label]="labels.OPERATOR" [options]="operatorOptions[i]"></app-select-dropdown>
-                            </div>
-                            <div class="expression-row-input">
-                                <ng-container *ngIf="isDropdownValuetype(expr)">
-                                    <app-select-dropdown [formControlName]="formControlNameList.VALUE" [label]="labels.VALUE"
-                                        [options]="expr.get('filteredOptions')?.value"></app-select-dropdown>
-                                </ng-container>
-                                <ng-container *ngIf="!isDropdownValuetype(expr)">
-                                    <!-- a placeholder -->
-                                    <ng-container *ngIf="!hasAttribute(expr)">
-                                        <input type="text" class="value-input" [placeholder]="labels.VALUE" >
-                                    </ng-container>
-                                    <!-- shown only for numeric without decimal -->
-                                    <ng-container *ngIf="isValueField(expr, 'numeric')">
-                                        <input type="text" appInputFilter="numeric" class="value-input" [placeholder]="labels.VALUE"
-                                            [formControlName]="formControlNameList.VALUE">
-                                    </ng-container>
-                                    <!-- shown only for decimal -->
-                                    <ng-container *ngIf="isValueField(expr, 'decimal')">
-                                        <input type="text" appInputFilter="decimal" class="value-input" [placeholder]="labels.VALUE"
-                                            [formControlName]="formControlNameList.VALUE">
-                                    </ng-container>
-                                    <!-- shown only for ResellerName -->
-                                    <ng-container *ngIf="isValueField(expr, 'stringWithSpecialChars')">
-                                        <input type="text" class="value-input" [placeholder]="labels.VALUE"
-                                            [formControlName]="formControlNameList.VALUE">
-                                    </ng-container>
-                                </ng-container>
-                            </div>
-                        </div>
-                        <div class="row-action-holder d-flex">
-                            <button type="button" s1-button [iconOnly]="true" [customClass]="'delete-btn'" (click)="removeExpression(i)">
-                                <img src="/assets/delete_icon_44_44.svg" class="default" alt="Delete">
-                                <img src="/assets/delete_icon_hover_44_44.svg" class="hover" alt="Delete">
-                            </button>
-                        </div>
-                    </div>
-                </ng-template>
-            </ng-container>
-            <button type="button" s1-button btnType="secondary" [customClass]="'add-btn'" (click)="addExpression()">
-                Add Condition
-            </button>
-        </div>
-        <div class="action-container d-flex justify-content-between align-items-center">
-            <span>Then</span>
-            <div style="width: 270px;">
-                <app-select-dropdown [formControlName]="formControlNameList.ACTION" [label]="labels.ACTION" [options]="actionListData"></app-select-dropdown>
             </div>
+        </ng-container>
+        <div class="action-container d-flex justify-content-between align-items-center">
+            <span class="s1-FW700 s1-FS14px s1-C-Charcoal">Then</span>
+            <!-- Standard action dropdown — hidden for CBC cost-adjustment mode -->
+            <ng-container *ngIf="!isCostAdjustmentMode">
+                <div class="action-dropdown-container">
+                    <app-select-dropdown [formControlName]="formControlNameList.ACTION" [label]="labels.ACTION"
+                        [options]="actionListData"></app-select-dropdown>
+                </div>
+            </ng-container>
+            <!-- CBC cost-adjustment mode: decimal textbox serialized as {"costAdjustment": N} -->
+            <ng-container *ngIf="isCostAdjustmentMode">
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="s1-FW700 s1-FS14px s1-C-Charcoal">Cost Adjustment</span>
+                    <input type="text" appInputFilter="decimal" [formControlName]="formControlNameList.ACTION" class="value-input"
+                        placeholder="Cost Adjustment">
+                </div>
+            </ng-container>
         </div>
-    </div>
+        <div class="action-container action-container--compare d-flex flex-column" *ngIf="isCompareFeatureEnabled && selectedTab === 'Compare' && getCompareSummary()">
+            <span class="s1-FW700 s1-FS14px s1-C-Charcoal">Summary</span>
+            <span class="s1-FW400 s1-C-Charcoal s1-FS14px" [innerHTML]="getCompareSummary()"></span>
+        </div>
+    </div>    
 </form>

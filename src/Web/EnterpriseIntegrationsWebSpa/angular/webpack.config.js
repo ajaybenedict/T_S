@@ -15,10 +15,10 @@ module.exports = withModuleFederationPlugin({
     './PpcSnackBarService': './src/app/core/services/ppc-snack-bar.service.ts',
     './filterButtons': './src/app/shared-s1/s1-filter-buttons/s1-filter-buttons.component.ts',
     './checkbox': './src/app/shared-s1/s1-flat-checkbox/s1-flat-checkbox.component.ts',
+    './groupcheckbox': './src/app/shared-s1/s1-group-checkbox/s1-group-checkbox.component.ts',
+    './PpcDialogComponent': './src/app/shared/ppc-dialog/ppc-dialog.component.ts',
   },
-
-
-
+  
   shared: {
     '@angular/core': { singleton: true, strictVersion: true, requiredVersion: '15.2.10' },
     '@angular/common': { singleton: true, strictVersion: true, requiredVersion: '15.2.10' },
@@ -46,7 +46,7 @@ module.exports = withModuleFederationPlugin({
       strictVersion: false,
       requiredVersion: 'auto'
     },
-    'src/app/core/services/data-state.ts': { singleton: true, strictVersion: false,
+    'src/app/core/services/data-state': { singleton: true, strictVersion: false,
       requiredVersion: false }, 
     '@angular/common/http': { singleton: true, strictVersion: true },
     // Add other shared libs if needed

@@ -4,7 +4,6 @@ import { PpcCardComponent } from './ppc-card/ppc-card.component';
 import { PpcDialogComponent } from './ppc-dialog/ppc-dialog.component';
 import { ErrorComponent } from './error/error.component';
 import { ValidationErrorComponent } from './validation-error/validation-error.component';
-import { PpcApiResultsHeaderComponent } from '../ppc-api-results-header/ppc-api-results-header.component';
 import { PpcNavTabsComponent } from './ppc-nav-tabs/ppc-nav-tabs.component';
 import { PpcDataTableComponent } from './ppc-data-table/ppc-data-table.component';
 import { PpcPaginatorComponent } from './ppc-paginator/ppc-paginator.component';
@@ -31,13 +30,13 @@ import { RuleEnginePanelDirective } from './directives/rule-engine.directive';
 import { InputFilterDirective } from './directives/validators/input-filter.directive';
 import { S1ButtonDirective } from './directives/s1-button.directive';
 import { NormalizeStringPipe } from './pipes/normalize-string.pipe';
+import { EmailValidatorDirective } from './directives/email-validator.directive';
 
 const sharedComponents = [
   PpcCardComponent,
   PpcDialogComponent,
   ErrorComponent,
   ValidationErrorComponent,
-  PpcApiResultsHeaderComponent,
   PpcNavTabsComponent,
   PpcDataTableComponent,
   PpcPaginatorComponent,
@@ -75,6 +74,7 @@ const directives = [
   AIPanelDirective,
   RuleEnginePanelDirective,
   S1ButtonDirective,
+  EmailValidatorDirective,
 ]
 @NgModule({
   declarations: [

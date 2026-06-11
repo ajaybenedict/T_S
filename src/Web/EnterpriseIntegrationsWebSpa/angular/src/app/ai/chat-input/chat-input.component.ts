@@ -18,6 +18,7 @@ export class ChatInputComponent implements OnInit, OnDestroy {
   declare message: string;
   declare messageListSubs: Subscription;
   declare chatInProgressSubs: Subscription;
+  declare assistantIdSubs: Subscription;
 
   @ViewChild('snackbarAnchor') inputDiv!: ElementRef;
 
@@ -25,6 +26,8 @@ export class ChatInputComponent implements OnInit, OnDestroy {
   allowedCount = QUESTIONS_ALLOWED_PER_THREAD;
 
   disclaimerText = DISCLAIMER_TEXT.AI_ASSISTANT;
+
+  assistantId: number | null = null;
 
   @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
 
@@ -48,6 +51,14 @@ export class ChatInputComponent implements OnInit, OnDestroy {
         } else {
           this.aiDataSVC.setThreadChatThresholdReached(false);
         }
+      }
+    });
+    this.assistantIdSubs = this.aiDataSVC.assistantId$.subscribe({
+      next: res => {
+        this.assistantId = res;
+        this.disclaimerText = this.assistantId === 3
+          ? DISCLAIMER_TEXT.HUB_ASSISTANT
+          : DISCLAIMER_TEXT.AI_ASSISTANT;
       }
     });
   }
@@ -124,7 +135,7 @@ export class ChatInputComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    for (const sub of [this.chatInProgressSubs, this.messageListSubs]) {
+    for (const sub of [this.chatInProgressSubs, this.messageListSubs, this.assistantIdSubs]) {
       sub?.unsubscribe();
     }
   }

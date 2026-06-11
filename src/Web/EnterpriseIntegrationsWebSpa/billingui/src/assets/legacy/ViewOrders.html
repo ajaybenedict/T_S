@@ -1,0 +1,969 @@
+<body style="margin: 5px; overflow-x: hidden; max-width: 100%;">
+
+    <br />
+    <div class="row">
+        <div style="float:right; margin-right:20px;"><a href="/CollectionSKUMaping" target="_blank"
+                id="mapCollectionSKU" ng-class="{'disabled-link': !canViewCollectionSKU}"
+                ng-click="!canViewCollectionSKU && $event.preventDefault()">Map Collection SKU</a></div>
+    </div>
+    <form class="form-inline">
+        <div class="row" style="margin-bottom:10px;">
+            <div class="col-md-3" style="margin-top: 9px;padding-left:20px;">
+                <div class="form-group">
+                    <label>Search&nbsp;</label>
+                    <input id="SearchTextbox" class="form-control" type="search" ng-model="model.searchText"
+                        style="padding-top:0px;padding-bottom:0px;" />
+                </div>
+            </div>
+
+            <div class="col-md-3" style="width:265px;position: absolute;margin-left: 124rem;padding-top: 10px;">
+                <div style="box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;line-height:30px;width:252px;height:130px;">
+                    <div class="card">
+                        <div class="card-header text-center" style="padding-top:10px;">
+                            <button type="button" ng-disabled="!isVendorSelected || !isNSap" class=""
+                                ng-class="isVendorSelected && isNSap ? 'btn btn-primary' : 'btn btn-toolbar'"
+                                ng-click="negativeCharge()"> <span class="glyphicon glyphicon-info-sign"></span>
+                                Negative Charges</button>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-body" style="padding-left:21px;">
+                                <span><img alt="" src="" id="conditionmessage" style="height:15px;">&nbsp;Select one
+                                    NSAP 6.7 country</span>
+                            </h5>
+                            <p class="card-text" style="padding-left:21px;"><img alt="" src="" id="conditionmessage2"
+                                    style="height:15px;">&nbsp;Select at least one Vendor</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div class="row" style="margin-bottom:10px;">
+            <div class="form-group col-md-5" style="width: 540px;padding-left:20px;">
+                <label>Date: </label>
+                <md-datepicker id="startDatePicker" md-placeholder="Enter Date" ng-model="model.startDate"
+                    style="padding-right: 29px;"></md-datepicker>
+                <label>To: </label>
+                <md-datepicker id="endDatePicker" md-placeholder="Enter Date" ng-model="model.endDate"
+                    style="padding-right: 29px;"></md-datepicker>
+                <i class="glyphicon glyphicon-refresh" title="Refresh" ng-click="getOrderHeaders(true)"
+                    style="top:3px; font-size:16px; cursor:pointer; outline:none;"></i>
+            </div>
+            <div class="col-md-2" style="width: 215px;display: flex;align-items: center;gap: 10px;">
+                <label>Country&nbsp;</label>
+                <select data-placeholder="Select" name="countryNames" id="countryNames" ng-model="model.countryValue"
+                    ng-change="countryChange()" multiple class="chosen-select"></select>
+            </div>
+            <div class="col-md-2" style="width: 215px;display: flex;align-items: center;gap: 10px;">
+                <label>Vendor&nbsp;</label>
+                <select data-placeholder="Select" name="vendorNames" id="vendorNames" ng-model="model.vendorValue"
+                    ng-change="vendorChange()" multiple class="chosen-select">
+                </select>
+            </div>
+            <div class="col-md-2" style="width: 215px;">
+                <label>Filter&nbsp;</label>
+                <div class="btn-group" style="width:100px">
+                    <button style="width:145px;height:36px;" class="btn btn-default btn-sm dropdown-toggle"
+                        type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{filterOrdersBy}}&nbsp;&nbsp;<span class="caret"></span>
+                    </button>
+
+                    <ul class="dropdown-menu">
+                        <li><a href="" ng-click="setFilterBy('NONE')">NONE</a></li>
+                        <li><a href="" ng-click="setFilterBy('Issues Only')">Issues Only</a></li>
+                        <li><a href="" ng-click="setFilterBy('Clean orders')">Clean orders</a></li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <button type="button" style="width:140px;padding-right: 12px;margin-right: 20px;margin-left: 5px;"
+                    class="col-md-1 btn btn-success" ng-disabled="showLoadingDiv || !dataShowing || !canManageOrders"
+                    ng-click="updateSelectedOrders(true)">Approve Selected</button>
+                <button type="button" style="width:140px;padding-right: 12px;margin-right: 20px;"
+                    class="col-md-1 btn btn-danger" ng-disabled="showLoadingDiv || !dataShowing || !canManageOrders"
+                    ng-click="updateSelectedOrders(false)">Decline Selected</button>
+                <button type="button" style="width:140px;padding-right: 12px;margin-right: 20px;"
+                    class="col-md-1 btn btn-primary" ng-disabled="showLoadingDiv || !dataShowing|| !canManageOrders"
+                    ng-click="approveOrdersInFilter(true)">Approve Page</button>
+                <button type="button" style="width:140px;padding-right: 12px;margin-right: 20px;"
+                    class="col-md-1 btn btn-toolbar" ng-disabled="showLoadingDiv || !dataShowing"
+                    ng-click="exportCSV()">CSV Download</button>
+
+            </div>
+
+        </div>
+
+
+        <div class="row" ng-if="canViewOrders">
+            <div class="col-md-12">
+                <div class="navbar">
+                    <ul class="nav">
+                        <li
+                            ng-class="{ 'active': filterOrdersBy === 'NONE' || filterOrdersBy === 'Issues Only' || filterOrdersBy === 'Clean orders' }">
+                            <a href="javascript:void(0);" ng-click="navFilter('Billing List', true)"
+                                [routerLinkActive]="['active']">Billing List</a>
+                        </li>
+                        <li ng-class="{ 'active': filterOrdersBy === 'Approved' }">
+                            <a href="javascript:void(0);" ng-click="navFilter('Processed', true)">Processed</a>
+                        </li>
+                        <li ng-class="{ 'active': filterOrdersBy === 'Declined' }">
+                            <a href="javascript:void(0);" ng-click="navFilter('Declined', true)">Declined</a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <div class="col-md-2" style="display: flex; justify-content: flex-end;float: right;margin-top: -42px;">
+                    <div style="text-align: right;" ng-if="filterOrdersBy === 'Clean orders'">
+                        <label style="margin-top:8px;margin-right: 10px;">
+
+                            <i class="fa"></i>
+                            <input type="checkbox" ng-click="changeStatus();" class="toggle-input"
+                                ng-model="IsPartialApprovalFlag">
+                            <div class="toggle-controller default-success"></div>
+                            <i class="fa"></i>
+
+                        </label>
+                    </div>
+                    <div ng-if="filterOrdersBy === 'Clean orders'" style="margin-top: 6px;">
+                        <span>Show Approvable Orders</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <br />
+    <div style="margin-left:8px; text-align:center; position:center; width:99% !important;">
+        <md-progress-linear ng-show="showLoadingDiv" md-mode="indeterminate"></md-progress-linear>
+    </div>
+
+    <div style="margin-left:8px; text-align:center; position:center; width:99% !important;">
+        <md-progress-linear ng-show="pendingCount < progressCount" md-mode="determinate" value="{{progressWidth}}">
+        </md-progress-linear>
+    </div>
+
+    <div style="width:100%; max-height: calc(100vh - 220px); overflow-y:auto;" ng-if="canViewOrders">
+        <table class="table table-bordered table-condensed sticky-action-column bc-table-sticky ordertable"
+            style="margin-left:8px; width:99% !important">
+            <thead>
+                <tr>
+                    <th ng-attr-style="min-width:24px; width:{{columnPixels.Checkbox}}px;" title=""
+                        class="bc-table-sticky-header bc-table-sticky-header-intersection-first">
+                        <input style="cursor:pointer;" type="checkbox" id="SelectAllOrdersCheckbox"
+                            ng-model="selectedAllOrders" ng-click="selectAllOrders()"
+                            ng-disabled="clickedNav !== 'NONE'" />
+                    </th>
+                    <th ng-attr-style="min-width:25px; width:{{columnPixels.UpDown}}px;" class="bc-table-sticky-header">
+                    </th>
+                    <th ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues"
+                        class="bc-table-sticky-header">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                    </th>
+                    <th ng-attr-style="min-width:49px; width:{{columnPixels.Lines}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('LineCount')"
+                        title="Line Count">
+                        LN
+                        <i ng-show="sortOrdersBy == 'LineCount' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'LineCount' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th ng-attr-style="min-width:86px; width:{{columnPixels.OrderDate}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('OrderDate')"
+                        title="Order Date">
+                        Ord Date
+                        <i ng-show="sortOrdersBy == 'OrderDate' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'OrderDate' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th ng-attr-style="min-width:92px; width:{{columnPixels.OrderNum}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('SalesOrderNumber')"
+                        title="Order Number">
+                        Ord&nbsp;&#35;
+                        <i ng-show="sortOrdersBy == 'SalesOrderNumber' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'SalesOrderNumber' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th ng-attr-style="min-width:66px; width:{{columnPixels.Country}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('CountryCode')"
+                        title="Country Code">
+                        Ctr
+                        <i ng-show="sortOrdersBy == 'CountryCode' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'CountryCode' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th ng-attr-style="min-width:66px; width:{{columnPixels.Currency}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('CurrencyCode')"
+                        title="Currency Code">
+                        Cur
+                        <i ng-show="sortOrdersBy == 'CurrencyCode' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'CurrencyCode' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th ng-attr-style="min-width:87px; width:{{columnPixels.TotalVC}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('TotalVendorCost')"
+                        title="Total Vendor Cost">
+                        Total VC
+                        <i ng-show="sortOrdersBy == 'TotalVendorCost' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'TotalVendorCost' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th ng-attr-style="min-width:87px; width:{{columnPixels.TotalRP}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('TotalResellerCost')"
+                        title="Total Reseller Price">
+                        Total RP
+                        <i ng-show="sortOrdersBy == 'TotalResellerCost' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'TotalResellerCost' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th ng-attr-style="min-width:110px; width:{{columnPixels.ResID}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('ResellerId')"
+                        title="Reseller ID">
+                        RES ID
+                        <i ng-show="sortOrdersBy == 'ResellerId' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'ResellerId' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th ng-attr-style="min-width:225px; width:{{columnPixels.ResName}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('ResellerName')"
+                        title="Reseller Name">
+                        RES Name
+                        <i ng-show="sortOrdersBy == 'ResellerName' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'ResellerName' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th ng-attr-style="min-width:211px; width:{{columnPixels.EucName}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('EndUserCompanyName')"
+                        title="End User Company Name">
+                        EUC Name
+                        <i ng-show="sortOrdersBy == 'EndUserCompanyName' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'EndUserCompanyName' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+
+                    <th ng-attr-style="width:{{columnPixels.Consolidation}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('ConsolidationType')"
+                        title="Consolidation Type" style="width: 150px">
+                        Consolidations{{columnPixels.Consolidation}}
+                        <i ng-show="sortOrdersBy == 'ConsolidationType' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'ConsolidationType' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+
+                    <th ng-attr-style="min-width:110px; width:{{columnPixels.InvoiceId}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('InvoiceId')"
+                        title="Invoice Id">
+                        Invoice Id
+                        <i ng-show="sortOrdersBy == 'InvoiceId' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'InvoiceId' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th ng-attr-style="min-width:110px; width:{{columnPixels.InvoiceId}}px;"
+                        class="bc-table-header bc-table-sticky-header" ng-click="sortOrders('ERPInvoiceId')"
+                        title="ERP Invoice Id">
+                        ERP Invoice Id
+                        <i ng-show="sortOrdersBy == 'ERPInvoiceId' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'ERPInvoiceId' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                    <th style="width: 110px;"
+                        class="bc-table-header bc-table-sticky-header bc-table-sticky-header-intersection-last"
+                        ng-click="sortOrders('Approve')" title="Approve"
+                        ng-if="filterOrdersBy !== 'Approved' && filterOrdersBy !== 'Declined'">Actions</th>
+                    <th class="bc-table-header bc-table-sticky-header bc-table-sticky-header-intersection-last"
+                        ng-if="filterOrdersBy == 'Approved'" ng-click="sortOrders('Status')" style="width:150px;">
+                        Status
+                        <i ng-show="sortOrdersBy == 'Status' && sortOrder == 'DESC'"
+                            class="glyphicon glyphicon-chevron-down bc-sort-icon"></i>
+                        <i ng-show="sortOrdersBy == 'Status' && sortOrder == 'ASC'"
+                            class="glyphicon glyphicon-chevron-up bc-sort-icon"></i>
+                    </th>
+                </tr>
+            </thead>
+            <tbody ng-if="billingOrders.length > 0">
+                <tr id="{{order.salesOrderHeaderId}}" class="bc-unfiltered-header-row"
+                    ng-repeat-start="order in billingOrders track by order.salesOrderHeaderId" ng-init="index = $index"
+                    ng-class-odd="'bc-odd-row'" ng-class-even="'bc-even-row'"
+                    ng-class="{'text-muted' : (!order.actionable || order.issueCount > 0), 'bc-order-error' : (order.issueCount > 0) && !order.showWarningColor && !order.showErrorColor, 'bc-order-warn' : order.showWarningColor && !order.showErrorColor, 'bc-order-error' : order.showErrorColor}">
+                    <td ng-class="{'bc-first-row-column':$first, 'bc-order-error' : (order.issueCount > 0) && !order.showWarningColor && !order.showErrorColor, 'bc-order-warn' : order.showWarningColor && !order.showErrorColor, 'bc-order-error' : order.showErrorColor}"
+                        style="min-width:24px;" title="" class="bc-table-sticky-first-col">
+                        <input ng-class="{'bc-select-checkbox' : order.actionable}" type="checkbox"
+                            id="SelectOrderCheckbox_{{order.salesOrderHeaderId}}" ng-model="order.isSelected"
+                            ng-disabled="!order.actionable" ng-click="recordDetails(order)" />
+                    </td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;" title="">
+                        <i class="glyphicon glyphicon-chevron-down" ng-show="!order.detailIsVisible" title="Show Detail"
+                            ng-click="showOrderDetail(order)" style="cursor: pointer;">
+                        </i>
+                        <i class="glyphicon glyphicon-chevron-up" ng-show="order.detailIsVisible" title="Hide Detail"
+                            ng-click="hideOrderDetail(order)" style="cursor: pointer;"></i>
+                    </td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;">
+                        <i class="glyphicon glyphicon-info-sign" ng-if="order.issueCount > 0"
+                            ng-click="showOrderIssuesPopup(order)" style="cursor: pointer; outline:none;"
+                            title="Issues ({{order.issueCount}})"></i>
+                    </td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:49px; max-width:49px;">
+                        {{::order.lineCount}}</td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:86px;">{{::order.orderDate | date:
+                        'MM/dd/yyyy HH:mm:ss'}}</td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:92px; max-width:92px;">
+                        {{::order.salesOrderNumber}}</td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:66px;">
+                        {{::order.countryName}}-{{::order.erpName}}</td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:66px;">{{::order.currencyCode}}</td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:87px;">{{::order.totalVendorCost |
+                        number : 2}}</td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:87px;">{{::order.totalResellerCost |
+                        number : 2}}</td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:110px; max-width:110px;">
+                        {{::order.resellerId}}</td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width: 225px; max-width: 225px; word-wrap: break-word;">
+                        {{::order.resellerName}}</td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:211px; max-width:211px;word-wrap: break-word;">
+                        {{::order.endUserCompanyName}}</td>
+
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:140px; max-width:140px;">
+                        {{::order.consolidation }}</td>
+
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:110px; max-width:110px;">
+                        {{::order.invoiceId}} ({{::order.invoiceNumber}})</td>
+                    <td ng-class="{'bc-first-row-column':$first}" style="min-width:110px; max-width:110px;">
+                        {{::order.erpInvoiceId}}</td>
+                    <td ng-class="{'bc-first-row-column': $first, 'bc-order-error' : (order.issueCount > 0) && !order.showWarningColor && !order.showErrorColor, 'bc-order-warn' : order.showWarningColor && !order.showErrorColor, 'bc-order-error' : order.showErrorColor}"
+                        style="min-width: 110px;" ng-if="filterOrdersBy !== 'Approved' && filterOrdersBy !== 'Declined'"
+                        class="bc-table-sticky-last-col">
+                        <div style="display: flex; flex-direction: row; align-items: center;">
+                            <div title="Decline">
+                                &nbsp;<button type="button" class="btn btn-xs" style="background-color: transparent;"
+                                    ng-click="updateOrderStatus(order, false)"
+                                      ng-disabled="!order.actionableDta || order.issueCount > 0 || order.declined || !canManageOrders"
+                                    ng-show="(order.declined) || (!order.approved && !order.declined) || (order.isOneTime && order.approved)"><img
+                                        src="assets/legacy/Images/DeclineIcon.svg" alt=""
+                                        style="margin-right:16px;" /></button>
+                            </div>
+                            <div title="Approve">
+                                &nbsp;<button type="button" class="btn btn-xs" style="background-color: transparent;"
+                                    id="singleapproveselected" ng-click="updateOrderStatus(order, true)"
+                                    ng-disabled="!order.actionableDta || order.issueCount > 0 || (order.isOneTime && order.approved) || !canManageOrders"
+                                    ng-show="(order.approved) || (!order.approved && !order.declined)"><img
+                                        src="assets/legacy/Images/ApproveIcon.svg" alt=""
+                                        style="margin-right:16px;" /></button>
+                                        
+                            </div>
+                            <div title="More Actions">
+                                &nbsp;<button type="button" class="btn btn-xs" ng-click="openOption(order, index)"
+                                    style="background-color:transparent"><img src="assets/legacy/Images/orderOption.svg"
+                                        alt="" /></button>
+                            </div>
+                            <div class="overlay"
+                                style="position: fixed;top: 0;left: 0;width: 100%;height: 100%;z-index: 9998;"
+                                ng-if="order.openMoreOptions" ng-click="closeOptions(order)"></div>
+                            <div id="first" ng-if="order.openMoreOptions" class="text-wrap"
+                                style="display:grid; gap:6px;text-align:left;position: relative; z-index: 9999;width: 200px;height: 116px; background-color: #fff;color:black; border: 1px solid #ccc; padding: 8px; border-radius: 5px;margin-left: -193px;">
+                                <div class="row" style="margin:0px;background-color: white;">
+                                    <button type="button" class="btn btn-light hover-gray"
+                                        style="width:184px; height:46px;padding:8px;text-align: left;font-size: 14px;font-weight: 400;"
+                                        data-toggle="modal" data-placement="right" data-target="#myDeleteModal"
+                                        ng-click="deleteOrderStatus(order)"
+                                        ng-disabled="order.approved && order.issueCount === 0 && !order.actionableDta || order.isDisabled === true || (order.isOneTime && order.approved) || !canManageOrders">
+                                         <img alt="" src="assets/legacy/Images/DeleteOrder.svg"
+                                            style="margin-right:16px;" />Delete
+                                    </button>
+                                </div>
+                                <div class="row" style="margin:0px;background-color: white;">
+                                    <button title="Download Detailed CSV" type="button" class="btn btn-light hover-gray"
+                                        style="width:184px; height:46px;padding:8px;text-align: left;font-size: 14px;font-weight: 400;"
+                                        ng-click="exportLineData(order)">
+                                        <img alt="" src="assets/legacy/Images/CSVDownload.svg"
+                                            style="margin-right:16px;" />CSV Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td ng-class="{'bc-first-row-column':$first, 'bc-order-error' : (order.issueCount > 0) && !order.showWarningColor && !order.showErrorColor, 'bc-order-warn' : order.showWarningColor && !order.showErrorColor, 'bc-order-error' : order.showErrorColor}"
+                        style="min-width:110px; max-width:110px;text-align:center" ng-if="filterOrdersBy == 'Approved'"
+                        class="bc-table-sticky-last-col">
+
+                        <div ng-if="order.erpCode === 'NSAP' || order.erpCode === 'CIS'">
+                            <div class="badge"
+                                ng-if="order.statusCode == 1 || order.statusCode == 2 || order.statusCode == 6 || order.statusCode == 8"
+                                style="width:118px;border-radius:5px;background:#E2E9ED;color: #00558C;padding:7px 12px 7px 12px;"
+                                ng-click="statusClick(index, false, order.statusCode, order)">
+                                <img alt="" style="width:14px;height:16px;color:#00558C"
+                                    src="assets/legacy/Images/In Progress.svg" /> {{order.orderStatus}}
+                            </div>
+                            <div id="first" ng-if="order.showTooltip" class="text-wrap"
+                                style="text-align:left;position: relative; z-index: 9999;width: fit-content; background-color: #fff;color:black; border: 1px solid #ccc; padding: 5px; border-radius: 5px;margin-left: -193px;">
+                                <button type="button"
+                                    style="position: absolute; top: 0; right: 0; padding: 14px; background-color: transparent; border: none; cursor: pointer;"
+                                    ng-click="order.showTooltip = false">
+                                    <span style="font-size: 14px; font-weight: bold;"><img alt=""
+                                            style="width:14px;height:16px;color:#38853C"
+                                            src="assets/legacy/Images/Close.svg" /></span>
+                                </button>
+                                <p style="padding:12px 10px 0px 10px;font-size:14px;font-weight:400;">Status Information
+                                </p>
+                                <div ng-if="order.detailFlag"
+                                    style="color:#75716E;background-color:#F8F8F8;padding:10px;">
+                                    <p style="font-size:12px; font-weight:700">DETAILS</p>
+                                    {{order.displayStatus}} <br />
+                                    <div ng-if="order.erpCode === 'CIS' && order.orderBatchId"
+                                        style="padding-top:4px;font-size:13px; font-weight:700;">
+                                        <strong>BatchId:</strong> {{order.orderBatchId}}
+                                    </div>
+                                    <p style="font-size:12px; font-weight:700; margin-top:10px;">Note:</p>
+                                    <div style="margin-top: 5px; text-wrap: pretty;line-height:normal">
+                                        In case of disparity, the updated status will be visible under <span
+                                            style="font-weight: bold;">Status</span> in next system update
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-if="order.statusCode == 3 || order.statusCode == 5 || order.statusCode == 10 || order.statusCode == 11"
+                                class="badge"
+                                style="width:118px;border-radius:5px;background:#F2E4E7;color: #CD163F;padding:7px 12px 7px 12px;"
+                                ng-click="statusClick(index, false, order.statusCode, order)">
+                                <img alt="" style="width:14px;height:16px;color:#CD163F"
+                                    src="assets/legacy/Images/Error.svg" /> {{order.orderStatus}}
+                            </div>
+                            <div id="first" ng-if="order.showTooltipError" class="text-wrap"
+                                style="text-align:left;position: relative; z-index: 9999;width: fit-content; background-color: #fff;color:black; border: 1px solid #ccc; padding: 5px; border-radius: 5px;margin-left: -150px;">
+                                <button type="button"
+                                    style="position: absolute; top: 0; right: 0; padding: 14px; background-color: transparent; border: none; cursor: pointer;"
+                                    ng-click="order.showTooltipError = false">
+                                    <span style="font-size: 14px; font-weight: bold;"><img alt=""
+                                            style="width:14px;height:16px;color:#38853C"
+                                            src="assets/legacy/Images/Close.svg" /></span>
+                                </button>
+                                <p style="padding:12px 10px 0px 10px;font-size:14px;font-weight:400;">Status Information
+                                </p>
+                                <div ng-if="order.errordetailFlag"
+                                    style="color:#75716E;background-color:#F8F8F8;padding:10px;">
+                                    <p style="font-size:12px; font-weight:700">DETAILS</p>
+                                    {{order.displayStatus}} <br />
+                                    <div ng-if="order.erpCode === 'CIS' && order.orderBatchId"
+                                        style="padding-top:4px;font-size:13px; font-weight:700;">
+                                        <strong>BatchId:</strong> {{order.orderBatchId}}
+                                    </div>
+                                    <p style="font-size:12px; font-weight:700; margin-top:10px;">Note:</p>
+                                    <div style="margin-top: 5px; text-wrap: pretty;line-height:normal">
+                                        In case of disparity, the updated status will be visible under <span
+                                            style="font-weight: bold;">Status</span> in next system update
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-if="order.statusCode == 15" class="badge"
+                                style="width:118px;border-radius:5px;background:#DEE7DE;color: #38853C;padding:7px 12px 7px 12px;"
+                                ng-click="statusClick(index, false, order.statusCode, order)">
+                                <img alt="" style="width:14px;height:16px;color:#38853C"
+                                    src="assets/legacy/Images/Completed.svg" /> {{order.orderStatus}}
+                            </div>
+                            <div id="first" ng-if="order.orderStatusTooltip" class="text-wrap"
+                                style="text-align:left;position: relative; z-index: 9999;width: fit-content; background-color: #fff;color:black; border: 1px solid #ccc; padding: 5px; border-radius: 5px;margin-left: -178px;">
+                                <div style="display:inline-block">
+                                    <button type="button"
+                                        style="position: absolute; top: 0; right: 0; padding: 14px; background-color: transparent; border: none; cursor: pointer;"
+                                        ng-click="order.orderStatusTooltip = false">
+                                        <span style="font-size: 14px; font-weight: bold;"><img alt=""
+                                                style="width:14px;height:16px;color:#38853C"
+                                                src="assets/legacy/Images/Close.svg" /></span>
+                                    </button>
+                                    <p style="padding:2px 10px 0px 10px;font-size:14px;font-weight:400;">Status
+                                        Information</p>
+                                </div>
+                                <div style="color:#75716E;background-color:#F8F8F8;padding:10px;">
+                                    <p style="font-size:12px; font-weight:700">DETAILS</p>
+                                    {{order.displayStatus}}
+                                    <div ng-if="order.erpCode === 'CIS' && order.orderBatchId"
+                                        style="padding-top:4px;font-size:13px; font-weight:700;">
+                                        <strong>BatchId:</strong> {{order.orderBatchId}}
+                                    </div>
+                                    <p style="font-size:12px; font-weight:700; margin-top:10px;">Note:</p>
+                                    <div style="margin-top: 5px; text-wrap: pretty;line-height:normal">
+                                        In case of disparity, the updated status will be visible under <span
+                                            style="font-weight: bold;">Status</span> in next system update
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-if="order.statusCode == 14 || order.statusCode == 12" class="badge"
+                                style="width:118px;border-radius:5px;background:rgba(255, 98, 0, 0.25);color: #FF6200;padding:7px 12px 7px 12px;"
+                                ng-click="statusClick(index, false, order.statusCode, order)">
+                                <img alt="" style="width:14px;height:16px;color:#FF6200"
+                                    src="assets/legacy/Images/OrderCreated.svg" /> {{order.orderStatus}}
+                            </div>
+                            <div id="first" ng-if="order.showTooltipCreated" class="text-wrap"
+                                style="text-align:left;position: relative; z-index: 9999;width: fit-content; background-color: #fff;color:black; border: 1px solid #ccc; padding: 5px; border-radius: 5px;margin-left: -178px;">
+                                <div style="display:inline-block">
+                                    <button type="button"
+                                        style="position: absolute; top: 0; right: 0; padding: 14px; background-color: transparent; border: none; cursor: pointer;"
+                                        ng-click="order.showTooltipCreated = false">
+                                        <span style="font-size: 14px; font-weight: bold;"><img alt=""
+                                                style="width:14px;height:16px;color:#38853C"
+                                                src="assets/legacy/Images/Close.svg" /></span>
+                                    </button>
+                                    <p style="padding:2px 10px 0px 10px;font-size:14px;font-weight:400;">Status
+                                        Information</p>
+                                </div>
+                                <div style="color:#75716E;background-color:#F8F8F8;padding:10px;">
+                                    <p style="font-size:12px; font-weight:700">DETAILS</p>
+                                    {{order.displayStatus}}
+                                    <div ng-if="order.erpCode === 'CIS' && order.orderBatchId"
+                                        style="padding-top:4px;font-size:13px; font-weight:700;">
+                                        <strong>BatchId:</strong> {{order.orderBatchId}}
+                                    </div>
+                                    <p style="font-size:12px; font-weight:700; margin-top:10px;">Note:</p>
+                                    <div style="margin-top: 5px; text-wrap: pretty;line-height:normal">
+                                        In case of disparity, the updated status will be visible under <span
+                                            style="font-weight: bold;">Status</span> in next system update
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-if="order.statusCode == 13" class="badge"
+                                style="width:118px;border-radius:5px;background:rgba(171, 88, 77, 0.25);color: #AB584D;padding:7px 12px 7px 12px;"
+                                ng-click="statusClick(index, false, order.statusCode, order)">
+                                <img alt="" style="width:14px;height:16px;color:#AB584D"
+                                    src="assets/legacy/Images/Cancelled.svg" /> {{order.orderStatus}}
+                            </div>
+                            <div id="first" ng-if="order.showTooltipCancelled" class="text-wrap"
+                                style="text-align:left;position: relative; z-index: 9999;width: fit-content; background-color: #fff;color:black; border: 1px solid #ccc; padding: 5px; border-radius: 5px;margin-left: -178px;">
+                                <div style="display:inline-block">
+                                    <button type="button"
+                                        style="position: absolute; top: 0; right: 0; padding: 14px; background-color: transparent; border: none; cursor: pointer;"
+                                        ng-click="order.showTooltipCancelled = false">
+                                        <span style="font-size: 14px; font-weight: bold;"><img alt=""
+                                                style="width:14px;height:16px;color:#38853C"
+                                                src="assets/legacy/Images/Close.svg" /></span>
+                                    </button>
+                                    <p style="padding:2px 10px 0px 10px;font-size:14px;font-weight:400;">Status
+                                        Information</p>
+                                </div>
+                                <div style="color:#75716E;background-color:#F8F8F8;padding:10px;">
+                                    <p style="font-size:12px; font-weight:700">DETAILS</p>
+                                    {{order.displayStatus}}
+                                    <div ng-if="order.erpCode === 'CIS' && order.orderBatchId"
+                                        style="padding-top:4px;font-size:13px; font-weight:700;">
+                                        <strong>BatchId:</strong> {{order.orderBatchId}}
+                                    </div>
+                                    <p style="font-size:12px; font-weight:700; margin-top:10px;">Note:</p>
+                                    <div style="margin-top: 5px; text-wrap: pretty;line-height:normal">
+                                        In case of disparity, the updated status will be visible under <span
+                                            style="font-weight: bold;">Status</span> in next system update
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-if="order.erpCode !== 'NSAP' && order.erpCode !== 'CIS'" class="badge"
+                            style="width:120px;border-radius:5px;background:#DEE7DE;color: #38853C;padding:7px 12px 7px 12px;">
+                            <img alt="" style="width:14px;height:16px;color:#38853C"
+                                src="assets/legacy/Images/Completed.svg" /> CBC Complete
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-repeat-end ng-show="order.detailIsVisible" style="background:#E4E5E6;">
+                    <td></td>
+                    <td colspan="15">
+                        <table class="table table-bordered table-condensed scrollsize"
+                            style="height: 536px;overflow-y: scroll;display:block;width: auto;background:#E4E5E6;">
+                            <tr>
+                                <td colspan="5" style="max-width: 450px;word-wrap: break-word;">
+                                    <b><u>Reseller Info</u></b>
+                                    <span
+                                        ng-show="order.orderDetail.reseller.address1"><br /><b>Address&nbsp;1:&nbsp;</b>{{order.orderDetail.reseller.address1}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.reseller.address2"><br /><b>Address&nbsp;2:&nbsp;</b>{{order.orderDetail.reseller.address2}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.reseller.address3"><br /><b>Address&nbsp;3:&nbsp;</b>{{order.orderDetail.reseller.address3}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.reseller.city"><br /><b>City:&nbsp;</b>{{order.orderDetail.reseller.city}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.reseller.stateOrRegion"><br /><b>State/Region:&nbsp;</b>{{order.orderDetail.reseller.stateOrRegion}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.reseller.postalCode"><br /><b>Postal&nbsp;Code:&nbsp;</b>{{order.orderDetail.reseller.postalCode}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.reseller.email"><br /><b>Email:&nbsp;</b>{{order.orderDetail.reseller.email}}</span>
+                                </td>
+                                <td colspan="5" style="max-width: 450px;word-wrap: break-word;">
+                                    <b><u>End User Info</u></b>
+                                    <span
+                                        ng-show="order.orderDetail.endUser.address1"><br /><b>Address&nbsp;1:&nbsp;</b>{{order.orderDetail.endUser.address1}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.endUser.address2"><br /><b>Address&nbsp;2:&nbsp;</b>{{order.orderDetail.endUser.address2}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.endUser.address3"><br /><b>Address&nbsp;3:&nbsp;</b>{{order.orderDetail.endUser.address3}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.endUser.city"><br /><b>City:&nbsp;</b>{{order.orderDetail.endUser.city}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.endUser.stateOrRegion"><br /><b>State/Region:&nbsp;</b>{{order.orderDetail.endUser.stateOrRegion}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.endUser.postalCode"><br /><b>Postal&nbsp;Code:&nbsp;</b>{{order.orderDetail.endUser.postalCode}}</span>
+                                    <span
+                                        ng-show="order.orderDetail.endUser.email"><br /><b>Email:&nbsp;</b>{{order.orderDetail.endUser.email}}</span>
+                                </td>
+                                <td>
+                                    <b><u>XML Receive Date</u></b>
+                                    <span><br />{{order.receiveDate | date:'MM/dd/yyyy'}}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Line&nbsp;&#35;</th>
+                                <th style="width:85px;">TD SKU</th>
+                                <th>Qty</th>
+                                <!--<th>MFCT Part&nbsp;&#35;</th>-->
+                                <th>Vendor&nbsp;Name</th>
+                                <th>Purchase<br />Currency</th>
+                                <th>VND Unit&nbsp;Cost</th>
+                                <th>VND Total&nbsp;Cost</th>
+                                <th>RES Unit&nbsp;Price</th>
+                                <th>RES Total&nbsp;Price</th>
+                                <th style="width:30%" colspan="4">Subscription&nbsp;ID</th>
+                                <th style="width:45%" colspan="2">Invoice&nbsp;Text</th>
+                                <th style="width:32%" colspan="2" ng-show="order.isOneTime">TD&nbsp;PO</th>
+                            </tr>
+                            <tr ng-repeat="orderLine in order.orderDetail.orderLines track by orderLine.salesOrderLineId"
+                                ng-class="{
+                                    'bc-order-error': (orderLine.techDataSKU == '' && !order.showWarningColor && !order.showErrorColor) || (orderLine.techDataSKU == '' && order.showErrorColor),
+                                    'bc-order-warn': order.showWarningColor && !order.showErrorColor
+                                }">
+                                <td style="cursor: pointer;"><a
+                                        ng-click="invoiceLinePopup(orderLine.salesOrderLineId,$event,0,0)">{{::orderLine.lineNumber}}</a>
+                                </td>
+                                <td>{{::orderLine.techDataSKU}}</td>
+                                <td>{{::orderLine.quantity}}</td>
+                                <!--<td>{{::orderLine.manufacturePn}}</td> -->
+                                <td>{{::orderLine.vendorName}}</td>
+                                <td>{{::orderLine.purchaseCurrency}}</td>
+                                <td>{{::orderLine.vendorUnitCost}}</td>
+                                <td>{{::orderLine.vendorTotalCost}}</td>
+                                <td>{{::orderLine.resellerUnitCost}}</td>
+                                <td>{{::orderLine.resellerTotalCost}}</td>
+                                <td colspan="4">{{::orderLine.subscriptionId}}</td>
+                                <td colspan="2">
+                                    <div ng-bind-html="orderLine.invoiceText">{{::orderLine.invoiceText}}</div>
+                                    <div ng-show="order.isOneTime">For more details, refer to S-ION Reports</div>
+                                    <div
+                                        ng-show="(orderLine.platform=='SION' || orderLine.platform=='') && !order.isOneTime">
+                                        Follow link to See Billing Statement ID_<a
+                                            ng-href="https://{{::redirectbaseUrl}}/v2/billing/reseller-invoices/{{::orderLine.invoiceId}}/reseller/-/product/-"
+                                            target="_blank">{{::orderLine.invoiceLinkId }}</a></div>
+                                </td>
+                                <td>{{::orderLine.tdpo}}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="position:relative; bottom:0px; margin-bottom:10px; height:70px; width:100%"
+        ng-show="billingOrders.length > 0">
+        <table style="margin-right:10px; margin-left:10px; width:100%">
+            <tr>
+                <td style="text-align:left">
+                    <p>Displaying: {{ordersCountLabelText}}</p>
+                </td>
+                <td style="text-align:end;">
+                    <div class="container" style="width: auto">
+                        <ul ng-if="pager.props.pages.length" class="pagination">
+                            <li ng-class="{disabled:pager.props.currentPage === 1}" style="cursor: pointer;">
+                                <a ng-click="setPage(1)">First</a>
+                            </li>
+                            <li ng-class="{disabled:pager.props.currentPage === 1}" style="cursor: pointer;">
+                                <a ng-click="setPage(pager.props.currentPage - 1)">Previous</a>
+                            </li>
+                            <li ng-repeat="page in pager.props.pages"
+                                ng-class="{active:pager.props.currentPage === page}" style="cursor: pointer;">
+                                <a ng-click="setPage(page)">{{page}}</a>
+                            </li>
+                            <li ng-class="{disabled:pager.props.currentPage === pager.props.totalPages}"
+                                style="cursor: pointer;">
+                                <a ng-click="setPage(pager.props.currentPage + 1)">Next</a>
+                            </li>
+                            <li ng-class="{disabled:pager.props.currentPage === pager.props.totalPages}"
+                                style="cursor: pointer;">
+                                <a ng-click="setPage(pager.props.totalPages)">Last</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="activityBar" style="text-align:center; top:57%; left:10%; position:absolute; width: 80%;">
+        <div ng-show="loadingText == 'No Matching Data Found' || showLoadingDiv" id="activity"
+            style="margin:15px; left:40%; border:solid; background-color:lightgray; width:20%; height:80px; display:table; position:inherit; z-index: 10;">
+            <div style="display:table-cell; vertical-align:middle">
+                <p>{{loadingText}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div ng-if="showOrderIssues"
+        style="position:fixed; top:207px; left:400px; border:solid; background-color:lightgray; padding-top:5px;z-index:1000;">
+        &nbsp;&nbsp;&nbsp;<b>Issues for Order #:
+            {{orderWithIssues.SalesOrderNumber}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Received: {{orderWithIssues.ReceiveDate |
+            date: 'MM/dd/yyyy HH:mm:ss'}}</b>&nbsp;&nbsp;&nbsp;&nbsp;<button ng-click="hideIssues()" type="button"
+            class="close" style="margin-right:8px !important;">&times;</button>
+        <br />
+        <ul>
+            <li ng-repeat="issueMessage in orderWithIssues.orderIssueMessages">
+                {{issueMessage.message}}&nbsp;&nbsp;&nbsp;
+            </li>
+        </ul>
+    </div>
+
+    <div ng-if="showInvoiceLine" ng-style="popupStyle">
+        <button ng-click="close()" type="button" class="close" style="margin-right:8px !important;">&times;</button>
+        <div ng-show="invoiceLineDetails.length > 0">
+            <div style="width:100%; height:calc(100% - 220px); overflow-y:auto;">
+                <table class="table table-bordered table-condensed" style="margin-left:8px; width:99% !important">
+                    <thead>
+                        <tr>
+                            <th ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues">
+                                Invoice ID
+                            </th>
+                            <th ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues">
+                                Line Number
+                            </th>
+                            <th ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues">
+                                Product Description
+                            </th>
+                            <th ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues">
+                                Vendor Product ID
+                            </th>
+                            <th ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues">
+                                Collection SKU
+                            </th>
+                            <th ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues">
+                                Vendor Name
+                            </th>
+                            <th ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues">
+                                Cost
+                            </th>
+                            <th ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues">
+                                Price
+                            </th>
+                            <th ng-show="legacyModernFlag == 1"
+                                ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues">
+                                Legacy/Modern flag
+                            </th>
+                            <th ng-attr-style="min-width:25px; width:{{columnPixels.Issues}}px;" title="Issues">
+                                Sku Data Source
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="invoiceLineDetail in invoiceLineDetails" class="bc-unfiltered-header-row"
+                            ng-class-odd="'bc-odd-row'" ng-class-even="'bc-even-row'" ng-class="{'bc-order-warn' :{{::invoiceLineDetail.cost}} == 0 && !order.showWarningColor && !order.showErrorColor,
+'bc-order-warn' : order.showWarningColor && !order.showErrorColor, 'bc-order-error' : order.showErrorColor}">
+                            <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;">
+                                {{::invoiceLineDetail.invoiceId}}
+                            </td>
+                            <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;">
+                                {{::invoiceLineDetail.lineNumber}}
+                            </td>
+                            <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;">
+                                {{::invoiceLineDetail.description}}
+                            </td>
+                            <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;">
+                                {{::invoiceLineDetail.vendorProductId}}
+                            </td>
+                            <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;">
+                                {{::invoiceLineDetail.techDataSKU}}
+                            </td>
+                            <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;">
+                                {{::invoiceLineDetail.vendorName}}
+                            </td>
+                            <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;">
+                                {{::invoiceLineDetail.cost}}
+                            </td>
+                            <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;">
+                                {{::invoiceLineDetail.price}}
+                            </td>
+                            <td ng-show="legacyModernFlag == 1" ng-class="{'bc-first-row-column':$first}"
+                                style="min-width:25px;">
+                                {{::invoiceLineDetail.modernOrLegacy}}
+                            </td>
+                            <td ng-class="{'bc-first-row-column':$first}" style="min-width:25px;">
+                                {{::invoiceLineDetail.skuDataSource}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="position:relative; bottom:0px; margin-bottom:10px; height:70px; width:100%"
+                ng-show="invoiceLineDetails.length > 0">
+                <table style="margin-right:10px; margin-left:10px; width:100%">
+                    <tr>
+                        <td style="text-align:left">
+                            <p>Displaying: {{invoiceLineLabelText}}</p>
+                        </td>
+                        <td style="text-align:end;">
+                            <div class="container" style="width: auto">
+                                <ul ng-if="pagerInvoice.props.pages.length" class="pagination">
+                                    <li ng-class="{disabled:pagerInvoice.props.currentPage === 1}"
+                                        style="cursor: pointer;">
+                                        <a ng-click="setInvoicePage(1)">First</a>
+                                    </li>
+                                    <li ng-class="{disabled:pagerInvoice.props.currentPage === 1}"
+                                        style="cursor: pointer;">
+                                        <a ng-click="setInvoicePage(pagerInvoice.props.currentPage - 1)">Previous</a>
+                                    </li>
+                                    <li ng-repeat="page in pagerInvoice.props.pages"
+                                        ng-class="{active:pagerInvoice.props.currentPage === page}"
+                                        style="cursor: pointer;">
+                                        <a ng-click="setInvoicePage(page)">{{page}}</a>
+                                    </li>
+                                    <li ng-class="{disabled:pagerInvoice.props.currentPage === pagerInvoice.props.totalPages}"
+                                        style="cursor: pointer;">
+                                        <a ng-click="setInvoicePage(pagerInvoice.props.currentPage + 1)">Next</a>
+                                    </li>
+                                    <li ng-class="{disabled:pagerInvoice.props.currentPage === pagerInvoice.props.totalPages}"
+                                        style="cursor: pointer;">
+                                        <a ng-click="setInvoicePage(pagerInvoice.props.totalPages)">Last</a>
+                                    </li>
+                                </ul>
+
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div ng-show="invoiceLineDetails.length == 0" style="text-align:center;">
+            <b>No data found for the selected line number</b>
+        </div>
+    </div>
+
+    <div ng-show="showServiceorderMessage"
+        style="width:700px;position: absolute;top: 240px;left: 100px;padding-top: 6px;">
+        <button ng-click="closeServiceOrderMessage()" type="button" class="close"
+            style="margin-right:8px !important;">&times;</button>
+        <div style="text-align:center;">
+            <b>Please select valid records</b>
+        </div>
+    </div>
+
+    <div id="myDeleteModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Confirmation</h4>
+                </div>
+                <div class="modal-body" style="line-height:1.5">
+                    <p>All orders linked to the same invoice will be deleted in UI as part of this request.Would you
+                        like to continue?</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary me-md-2" type="button" data-dismiss="modal"
+                        ng-click="Confirmation('Confirm')">Continue</button>
+                    <button class="btn btn-primary" type="button" data-dismiss="modal">Close</button>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+    <div id="batchid" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false"
+        style="font-family:Arial;opacity:1;top:194px;padding-top:80px;">
+        <div class="modal-dialog">
+            <div class="modal-content" ng-show="showModal">
+                <div class="modal-body" ng-show="showModal">
+                    <h3 style="margin-top:10px;">Service Order ID</h3>
+                    <div ng-if="!showServiceorderEMEA">
+                        <p
+                            style="font-family: Arial;font-size: 14px;font-weight: 400;line-height: 30px;letter-spacing: 0em;text-align: left;">
+                            Enter Service Order ID or proceed without.</p>
+                    </div>
+                    <div ng-if="showServiceorderEMEA">
+                        <p
+                            style="font-family: Arial;font-size: 14px;font-weight: 400;line-height: 30px;letter-spacing: 0em;text-align: left;">
+                            To proceed with approval enter Service Order ID</p>
+                    </div>
+                    <div ng-if="!showServiceorderEMEA">
+                        <input type="radio" id="radio1" name="sericeOrderRadio"
+                            style="border-color:#003031;cursor:pointer;" ng-model="serviceOrderIdOption"
+                            ng-click="enterServiceOrderId(false,serviceOrderIdOption)" ng-value="false" /> <small
+                            style="font-size:100%; color:#003031;">Proceed without Service Order ID</small>
+                    </div>
+                    <div ng-if="!showServiceorderEMEA" style="padding-bottom:12px">
+                        <input type="radio" id="radio2" name="sericeOrderRadio"
+                            style="border-color:#003031;cursor:pointer;" ng-model="serviceOrderIdOption"
+                            ng-click="enterServiceOrderId(true,serviceOrderIdOption)" ng-value="true" /> <small
+                            style="font-size:100%; color:#003031;">Enter Service Order ID</small>
+                    </div>
+                    <div class="form-group" ng-show="showServiceorderEMEA || showServiceorderAPJ">
+                        <input type="text" style="width:400px;" ID="BatchId" ng-model="seriveOrderID" maxlength="50" />
+                        <label for="yourname" style="color:#888B8D;margin-bottom:25px;">Service Order ID: <span
+                                ng-if="showServiceorderEMEA || serviceOrderIdOptionValue">*</span> &nbsp;</label>
+                        <p style="color:#888B8D">This is a required field</p>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:unset;">
+
+                    <button class="btn btn-su me-md-2" id="cancel" type="button"
+                        style="background-color:white;border-color:white;color:#005758"
+                        ng-click="closeServiceOrder()">Cancel</button>
+                    <button class="btn btn-primary" id="proceed" style="background-color:#005758;border-color:#005758;"
+                        type="button"
+                        ng-disabled="(showServiceorderAPJ==true && (seriveOrderID=='' || seriveOrderID==null)) || (showServiceorderEMEA && (seriveOrderID=='' || seriveOrderID==null))"
+                        ng-click="approveServiceOrderId(true)">Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalert" class="modal fade" role="dialog" style="font-family:Arial;opacity:1;top:194px;padding-top:80px;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h3 style="margin-top:10px;">Order Details</h3>
+                    <div style="max-height: 300px; overflow-y: auto;  padding: 10px;  font-family: Arial;">
+                        <span ng-bind-html="InvoiceIdlist"></span>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:unset;">
+                    <button id="btncancel" type="button" style="background-color:white;border-color:white;color:#005758"
+                        ng-click="closemodalert()">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <script src="~/Scripts/toastr.js"></script>   
+    <script src="~/Scripts/popper.min.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script> 
+    
+    "https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js",
+							"https://cdnjs.cloudflare.com/ajax/libs/ng-csv/0.3.6/ng-csv.min.js",
+    -->
+
+
+</body>

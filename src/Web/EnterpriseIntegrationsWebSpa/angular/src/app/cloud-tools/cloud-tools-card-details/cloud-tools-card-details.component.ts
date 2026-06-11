@@ -3,13 +3,11 @@ import { CloudToolsPanelContent, CloudToolsSidePanelDetailsTabEnum, CloudToolsSt
 import { S1DataTableColumn } from 'src/app/models/s1/s1-data-table.interface';
 import { S1TextDisplay } from 'src/app/models/s1/s1-text-display.interface';
 import { CloudToolsSidePanelHelper } from "../CloudToolsSidePanelHelper";
-import { CloudToolsCSVBuilder } from "../CloudToolsCSVBuilder";
 import { CloudToolsTableColumnBuilder } from "../CloudToolsTableColumnBuilder";
 import { PpcPaginatorDataService } from 'src/app/core/services/ppc-paginator-data.service';
 import { PPCPageChangeEventData, PPCPaginatorData } from 'src/app/models/ppc-paginator.model';
 import { DEFAULT_PAGE_SIZE_CLOUD_TOOLS, DEFAULT_PAGE_SIZE_OPTIONS } from 'src/app/core/constants/constants';
 import { Subject, take, takeUntil } from 'rxjs';
-import { S1CommonHelper } from 'src/app/s1-common.helper';
 import { DatePipe } from '@angular/common';
 import { CloudToolsAPIService } from 'src/app/core/services/cloud-tools/cloud-tools-api.service';
 import { CloudToolType } from 'src/app/core/config/cloud-tools.config';
@@ -29,8 +27,10 @@ export class CloudToolsCardDetailsComponent implements OnInit, OnDestroy, OnChan
   @Input() activeTabId!:number;
   @Output() dismissEvent = new EventEmitter<void>();
   @Output() showOverlayInParent = new EventEmitter<boolean>();
+  @Output() gotoEmitter = new EventEmitter<void>();
 
   createdByTextDisplay!: S1TextDisplay;
+  requestedByTextDisplay!: S1TextDisplay;
   tableData!: TransactionDetails[];
   tableColumn!:S1DataTableColumn[];
   paginatorData!: PPCPaginatorData;
@@ -54,8 +54,8 @@ export class CloudToolsCardDetailsComponent implements OnInit, OnDestroy, OnChan
 
   ngOnInit(): void {
     // since activeTabId is a number, we use this type of comparison
-    if(this.activeTabId === null) throw new Error('activeID which is required for computing the details is not available!.');
-    if (!this.inputData?.row || !this.inputData?.details) throw new Error('inputData which is required for computing the details is not available!.');
+    if(this.activeTabId === null) return;
+    if (!this.inputData?.row || !this.inputData?.details) return;
     this.initSubs();
     this.initTask();
   }
@@ -67,7 +67,8 @@ export class CloudToolsCardDetailsComponent implements OnInit, OnDestroy, OnChan
   }
 
   initTask() {
-    this.initTextDisplay(this.inputData.row.createdBy);
+    this.initTextDisplay(this.inputData.row.createdBy, 'createdBy');
+    this.initTextDisplay(this.inputData.row.requestedBy, 'requestedBy');
     this.prepareCurrentTransactionDetailsRequest(this.inputData.details);
     this.initTableColumn();
     this.initTableData();
@@ -84,20 +85,25 @@ export class CloudToolsCardDetailsComponent implements OnInit, OnDestroy, OnChan
     });
   }
 
-  initTextDisplay(createdBy: string) {
-    this.createdByTextDisplay = {
+  initTextDisplay(value: string, type: 'createdBy' | 'requestedBy') {
+    const textDisplay: S1TextDisplay = {
       height: '48px',
       width: '100%',
       padding: '8px 12px',
       color: '#63666A',
-      title: createdBy,
+      title: value,
     };
-  }
+    if (type === 'createdBy') {
+      this.createdByTextDisplay = textDisplay;
+    } else {
+      this.requestedByTextDisplay = textDisplay;
+    }
+  }  
 
   initTableColumn(): void {
     const toolType = this.resolveToolType(this.inputData.row.taskId);
     const tabType = this.resolveTabType(this.activeTabId);
-    const outputMessage = this.resolveOutputMessage(toolType, tabType) ?? '';
+    const outputMessage = this.resolveOutputMessage(toolType, tabType, '') ?? '';
     this.tableColumn = CloudToolsTableColumnBuilder.build(toolType, tabType, this.datePipe, outputMessage);
   }
 
@@ -114,6 +120,14 @@ export class CloudToolsCardDetailsComponent implements OnInit, OnDestroy, OnChan
       case CloudToolsTaskIdEnum.PCRCleanup:
         this.sidePanelTitle = 'PCR Cleanup Details';
         return CloudToolType.PCRCleanup;
+      
+      case CloudToolsTaskIdEnum.UpdateMPNID:
+        this.sidePanelTitle = 'MpnID Details';
+        return CloudToolType.UpdateMPNID;
+
+      case CloudToolsTaskIdEnum.SubscriptionTransfer:
+        this.sidePanelTitle = 'Subscription Transfer Details';
+        return CloudToolType.SubscriptionTransfer;
 
       default:
         throw new Error(`Unsupported Cloud Tool taskId: ${taskId}`);
@@ -131,7 +145,7 @@ export class CloudToolsCardDetailsComponent implements OnInit, OnDestroy, OnChan
     }
   }
 
-  private resolveOutputMessage(tool: CloudToolType, tab: CloudToolsStatusIdEnum): string | null {
+  private resolveOutputMessage(tool: CloudToolType, tab: CloudToolsStatusIdEnum, message: string): string | null {
     if (tool === CloudToolType.EST) {
       return null;
     }
@@ -140,6 +154,10 @@ export class CloudToolsCardDetailsComponent implements OnInit, OnDestroy, OnChan
         return this.getSandboxOutputMessage(tab);
       case CloudToolType.PCRCleanup:
         return this.getPCROutputMessage(tab);
+      case CloudToolType.UpdateMPNID:
+        return this.getMpnIDOutputMessage(tab, message);
+      case CloudToolType.SubscriptionTransfer:
+        return this.getSubscriptionTransferOutputMessage(tab);
       default:
         return null;
     }
@@ -177,10 +195,47 @@ export class CloudToolsCardDetailsComponent implements OnInit, OnDestroy, OnChan
     return result;
   }
 
+  private getMpnIDOutputMessage(tab: CloudToolsStatusIdEnum, message: string): string {
+    let result = '';
+    switch (tab) {
+      case CloudToolsStatusIdEnum.Success:
+        result = message == '' ? 'MpnID update completed successfully' : message;
+        break;
+      case CloudToolsStatusIdEnum.InProgress:
+        result = 'MpnID update is in progress';
+        break;
+      case CloudToolsStatusIdEnum.Failed:
+        result = 'MpnID update failed';
+        break;
+    }    
+    return result;
+  }
+
+  private getSubscriptionTransferOutputMessage(tab: CloudToolsStatusIdEnum): string {
+    let result = '';
+    switch (tab) {
+      case CloudToolsStatusIdEnum.Success:
+        result = 'Subscription transfer completed successfully';
+        break;
+      case CloudToolsStatusIdEnum.InProgress:
+        result = 'Subscription transfer is in progress';
+        break;
+      case CloudToolsStatusIdEnum.Failed:
+        result = 'Subscription transfer failed';
+        break;
+    }    
+    return result;
+  }
+
   tableRowClickHandler(rowData: TransactionDetails): void {
     const toolType = this.resolveToolType(this.inputData.row.taskId);
     const tabType = this.resolveTabType(this.activeTabId);
-    const outputMessage =this.resolveOutputMessage(toolType, tabType) ?? '';
+    // Feed row-level ErrorMessage into Output Message so detail panel reflects API advisory text.
+    const errorMessage =
+      typeof rowData.response === 'object' && rowData.response !== null && 'ErrorMessage' in rowData.response
+        ? (rowData.response as any).ErrorMessage
+        : '';
+    const outputMessage = this.resolveOutputMessage(toolType, tabType, errorMessage) ?? '';
     const rows = CloudToolsSidePanelHelper.buildDetailsFormRows(rowData, toolType, tabType, outputMessage);
     const formTab: CloudToolsPanelContent = {
       type: 'filter',
@@ -241,9 +296,9 @@ export class CloudToolsCardDetailsComponent implements OnInit, OnDestroy, OnChan
     let statusIds: CloudToolsStatusIdEnum[] = [];
 
     switch (this.activeTabId) {
-      case 1: statusIds = [1]; break; // InProgress tab
-      case 2: statusIds = [2]; break; // Failed tab
-      default: statusIds = [3]; break; // Success tab
+      case 1: statusIds = [CloudToolsStatusIdEnum.InProgress]; break; // InProgress tab
+      case 2: statusIds = [CloudToolsStatusIdEnum.Failed]; break; // Failed tab
+      default: statusIds = [CloudToolsStatusIdEnum.Success]; break; // Success tab
     }
 
     this.currTDRequest = {
@@ -306,13 +361,8 @@ export class CloudToolsCardDetailsComponent implements OnInit, OnDestroy, OnChan
     });
   }
 
-  downloadCSV(): void {
-    const toolType = this.resolveToolType(this.inputData.row.taskId);
-    const tabType = this.resolveTabType(this.activeTabId);
-    const outputMessage = this.resolveOutputMessage(toolType, tabType) ?? '';
-    const columns = CloudToolsCSVBuilder.build(toolType, tabType, { id: this.inputData.row.id, taskName: this.inputData.row.taskName }, outputMessage);
-    const csvString = S1CommonHelper.generateCsv(this.tableData, columns);
-    S1CommonHelper.downloadCsv(csvString, `${toolType}_${this.inputData.row.id}.csv`);
+  gotoClickHandler(): void {
+    this.gotoEmitter.emit();
   }
 
   ngOnDestroy(): void {

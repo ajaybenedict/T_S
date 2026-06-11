@@ -5,6 +5,7 @@ import { SsoService } from './sso.service';
 import { PermissionsLoaderDialogService } from './permissions-loader-dialog.service';
 import { Router } from '@angular/router';
 import { DataState } from './data-state';
+import { User, UserResponse } from 'src/app/models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -18,11 +19,10 @@ export class SsoLoginService {
     private readonly dataState: DataState,
   ) { }
 
-  public handleSsoSuccess(res: any): void {
+  public handleSsoSuccess(res: UserResponse | null | undefined): void {
     if (!res) {
       // No response - treat as error case
       this.ssoService.redirectToError();
-      // For local, uncomment this line - sessionStorage.setItem('jwtToken', res?.authJwtToken);
       return;
     }
 
@@ -35,13 +35,21 @@ export class SsoLoginService {
     this.ssoService.redirectToSSOLogin();
   }
 
-  private processSuccessfulLogin(res: any): void {
-    // for local, uncomment this line - sessionStorage.setItem('jwtToken', res.authJwtToken);    
-    this.dataState.setFirstName(res.firstName);
-    this.dataState.setUserEmail(res.emailAddress);
-    localStorage.setItem('firstName', res.firstName);
-    localStorage.setItem('redirectUrl', res.redirectUrl);
-    this.dataState.setRedirectUrl(res.redirectUrl);
+  private processSuccessfulLogin(res: UserResponse): void {
+    // for local, uncomment the line -----
+    /* if (res.authJwtToken) {
+      sessionStorage.setItem('jwtToken', res.authJwtToken);
+    } */
+    // ----- for local, uncomment the line above -----
+    const user = new User({
+      firstName: res.firstName ?? '',
+      lastName: res.lastName ?? '',
+      emailAddress: res.emailAddress ?? '',
+      userKey: res.userKey ?? '',
+    });
+
+    this.dataState.setUser(user);    
+    this.dataState.setRedirectUrl(res.redirectUrl ?? null);
     
     // This will redirect user to landingpage with angular router logic. No need to identify the hostname.
     this.router.navigateByUrl(`/${APP_ROUTE_CONFIG_URL.LANDING_PAGE}`);
@@ -64,6 +72,11 @@ export class SsoLoginService {
       case 410:
         // Session expired
         this.dialogSVC.showDialog('SessionExpired');
+        break;
+
+      case 500:
+        // Server error - show generic error dialog
+        this.dialogSVC.showDialog('ServerError');
         break;
 
       default:

@@ -1,0 +1,34 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.panel-container {
+    background-color: #FFFFFF;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #D9D8D7;
+    height: calc(100vh - 68px);
+    position: relative;
+    overflow: hidden;
+}
+
+.panel-content-holder {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.panel-footer {
+    height: 77px;    
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+.reseller-overview-link {
+    cursor: pointer;
+}
+
+.reseller-overview-link:hover {
+    text-decoration: underline;
+}

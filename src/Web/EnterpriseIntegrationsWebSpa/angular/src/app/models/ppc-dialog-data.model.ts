@@ -33,4 +33,9 @@ export type DialogType =
   'Confirmation' |
   'RuleEngineConfirmation' |
   'RuleEngineConfirmationWithRadioBtn' |
-  'SessionExpired';
+  'SessionExpired' |
+  'ServerError' |
+  'ServiceOrderIDPopup' |  
+  'SubsTransferCustomerPreviewConfirmation' | 
+  'SubsTransferNoCustomerFound'|
+  'BulkUpdateFraudEventConfirmation' ;

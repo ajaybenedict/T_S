@@ -1,13 +1,15 @@
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DataTableService } from 'src/app/services/data-table.service';
 import { CBCDashboardAPIService } from 'src/app/services/cbcdashboard-api.service';
 import { RowScrollService } from 'src/app/services/table-row.service';
 import { ORDER_LEVEL_TABLE_COLUMNS } from 'src/app/config/data-table-columns.config';
-import { DataTableComponent } from '../data-table/data-table.component';
 import { DETAILED_VIEW_ACTION_CONFIG } from 'src/app/config/action-button.config';
 import { Button } from 'src/app/interface/button.interface';
 import { OrderStatusService } from 'src/app/services/order-status.service';
 import { ManageColumnService } from 'src/app/services/manage-table-column.service';
+import { OrderSecondLevelComponent } from '../../order-second-level-component/order-second-level-component.component';
+
+
 @Component({
   selector: 'app-data-modal',
   templateUrl: './data-modal.component.html',
@@ -21,19 +23,21 @@ export class DataModalComponent implements OnInit {
 
   scrollIndex: number = 0;
   scrollChildIndex: number = 0;
+  navigationMode: boolean = false;
 
-  selectedRowIndex: number = 0;
-  selectedRow: any = null;
-  @ViewChild(DataTableComponent) dataTable!: DataTableComponent;
+  currentRowIndex: number = 1;
+  selectedRowId: string | null = null;
+
   tableColumns: any;
   tableData: any;
-  tableexpandable!: string | null;
+
 
   selectedOrders: any;
   currentTab: string = '';
 
   updated_columns: any[] = [];
   fetched_managecolumn: any[] = [];
+  OrderSecondLevelComponent = OrderSecondLevelComponent;
 
   constructor(
     private readonly dataTableService: DataTableService,
@@ -58,8 +62,9 @@ export class DataModalComponent implements OnInit {
               this.filterVisibleColumns();
             }
             else {
-              this.dataTable.updateTable(this.tableColumns, this.tableData);
+              this.updated_columns = this.tableColumns;
             }
+
           },
           error: (err) => {
             console.error('Failed to load order line items', err);
@@ -82,10 +87,6 @@ export class DataModalComponent implements OnInit {
     this.rowScrollService.scrollRow$.subscribe(index => {
       this.scrollIndex = index.rowIndex;
       this.scrollChildIndex = index.childIndex;
-    });
-
-    this.dataTableService.tableexpandable$.subscribe(expandable => {
-      this.tableexpandable = expandable;
     });
   }
 
@@ -115,20 +116,11 @@ export class DataModalComponent implements OnInit {
       return aIndex - bIndex;
     });
 
-    this.dataTable.updateTable(this.updated_columns, this.tableData);
+
   }
 
-  tableId: string = '';
 
-  onTableIdReady(id: string) {
-    this.tableId = id;
-  }
 
-  onclickedOrderItem(event: { row: any; index: number }) {
-    this.selectedRowIndex = event.index;
-    this.selectedRow = event.row;
-    this.dataTableService.setSelectedOrderLineItem(event.row.salesOrderLineId);
-  }
 
   onDetailedLevelAction(actionKey: string, event: MouseEvent): void {
     this.buttonAction.emit({ key: actionKey, selectedOrders: this.selectedOrders, event: event, position: 'above' });
@@ -142,23 +134,60 @@ export class DataModalComponent implements OnInit {
     // Add the submneu logic here
   }
 
-  onScrollButtonClick() {
-    const scrollContainer = document.querySelector('.table-wrapper .p-datatable-wrapper');
+  onScrollButtonClick() {   
+    const scrollContainer = document.querySelector('.grouped-table-view .p-datatable-wrapper');
     const targetRow = scrollContainer?.querySelector(
       ` tbody tr[data-rowIndex="${this.scrollIndex}"][data-rowChildIndex="${this.scrollChildIndex}"]`
     );
     if (scrollContainer && targetRow) {
-      const containerTop = scrollContainer.getBoundingClientRect().top;
-      const rowTop = targetRow.getBoundingClientRect().top;
-      const offset = rowTop - containerTop;
-      scrollContainer.scrollTo({ top: scrollContainer.scrollTop + offset - 135, behavior: 'smooth' });
+
+       targetRow.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+
+     
     } else {
       console.warn('Scroll container or target row not found');
     }
   }
 
-  onClose() {
-    this.dataTableService.setTableExpandable(null);
+  onRowSelected(row: any) {
+    this.dataTableService.setSelectedOrderLineItem(row.salesOrderLineId);
+    this.navigationMode = true;
+    this.currentRowIndex = this.tableData.findIndex(
+      (x: any) => x.salesOrderLineId === row.salesOrderLineId
+    ) + 1;
+
+    this.selectedRowId = row.salesOrderLineId;
+  }
+
+  goNext() {
+    if (this.currentRowIndex < this.tableData.length) {
+      this.currentRowIndex++;
+
+      this.selectedRowId =
+        this.tableData[this.currentRowIndex - 1].salesOrderLineId;
+      this.navigationMode = true;
+    }
+  }
+
+  goPrevious(index: number) {
+    this.currentRowIndex = index;
+     if (this.currentRowIndex > 1) {
+    this.currentRowIndex--;
+
+    this.selectedRowId =
+      this.tableData[this.currentRowIndex - 1].salesOrderLineId;
+
+    this.navigationMode = true;
+  } else {
+    this.navigationMode = false;
+    this.selectedRowId = null;
+  }
+  }
+
+  onClose() {    
     this.close.emit();
   }
 }

@@ -1,26 +1,13 @@
-export interface TableColumn {
-  columnName: string;
-  key: string;
-  className?: string;
-  stickyPosition?: 'left' | 'right';
-  stickyIndex?: number;
-  pipe?: string;
-  pipeArgs?: any;
-  actions?:string[];
-  actionsIsDropdown?: boolean;
-  isStatus?: boolean;
-  showCheckbox?: boolean;
-}
-
-
+export type CellValue = string | number | boolean | null;
 // data-table-columns.interface.ts
 export interface GroupedTableColumns{
   key: string;
   columnName: string;
   isFrozen?: boolean;
+  isGroupKey?: boolean;
   groupHeaderPosition?: 'left' | 'right' | 'none';
   showInGroupHeader?:boolean;
-  valueGetter?: (rowData: any, orderData: any)  => string | number | boolean | null;
+  valueGetter?: (rowData: any, orderData: any)  => CellValue[];
   pipe?: string;
   pipeArgs?: any;
   isCheckbox?: boolean;
@@ -30,6 +17,15 @@ export interface GroupedTableColumns{
   isStatus?: boolean;
   isGroupColumn ?: boolean;
   parentKey?: string;
+  templateId?: string;
+}
 
+
+export interface FlattenedTableColumns {
+  key: string;
+  columnName: string;
+  className?: string;
+  templateId?: string;
+  valueGetter?: (rowData: any)  => CellValue[];
 }
 

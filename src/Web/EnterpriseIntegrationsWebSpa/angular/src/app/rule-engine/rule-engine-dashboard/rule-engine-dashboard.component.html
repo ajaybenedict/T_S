@@ -1,7 +1,8 @@
 <app-ppc-overlay [show]="showLoader"></app-ppc-overlay>
 <section class="d-flex flex-column dashboard-container">
     <div class="d-flex justify-content-between action-holder align-items-center">
-        <app-s1-search-bar [inputData]="searchBarData" (outputData)="searchEventHandler($event)"></app-s1-search-bar>
+        <!-- Apply alphanumeric filter to search bar to maintain existing behavior of restricting to letters and numbers only -->
+        <app-s1-search-bar [inputData]="searchBarData" (outputData)="searchEventHandler($event)" [inputFilter]="'alphanumeric'"></app-s1-search-bar>
         <button *ngIf="hasEditAccess" type="button" mat-flat-button color="primary" class="add-rule-btn" aria-label="AddRule" (click)="addRuleClick()">Add Rule</button>
     </div>
     <div class="data-table-holder">

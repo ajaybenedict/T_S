@@ -5,7 +5,7 @@
     </div>
 
     <div class="search-bar">
-      <app-searchbar>
+      <app-searchbar (searchValue)="onSearchValueChange($event)">
       </app-searchbar>
     </div>
 
@@ -14,13 +14,14 @@
     </div>
 
     <div class="data-table-holder">
-      <app-dashboardcontent></app-dashboardcontent>
+      <app-table-cell-template></app-table-cell-template>
+      <app-dashboardcontent [isLoading]="isLoading"></app-dashboardcontent>
     </div>
     
   </section>
-  <div class="pagination-holder">
-    <nav class="paginator" *ngIf="isPaginatorVisible" aria-label="Pagination">
-      <app-footer [inputData]="paginatorInput" [onPageChange]="handlePageChange.bind(this)">
+  <div class="pagination-holder"  *ngIf="paginatorInput.total > 0 && !isLoading">
+    <nav class="paginator" aria-label="Pagination">
+      <app-footer [inputData]="paginatorInput" (pageChangeInfo)="handlePageChange($event.page, $event.pageSize)">
         ></app-footer>
     </nav>
   </div>

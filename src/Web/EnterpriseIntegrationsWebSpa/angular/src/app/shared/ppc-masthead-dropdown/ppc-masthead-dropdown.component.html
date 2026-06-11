@@ -9,7 +9,7 @@
                 </div>
                 <div class="masthead-items-container">
                     <ng-container *ngFor="let config of configList">
-                        <div class="masthead-item" [ngClass]="{'active': isActiveRoute(config)}" *ngIf="config.isEnabled && config.category === category" (click)="onClickHandler(config)">
+                        <button type="button" class="masthead-item" [ngClass]="{'active': isActiveRoute(config)}" *ngIf="config.isEnabled && config.category === category" (click)="onClickHandler(config)">
                             <div class="item-img">
                                 <img [src]="config.iconURL" [alt]="config.title">
                             </div>
@@ -19,7 +19,7 @@
                             <div class="item-active-img" *ngIf="isActiveRoute(config)">
                                 <img src="/assets/tick_dropdown_icon_24_24.svg" alt="Active">
                             </div>
-                        </div>
+                        </button>
                     </ng-container>
                 </div>
             </ng-container>

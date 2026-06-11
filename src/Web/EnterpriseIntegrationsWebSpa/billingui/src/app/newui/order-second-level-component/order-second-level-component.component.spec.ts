@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { OrderSecondLevelComponentComponent } from './order-second-level-component.component';
+import { configureTestBed } from 'src/app/testing/test-bed.helper';
+import { OrderSecondLevelComponent } from './order-second-level-component.component';
 
 describe('OrderSecondLevelComponentComponent', () => {
-  let component: OrderSecondLevelComponentComponent;
-  let fixture: ComponentFixture<OrderSecondLevelComponentComponent>;
+  let component: OrderSecondLevelComponent;
+  let fixture: ComponentFixture<OrderSecondLevelComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ OrderSecondLevelComponentComponent ]
+    await configureTestBed({
+      declarations: [ OrderSecondLevelComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(OrderSecondLevelComponentComponent);
+    fixture = TestBed.createComponent(OrderSecondLevelComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

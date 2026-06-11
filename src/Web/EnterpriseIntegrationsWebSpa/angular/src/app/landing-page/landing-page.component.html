@@ -16,17 +16,22 @@
       <ng-container *ngFor="let config of configList">
         <div *ngIf="config.applicationType === category">
           <app-ppc-card
-          [headerImgSrc]="config.headerImgSrc" 
-          [comingSoonText]="config.comingSoonText"
-          [isActive]="config.isActive"
-          [contentHeader]="config.contentHeader"
-          [contentDesc]="config.contentDesc"
-          [actionText]="config.actionText"
-          [actionImgSrc]="config.actionImgSrc"
-          [navigateURL]="config.navigateURL"
-        ></app-ppc-card>
+                        [headerImgSrc]="config.headerImgSrc"
+                        [comingSoonText]="config.comingSoonText"
+                        [isActive]="config.isActive"
+                        [contentHeader]="config.contentHeader"
+                        [contentDesc]="config.contentDesc"
+                        [actionText]="config.actionText"
+                        [actionImgSrc]="config.actionImgSrc"
+                        [navigateURL]="config.navigateURL"></app-ppc-card>
         </div>
       </ng-container>
     </ng-container>
+  </div>
+  <!-- Floating AI icon is visible only for users with applicationId 1 and permissionId 13 -->
+  <div class="floating-ai-icon" aiPanelTrigger *ngIf="showAIFloatingIcon">
+    <button type="button" s1-button [iconOnly]="true" class="floating-ai-button" aria-label="S1 Hub Ai Assistant">
+      <img src="/assets/gpt_icon_round_40_40.svg" alt="S1 Hub Ai Assistant">
+    </button>
   </div>
 </div>

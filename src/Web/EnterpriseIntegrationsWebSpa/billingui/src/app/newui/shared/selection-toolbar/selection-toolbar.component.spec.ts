@@ -1,13 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SelectionToolbarComponent } from './selection-toolbar.component';
+import { configureTestBed } from 'src/app/testing/test-bed.helper';
 
 describe('SelectionToolbarComponent', () => {
   let component: SelectionToolbarComponent;
   let fixture: ComponentFixture<SelectionToolbarComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
+    await configureTestBed({
       declarations: [ SelectionToolbarComponent ]
     })
     .compileComponents();

@@ -1,14 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DataTableComponent } from './data-table/data-table.component';
-import { MatTableModule } from '@angular/material/table';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatMenuModule } from '@angular/material/menu';
-import { DynamicPipe } from 'src/app/pipes/pipehelper.pipe';
-import { OrderDetailsFormatPipe,ResellerDetailFormatPipe, InvoiceIDFormatPipe, CountryFormatPipe, PriceFormatPipe, IssueCountFormatPipe, SalesOrderDetailedViewPipe, DateTimeFormatPipe, StatusDateDetailedViewPipe } from 'src/app/pipes/order-details-data-format.pipe';
+import { MaterialModule } from '../../material.module';
+import { SalesOrderDetailsFormatPipe, DateTimeFormatPipe } from 'src/app/pipes/order-details-data-format.pipe';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 import { DataModalComponent } from './data-modal/data-modal.component';
 import { ActionButtonComponent } from './action-button/action-button.component';
@@ -17,7 +10,7 @@ import { OrderSecondLevelComponent } from '../order-second-level-component/order
 import { TraverseinfoComponentComponent } from './traverseinfo-component/traverseinfo-component.component';
 import { SidePanelComponent } from './side-panel/side-panel.component';
 import { FilterButtonComponent } from './filter-button/filter-button.component';
-import { FlatCheckBoxComponent } from './flat-checkbox/flat-checkbox.component';
+import { HostCheckboxComponent } from './host-checkbox/host-checkbox.component';
 import { HostMenuWrapperComponent } from './host-menu-wrapper/host-menu-wrapper.component';
 import { ManageTablecolumnComponent } from './manage-tablecolumn/manage-tablecolumn.component';
 import { ReorderableButtonComponent } from './reorderable-button/reorderable-button.component';
@@ -27,54 +20,40 @@ import { InfoTooltipDirective } from 'src/app/shared/directive/info-tooltip.dire
 import { InfoToolTipComponent } from './info-tool-tip/info-tool-tip.component';
 import { MultiselectDropdownLabeledComponent } from './multiselect-dropdown-labeled/multiselect-dropdown-labeled.component';
 import { ChipComponent } from './chip/chip.component';
-
+import { TableModule } from 'primeng/table';
+import { GroupedTableViewTemplateComponent } from './grouped-table-view-template/grouped-table-view-template.component';
+import { ExpandedTableViewTemplateComponent } from './expanded-table-view-template/expanded-table-view-template.component';
+import { TableProgressBarComponent } from './table-progress-bar/table-progress-bar.component'; 
 const modules = [ CommonModule,
-    MatTableModule,
-    MatCheckboxModule,
-    MatIconModule,
-    MatButtonModule,
-    MatToolbarModule,
+    MaterialModule,   
     DragDropModule,
     OverlayModule,
-  MatMenuModule];
+TableModule];
 const sharedComponents = [ReorderableButtonComponent, 
   ManageTablecolumnComponent, 
   HostMenuWrapperComponent, 
   FilterButtonComponent, 
-  FlatCheckBoxComponent, 
+  HostCheckboxComponent, 
   OrderSecondLevelComponent, 
-  DataTableComponent, 
-  DynamicPipe, 
-  OrderDetailsFormatPipe, 
-  ResellerDetailFormatPipe, 
-  InvoiceIDFormatPipe, 
-  CountryFormatPipe, 
-  PriceFormatPipe, 
+  SalesOrderDetailsFormatPipe,
+  DateTimeFormatPipe,
   ConfirmDialogComponent, 
   DataModalComponent, 
   ActionButtonComponent, 
   SelectionToolbarComponent, 
   TraverseinfoComponentComponent, 
   SidePanelComponent, 
-  SalesOrderDetailedViewPipe, 
-  DateTimeFormatPipe, 
-  StatusDateDetailedViewPipe, 
   InfoTooltipDirective, 
   InfoToolTipComponent, 
   MultiselectDropdownLabeledComponent,
-  ChipComponent   ];
-const providers = [OrderDetailsFormatPipe,
-    ResellerDetailFormatPipe,
-    InvoiceIDFormatPipe,
-    CountryFormatPipe,
-    PriceFormatPipe,
-    IssueCountFormatPipe,
-    SalesOrderDetailedViewPipe,
-    DateTimeFormatPipe,
-    StatusDateDetailedViewPipe];
+  ChipComponent,
+ GroupedTableViewTemplateComponent,
+ExpandedTableViewTemplateComponent,
+TableProgressBarComponent];
+const providers = [SalesOrderDetailsFormatPipe, DateTimeFormatPipe];
 
 @NgModule({
-  declarations: [...sharedComponents],
+  declarations: [...sharedComponents ],
   imports: [...modules],
   providers: [...providers],
   exports: [...sharedComponents] 

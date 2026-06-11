@@ -7,5 +7,6 @@ export class ProductDetailsRequest {
     VendorKey?: string;
     CountryNames?: string;
     SearchFor: number | undefined;
-    ERPCode?: string
+    ERPCode?: string;
+    AllowedCountries?: string;
 }

@@ -28,10 +28,11 @@ module.exports = withModuleFederationPlugin({
     '@angular/material/input': { singleton: true, strictVersion: true, requiredVersion: '15.2.9' },
     '@angular/material/dialog': { singleton: true, strictVersion: true, requiredVersion: '15.2.9' },
     '@angular/material/snack-bar': { singleton: true, strictVersion: true, requiredVersion: '15.2.9' },
-    '@angular/material/datepicker': { singleton: true, strictVersion: true, requiredVersion: '15.2.9' },
     '@angular/material/menu': { singleton: true, strictVersion: true, requiredVersion: '15.2.9' },
     '@angular/material/button': { singleton: true, strictVersion: true, requiredVersion:'15.2.9' },
     '@angular/common/http': { singleton: true, strictVersion: true },
+     'src/app/core/services/data-state': { singleton: true, strictVersion: false,
+      requiredVersion: false }, 
 
   },
 });

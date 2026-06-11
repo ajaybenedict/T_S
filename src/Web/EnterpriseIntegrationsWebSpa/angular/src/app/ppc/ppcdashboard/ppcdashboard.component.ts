@@ -9,6 +9,7 @@ import { PPCPageChangeEventData, PPCPaginatorData } from 'src/app/models/ppc-pag
 import { OrderRequest, OrderResponse } from 'src/app/models/ppc/order-api.interface';
 import { S1GroupCheckbox } from 'src/app/models/s1/s1-filter-checkbox.interface';
 import { S1SearchBar } from 'src/app/models/s1/s1-search-bar.interface';
+import { ApplicationIdEnum } from 'src/app/core/config/permissions.config';
 
 @Component({
   selector: 'app-ppcdashboard',
@@ -32,6 +33,7 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
   showAISummary = false;
   isAISummaryMinimized = false;
   summaryAssistantId = C3_AI_SUMMARY_ASSISTANT_ID;
+  summaryApplicationId = ApplicationIdEnum.C3;
   aiSummaryJsondata!:string;
   activeTabId!: number;
   activeTabIdSubs!: Subscription;
@@ -51,7 +53,7 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
   }
   private _aiSummaryContainer?: ElementRef;
 
-   private aiSummaryEl?: HTMLElement & { jsonData?: string; assistantId?: number };
+  private aiSummaryEl?: HTMLElement & { jsonData?: string; assistantId?: number; applicationId?: number };
    private panelClosedHandlerRef?: EventListener;
    private panelMinimizedHandlerRef?: EventListener;
 
@@ -70,7 +72,6 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.orderResponseData = res;
         this.initPaginator();
-        this.initSummaryData();
       }
     });
     this.paginatorSVC.ppcPageChangeEventData$.pipe(
@@ -102,7 +103,9 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
     this.dashboardDataSVC.activeTabId$.pipe(
       takeUntil(this.destroy$),
     ).subscribe({
-      next: res => this.activeTabId = res
+      next: res => {
+        this.activeTabId = res;
+      }
     });
     this.initTasks();
     this.initSearchBar();
@@ -127,6 +130,8 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
   private syncSidePanelState(orderRequest: OrderRequest): void {
     this.updateSidepanelFilterCount(orderRequest);
     this.updateApprovalType(orderRequest);
+    this.updateBillingTerm(orderRequest);
+    this.updateResellerStatus(orderRequest);
     this.updateCountrySelection(orderRequest);
     this.updateOrderValue(orderRequest);
   }
@@ -135,7 +140,9 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
     this.dashboardDataSVC.setSidepanelFilterCount({
       ApprovalType: orderRequest.ApprovalType.length,
       Country: orderRequest.Country.length,
-      OrderValue: this.hasOrderValueFilter(orderRequest) ? 1 : 0
+      OrderValue: this.hasOrderValueFilter(orderRequest) ? 1 : 0,
+      BillingTerm: orderRequest.MultiYearContractFilter === 1 ? 1 : 0,
+      ResellerStatus: (orderRequest.OnHoldFilter === 1 ? 1 : 0) + (orderRequest.DiscontinuedFilter === 1 ? 1 : 0),
     });
   }
   
@@ -146,6 +153,32 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
   private updateApprovalType(orderRequest: OrderRequest): void {
     const approvalData = SidePanelHelper.getSelectedApprovalTypeData(orderRequest.ApprovalType);
     this.dashboardDataSVC.setSelectedApprovalType(approvalData);
+  }
+
+  /**
+   * Restores billing term filter state from OrderRequest.
+   */
+  private updateBillingTerm(orderRequest: OrderRequest): void {
+    const selectedTerms = SidePanelHelper.getSelectedBillingTermsFromRequest({
+      MultiYearContractFilter: orderRequest.MultiYearContractFilter,
+      MultiYearContract: orderRequest.MultiYearContract,
+    });
+    const billingTermData = SidePanelHelper.getSelectedBillingTermData(selectedTerms);
+    this.dashboardDataSVC.setSelectedBillingTerm(billingTermData);
+  }
+
+  /**
+   * Restores reseller status filter state from OrderRequest.
+   */
+  private updateResellerStatus(orderRequest: OrderRequest): void {
+    const selectedStatuses = SidePanelHelper.getSelectedResellerStatusesFromRequest({
+      OnHoldFilter: orderRequest.OnHoldFilter,
+      OnHold: orderRequest.OnHold,
+      DiscontinuedFilter: orderRequest.DiscontinuedFilter,
+      Discontinued: orderRequest.Discontinued,
+    });
+    const resellerStatusData = SidePanelHelper.getSelectedResellerStatusData(selectedStatuses);
+    this.dashboardDataSVC.setSelectedResellerStatus(resellerStatusData);
   }
 
   private updateCountrySelection(orderRequest: OrderRequest): void {
@@ -166,12 +199,16 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
   
   initSearchBar() {
     this.searchBarData = {
-      placeHolder: 'Search for Order Number',
+      placeHolder: 'Search for Order Number/Reseller Name',
       width: '400px',
       searchText: this.dashboardDataSVC.getOrderId() ?? this.orderRequestData.SearchText,
     };
   }
 
+  /**
+   * Builds the payload consumed by the AI summary web component.
+   * Called only when the user opens the AI summary panel.
+   */
   initSummaryData() {
     let activeTabName: string;
 
@@ -185,7 +222,7 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
       default:
         activeTabName = 'Needs Approval';
     }
-    const msg = `This is **${activeTabName}**: ${JSON.stringify(this.orderResponseData)}}`;
+    const msg = `This is **${activeTabName}**: ${JSON.stringify(this.orderResponseData)}`;
     this.aiSummaryJsondata = msg;
   }
 
@@ -260,12 +297,14 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
     const el = this.renderer.createElement('ai-summary') as HTMLElement & {
       jsonData?: string;
       assistantId?: number;
+      applicationId?: number;
     };
 
     // set properties (preferred over attributes)
     // If aiSummaryJsondata might be an object, set property directly.
     el['jsonData'] = this.aiSummaryJsondata;
     el['assistantId'] = this.summaryAssistantId;
+    el['applicationId'] = this.summaryApplicationId;
 
     // Or set attributes if the web component expects attributes (strings)
     // this.renderer.setAttribute(el, 'assistantId', String(this.summaryAssistantId));
@@ -305,7 +344,11 @@ export class PpcdashboardComponent implements OnInit, OnDestroy {
   }
 
   toggleAISummary() {
-    this.showAISummary = !this.showAISummary;
+    const nextState = !this.showAISummary;
+    if (nextState) {
+      this.initSummaryData();
+    }
+    this.showAISummary = nextState;
     this.isAISummaryMinimized = false; // make it open ins expanded state always.
   }
 

@@ -14,6 +14,7 @@ export class PCRCleanupColumns {
           id: 2,
           key: 'customerId',
           name: 'Customer Tenant ID',
+          enableEllipsisTooltip: true,
           formatter: d =>
             CloudToolsHelper.formatTransactionPayload(
               d,
@@ -28,6 +29,7 @@ export class PCRCleanupColumns {
           id: 3,
           key: 'outputMessage',
           name: 'Output',
+          enableEllipsisTooltip: true,
           formatter: (_) =>
             `<span class="s1-FW700 s1-C-Charcoal">${outputMessage}</span>`,
         },

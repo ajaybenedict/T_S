@@ -3,12 +3,16 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import * as saveAs from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CountryERPMapping } from 'src/app/interface/product-collection.interface';
 
 import { ProductDetailsRequest } from 'src/app/models/productDetailsRequest.model';
 import { ProductCollectionService } from 'src/app/services/product-collection.service';
+import { DataState } from 'src/app/core/services/data-state';
+import { CBCPermissionEnum, ApplicationIdEnum } from 'src/app/core/cbcpermission.config';
+import { HttpErrorResponse } from '@angular/common/http';
+
 
 // --- Lightweight types to remove a lot of `any` --- //
 interface Vendor { vendorKey: string; vendorName: string; }
@@ -73,12 +77,14 @@ const ERP_FIELD_MAP: Record<string, { scec: keyof ProductRow; fc: keyof ProductR
 export class ProductCollectionComponent implements OnInit, OnDestroy {
   productDetailsRequest: ProductDetailsRequest | undefined;
 
-  contries: CountryERPMapping[] = [];
-  allCountries: CountryERPMapping[] = []; // kept name for template compatibility
-  // kept name for template compatibility
+  CountriesList: CountryERPMapping[] = [];
+  ERPCountriesList: CountryERPMapping[] = [];
+  countries: CountryERPMapping[] = [];
+  allCountries: CountryERPMapping[] = [];
   vendors: Vendor[] = [];
   products: ProductRow[] = [];
   ERPNames: ERPName[] = [];
+  isAllCountrypermission: boolean = false;
 
   isClick = false;
   isSearchButtonClicked = false;
@@ -96,6 +102,7 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
 
   // component-level flags
   isRecordFound = false;
+  canManageSKUs = false;
 
   // NOTE: keep the array shape used by the template
   searchForArray = [
@@ -106,11 +113,13 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
   selectedERPValue: string = '';
 
   private readonly destroy$ = new Subject<void>();
+  allowedCountries: string[] = [];
 
   constructor(
     public productCollection: ProductCollectionService,
-    private toastr: ToastrService,
-    private datePipe: DatePipe
+    private readonly toastr: ToastrService,
+    private readonly datePipe: DatePipe,
+    private readonly dataState: DataState
   ) {
     this.searchForm = new FormGroup({
       searchValue: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
@@ -123,6 +132,8 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.allowedCountries = this.dataState.getUserCountries(ApplicationIdEnum.CBC);
+    this.canManageSKUs = this.dataState.hasPermission([CBCPermissionEnum.ManageCollectionSkuMapping], ApplicationIdEnum.CBC);
     this.productCollection.getVendorname().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res: Vendor[]) => {
         // Exclude legacy Microsoft
@@ -131,13 +142,36 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
       error: () => this.toastr.error('Failed to load vendors')
     });
 
-    this.productCollection.getCountryname().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res: CountryERPMapping[]) => {
-        this.allCountries = res;
-        this.filterCountriesByERP(this.searchForm.controls['viewperERP'].value);
-      },
-      error: () => this.toastr.error('Failed to load countries')
-    });
+    forkJoin({
+      allowedcountries: this.productCollection.getCountryname(this.allowedCountries),
+      allCountriesList: this.productCollection.getCountryname(['ALL']),
+      erps: this.productCollection.getERPName()
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ allowedcountries, allCountriesList, erps, }) => {
+          this.CountriesList = allCountriesList || [];
+          this.allCountries = allowedcountries || [];
+
+          // ERP filtering (NOW safe)
+          const availableERPcodes = new Set(
+            this.allCountries.map(c => c.erpCode)
+          );
+
+          this.ERPNames = (erps || []).filter((e: any) =>
+            availableERPcodes.has(e.code)
+          );
+
+          const defaultERP = this.ERPNames[0]?.code;
+          this.searchForm.controls['viewperERP'].setValue(defaultERP);
+
+          this.filterCountriesByERP(defaultERP);
+          this.getProducts();
+        },
+        error: () => this.toastr.error('Failed to initialize data')
+      });
+
+
 
     this.searchForm.controls['viewperERP'].valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -146,15 +180,6 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
         this.filterCountriesByERP(erpCode);
       });
 
-    this.productCollection.getERPName().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res: ERPName[]) => {
-        this.ERPNames = res || [];
-        const defaultERP = this.ERPNames[1]?.code;
-        this.searchForm.controls['viewperERP'].setValue(defaultERP);
-        this.getProducts();
-      },
-      error: () => this.toastr.error('Failed to load ERP names')
-    });
   }
 
   ngOnDestroy(): void {
@@ -164,12 +189,37 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
 
   filterCountriesByERP(erpCode: string) {
     if (erpCode) {
-      this.contries = this.allCountries.filter(
+      this.countries = this.allCountries.filter(
         (country: CountryERPMapping) => country.erpCode === erpCode
       );
+
+      this.ERPCountriesList = this.CountriesList.filter(
+        (country: CountryERPMapping) => country.erpCode === erpCode
+      );
+
+      this.isAllCountrypermission = this.isAllcountriesAvailable(this.countries, this.ERPCountriesList);
+
     } else {
-      this.contries = this.allCountries;
+      this.countries = this.allCountries;
     }
+  }
+
+  private isAllcountriesAvailable(
+    countryList: CountryERPMapping[],
+    allCountryList: CountryERPMapping[]
+  ): boolean {
+    if (countryList.length !== allCountryList.length) return false;
+
+    const set1 = new Set(countryList.map(c => c.country));
+    const set2 = new Set(allCountryList.map(c => c.country));
+
+    if (set1.size !== set2.size) return false;
+
+    for (const val of set1) {
+      if (!set2.has(val)) return false;
+    }
+
+    return true;
   }
 
 
@@ -188,7 +238,8 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
       VendorKey: this.searchForm.controls['viewbyVendor'].value || '',
       CountryNames: '',
       SearchFor: 0,
-      ERPCode: this.searchForm.controls['viewperERP'].value as string
+      ERPCode: this.searchForm.controls['viewperERP'].value as string,
+      AllowedCountries: this.allowedCountries.join(',')
     };
 
     this.productCollection.getCollectionSKUDetails(this.productDetailsRequest)
@@ -204,9 +255,12 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
           this.valForm = new FormGroup({});
           this.buildingFormGroup(this.products);
         },
-        error: (err) => {
-          this.toastr.error('Failed to load products');
-          console.error(err);
+        error: (err: HttpErrorResponse) => {
+          if (err?.status === 401) {
+            this.toastr.error('Unauthorized: You do not have permission to view the data');
+          } else {
+            this.toastr.error('Failed to load products');
+          }
         }
       });
   }
@@ -227,7 +281,8 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
       VendorKey: this.searchForm.controls['viewbyVendor'].value || '',
       CountryNames: '',
       SearchFor: Number(this.searchForm.controls['searchFor'].value || 0),
-      ERPCode: this.searchForm.controls['viewperERP'].value as string
+      ERPCode: this.searchForm.controls['viewperERP'].value as string,
+      AllowedCountries: this.allowedCountries.join(',')
     };
 
     this.productCollection.getCollectionSKUDetails(this.productDetailsRequest)
@@ -241,55 +296,98 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
           this.valForm = new FormGroup({});
           this.buildingFormGroup(this.products);
         },
-        error: () => this.toastr.error('Failed to load page')
+        error: (err: HttpErrorResponse) => {
+          if (err?.status === 401) {
+            this.toastr.error('Unauthorized: You do not have permission to view the data');
+          } else {
+            this.toastr.error('Failed to load page');
+          }
+        }
       });
   }
 
-  searchAndCSV(isSearch: boolean): void {
-    if (isSearch) {
-      this.isSearchButtonClicked = true;
-      this.products = [];
-      this.isRecordFound = false;
-    }
-    else
-    {
-      this.isExportButtonClicked = true;
-    }
+  searchProducts(): void {
+    this.isSearchButtonClicked = true;
+    this.products = [];
+    this.isRecordFound = false;
 
-    this.productDetailsRequest = {
+    const request = this.buildRequest(50);
+
+    this.fetchProducts(request).subscribe({
+      next: (res: ProductRow[]) => {
+        this.products = res.filter((product: any) =>
+          product.erpCode === this.selectedERPValue || product.erpCode == null
+        );
+
+        this.isRecordFound = this.products.length === 0;
+
+        this.totalCount =
+          this.products.length > 0
+            ? (this.products[0].totalCount ?? this.products.length)
+            : 0;
+
+        this.numberOfRecords = 50;
+
+        this.resetPaging();
+
+        this.valForm = new FormGroup({});
+        this.buildingFormGroup(this.products);
+
+        this.isSearchButtonClicked = false;
+      },
+      error: (err: HttpErrorResponse) => {
+        this.handleError(err);
+        this.isSearchButtonClicked = false;
+      }
+    });
+  }
+
+  exportProducts(): void {
+    this.isExportButtonClicked = true;
+
+    const request = this.buildRequest(this.totalCount || 5000);
+
+    this.fetchProducts(request).subscribe({
+      next: (res: ProductRow[]) => {
+        this.downloadFile(res || []);
+        this.isExportButtonClicked = false;
+      },
+      error: (err: HttpErrorResponse) => {
+        this.handleError(err);
+        this.isExportButtonClicked = false;
+      }
+    });
+  }
+
+  private buildRequest(maxResult: number): ProductDetailsRequest {
+    return {
       Offset: 0,
-      MaxResult: isSearch ? 50 : (this.totalCount || 5000), // be generous on export
+      MaxResult: maxResult,
       SortBy: '',
       SortOrder: '',
       SearchText: this.searchForm.controls['searchValue'].value || '',
       VendorKey: this.searchForm.controls['viewbyVendor'].value || '',
       CountryNames: '',
       SearchFor: Number(this.searchForm.controls['searchFor'].value || 0),
-      ERPCode: (this.searchForm.controls['viewperERP'].value as string) || null
+      ERPCode: (this.searchForm.controls['viewperERP'].value as string) || null,
+      AllowedCountries: this.allowedCountries.join(',')
     } as ProductDetailsRequest;
+  }
 
-    this.productCollection.getCollectionSKUDetails(this.productDetailsRequest)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res: ProductRow[]) => {
-          if (isSearch) {
-            this.products = res.filter((product: any) =>
-              product.erpCode === this.selectedERPValue || product.erpCode == null
-            );
-            this.isRecordFound = this.products.length === 0;
-            this.totalCount = this.products.length > 0 ? (this.products[0].totalCount ?? this.products.length) : 0;
-            this.numberOfRecords = 50;
-            this.resetPaging();
-            this.valForm = new FormGroup({});
-            this.buildingFormGroup(this.products);
-            this.isSearchButtonClicked = false;
-          } else {
-            this.downloadFile(res || []);
-            this.isExportButtonClicked = false;
-          }
-        },
-        error: () => this.toastr.error('Search/export failed')
-      });
+  private fetchProducts(request: ProductDetailsRequest) {
+    return this.productCollection
+      .getCollectionSKUDetails(request)
+      .pipe(takeUntil(this.destroy$));
+  }
+
+  private handleError(err: HttpErrorResponse): void {
+    if (err?.status === 401) {
+      this.toastr.error(
+        'Unauthorized: You do not have permission to view the data'
+      );
+    } else {
+      this.toastr.error('Search/export failed');
+    }
   }
 
   clearInput(): void {
@@ -312,7 +410,8 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
       VendorKey: '',
       CountryNames: '',
       SearchFor: 0,
-      ERPCode: this.searchForm.controls['viewperERP'].value as string
+      ERPCode: this.searchForm.controls['viewperERP'].value as string,
+      AllowedCountries: this.allowedCountries.join(',')
     };
 
     this.productCollection.getCollectionSKUDetails(this.productDetailsRequest)
@@ -329,7 +428,13 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
           this.valForm = new FormGroup({});
           this.buildingFormGroup(this.products);
         },
-        error: () => this.toastr.error('Failed to reset list')
+        error: (err: HttpErrorResponse) => {
+          if (err?.status === 401) {
+            this.toastr.error('Unauthorized: You do not have permission to view the data');
+          } else {
+            this.toastr.error('Failed to reset list');
+          }
+        }
       });
   }
 
@@ -490,6 +595,14 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
   }
 
   addRow(): void {
+
+    const hasUnsavedRow = this.products.some(p => p.recordId === 0);
+
+    if (hasUnsavedRow) {
+      this.toastr.error('Please save the existing new row before adding another.');
+      return;
+    }
+
     const newRow: ProductRow = {
       country: null,
       erpProductId: '',
@@ -579,12 +692,12 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
     const header = isCIS
       ? [...baseHeader.slice(0, 4), 'PPARebate', ...baseHeader.slice(4)]
       : baseHeader;
-   
+
     const escapeCsv = (val: any): string => {
       if (val == null) return '';
-      let s = String(val);
-      if (s.indexOf('"') !== -1) s = s.replace(/"/g, '""');
-      if (s.indexOf(',') !== -1 || s.indexOf('\n') !== -1 || s.indexOf('"') !== -1) {
+      let s = String(val);      
+      if (s.includes('"')) s = s.replaceAll('"', '""');
+      if (s.includes(',') || s.includes('\n') || s.includes('"')) {
         return `"${s}"`;
       }
       return s;
@@ -605,7 +718,7 @@ export class ProductCollectionComponent implements OnInit, OnDestroy {
       formatDateFast = (v: any) => {
         if (!v) return '';
         const d = (v instanceof Date) ? v : new Date(String(v));
-        return isNaN(d.getTime()) ? String(v) : dtf.format(d);
+        return Number.isNaN(d.getTime()) ? String(v) : dtf.format(d);
       };
     } catch {
       // fallback to datePipe (rare)

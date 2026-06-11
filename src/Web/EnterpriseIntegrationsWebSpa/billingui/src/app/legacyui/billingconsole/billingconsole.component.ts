@@ -7,10 +7,13 @@ import {
 } from '@angular/core';
 import {
   UpgradeModule,
-  setAngularJSGlobal
+  setAngularJSGlobal,
+  downgradeInjectable
 } from '@angular/upgrade/static';
 import { REMOTE_ENTRY_BASEURL } from 'src/app/constants/constants';
 import { preloadAndPatchViewOrders } from 'src/app/shared/utils/asset-path-monkey-patch';
+import { CBCPermissionEnum, ApplicationIdEnum } from 'src/app/core/cbcpermission.config';
+import { DataState } from 'src/app/core/services/data-state';
 
 declare var angular: any;
 
@@ -18,20 +21,20 @@ declare var angular: any;
   selector: 'app-billingconsole',
   templateUrl: './billingconsole.component.html',
   styleUrls: ['./billingconsole.component.css'],
- 
 })
 export class BillingconsoleComponent implements OnInit, OnDestroy {
   private static isBootstrapped = false;
-  private static loadedScripts = new Set<string>();
+  private static readonly loadedScripts = new Set<string>();
 
-  private renderer: Renderer2;
+  private readonly renderer: Renderer2;
   private linkElements: HTMLLinkElement[] = [];
   private scriptElements: HTMLScriptElement[] = [];
   private originalAngularStyleLink: HTMLLinkElement | null = null;
 
   constructor(
-    private upgrade: UpgradeModule,
-    private rendererFactory: RendererFactory2
+    private readonly upgrade: UpgradeModule,
+    private readonly rendererFactory: RendererFactory2,
+    private readonly dataState: DataState
   ) {
     this.renderer = this.rendererFactory.createRenderer(null, null);
   }
@@ -66,7 +69,16 @@ export class BillingconsoleComponent implements OnInit, OnDestroy {
           await this.loadScriptOnce(REMOTE_ENTRY_BASEURL + script);
         }
 
-        setAngularJSGlobal((window as any).angular);
+        setAngularJSGlobal(angular);
+
+        // Make the Angular DataState service available inside the legacy AngularJS app
+        if (angular?.module) {
+          angular.module('billingOrderModule')
+            .factory('dataState', downgradeInjectable(DataState))
+            .constant('CBCPermissionEnum', CBCPermissionEnum)
+            .constant('ApplicationIdEnum', ApplicationIdEnum);
+        }
+
         await preloadAndPatchViewOrders();
 
         const root = document.getElementById('angularjs-root') || document.body;
@@ -74,11 +86,6 @@ export class BillingconsoleComponent implements OnInit, OnDestroy {
 
         BillingconsoleComponent.isBootstrapped = true;
       }
-
-
-
-
-
       const maxWait = 5000;
       let waited = 0;
 
@@ -107,15 +114,19 @@ export class BillingconsoleComponent implements OnInit, OnDestroy {
       }
 
       const scriptEl = this.renderer.createElement('script');
-      scriptEl.type = 'text/javascript';
+      if (src.includes('billing-console.js')) {
+        scriptEl.type = 'module';
+      } else {
+        scriptEl.type = 'text/javascript';
+      }
       scriptEl.src = src;
       scriptEl.defer = true;
 
       scriptEl.onload = () => {
         BillingconsoleComponent.loadedScripts.add(src);
         resolve();
-      };
-      scriptEl.onerror = () => reject(`Failed to load ${src}`);
+      };      
+      scriptEl.onerror = () => reject(new Error(`Failed to load ${src}`));
 
       this.renderer.appendChild(document.body, scriptEl);
       this.scriptElements.push(scriptEl);
@@ -147,14 +158,14 @@ export class BillingconsoleComponent implements OnInit, OnDestroy {
         container.innerHTML = template;
 
         // Attach controller
-        const controller = injector.get('$controller')('billingOrderController', { $scope: scope });
+        injector.get('$controller')('billingOrderController', { $scope: scope });
 
         // Compile and link
         $compile(container)(scope);
 
         // Apply initial date values
         setTimeout(() => {
-          if (scope && scope.model) {
+          if (scope?.model) {
             const today = new Date();
             scope.model.startDate = today;
             scope.model.endDate = today;
@@ -182,7 +193,7 @@ export class BillingconsoleComponent implements OnInit, OnDestroy {
       const linkEl = link as HTMLLinkElement;
       const href = linkEl.href;
 
-      if (/styles(\..*)?\.csss?$/.test(href)) {
+      if (/c3-bootstrap(\..*)?\.css?$/.test(href)) {
         this.originalAngularStyleLink = linkEl.cloneNode(true) as HTMLLinkElement;
         this.renderer.removeChild(document.head, linkEl);
       }
@@ -190,26 +201,31 @@ export class BillingconsoleComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Remove styles
-    this.linkElements.forEach(link => this.renderer.removeChild(document.head, link));
-    this.linkElements = [];
+  // Remove styles
+  this.linkElements.forEach(link => {
+    this.renderer.removeChild(document.head, link);
+  });
+  this.linkElements = [];
 
-    // Remove legacy HTML content
-    const container = document.getElementById('legacy-html-container');
-    if (container) container.innerHTML = '';
-
-    // Remove scripts
-    this.scriptElements.forEach(script => {
-      if (script && script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    });
-    this.scriptElements = [];
-
-    // Restore Angular default styles
-    if (this.originalAngularStyleLink) {
-      this.renderer.appendChild(document.head, this.originalAngularStyleLink);
-      this.originalAngularStyleLink = null;
-    }
+  // Remove legacy HTML content
+  const container = document.getElementById('legacy-html-container');
+  if (container) {
+    container.innerHTML = '';
   }
+
+  // Remove scripts
+  this.scriptElements.forEach(script => {
+    if (script) {
+      script.remove();
+    }
+  });
+
+  this.scriptElements = [];
+
+  // Restore Angular default styles
+  if (this.originalAngularStyleLink) {
+    this.renderer.appendChild(document.head, this.originalAngularStyleLink);
+    this.originalAngularStyleLink = null;
+  }
+}
 }

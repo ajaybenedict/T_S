@@ -5,11 +5,16 @@ import { CloudTools, uploadButtonData } from 'src/app/core/config/cloud-tools.co
 import { CLOUD_TOOLS_CONFIRMATION_DIALOG, CLOUD_TOOLS_UPLOAD_WARNING } from 'src/app/core/constants/constants';
 import { CloudToolsAPIService } from 'src/app/core/services/cloud-tools/cloud-tools-api.service';
 import { CloudToolsDataService } from 'src/app/core/services/cloud-tools/cloud-tools-data.service';
+import { PpcSnackBarService } from 'src/app/core/services/ppc-snack-bar.service';
 import { SidePanelRef } from 'src/app/shared-s1/s1-cdk-side-panel/side-panel.ref';
 import { SIDE_PANEL_DATA, SIDE_PANEL_REF } from 'src/app/shared-s1/s1-cdk-side-panel/side-panel.tokens';
+import { SubsTransferFormValues } from 'src/app/models/cloud-tools/subs-transfer-preview.interface';
+import { CloudToolsHelper } from '../cloud-tools-helper';
 
 export interface PanelData {
   readonly type: CloudTools;
+  readonly subsTransferFormValues?: SubsTransferFormValues;
+  readonly uploadError?: string;
 }
 
 @Component({
@@ -20,13 +25,14 @@ export interface PanelData {
 export class UploadPanelComponent implements OnInit, OnChanges{
 
   selectedFile: File | null = null;
+  requestedBy = '';
   clearFileTrigger = 0;
   uploadErrors: string[] = [];
   isButtonValid: boolean = false;
   showOverlay = false;
   showConfirmDialog = false;
 
-  header = CLOUD_TOOLS_CONFIRMATION_DIALOG.DEFAAULT_HEADER;
+  header = CLOUD_TOOLS_CONFIRMATION_DIALOG.DEFAULT_HEADER;
   content = CLOUD_TOOLS_CONFIRMATION_DIALOG.UPLOAD_CONTENT;
   warningMessage = CLOUD_TOOLS_UPLOAD_WARNING.MSG;
   panelTitle!: string;
@@ -37,6 +43,7 @@ export class UploadPanelComponent implements OnInit, OnChanges{
   constructor(
     private readonly cloudToolsAPISVC: CloudToolsAPIService,
     private readonly cloudToolsDataSVC: CloudToolsDataService,
+    private readonly snackbarService: PpcSnackBarService,
     @Inject(SIDE_PANEL_DATA) public readonly data: PanelData,
     @Inject(SIDE_PANEL_REF) private readonly panelRef: SidePanelRef<PanelData>
   ) {}
@@ -45,6 +52,10 @@ export class UploadPanelComponent implements OnInit, OnChanges{
     if(this.data.type) {
       this.initPanelData();
       this.reset();
+      // Handle error passed from preview panel
+      if (this.data.uploadError) {
+        this.uploadErrors.push(this.data.uploadError);
+      }
     }
   }
 
@@ -76,8 +87,50 @@ export class UploadPanelComponent implements OnInit, OnChanges{
   }
 
   onFileReceived(file: File | null) {
-    this.isButtonValid = !!file;
     this.selectedFile = file;
+    this.updateButtonValidity();
+  }
+
+  onRequestedByChange(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    const sanitizedValue = this.normalizeRequestedByValue(target?.value ?? '');
+    
+    // Update the input if sanitization removed characters
+    if (target && sanitizedValue !== target.value) {
+      target.value = sanitizedValue;
+    }
+    
+    this.requestedBy = sanitizedValue;
+    this.updateButtonValidity();
+  }
+
+  onRequestedByPaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    
+    const target = event.target as HTMLInputElement | null;
+    if (!target) return;
+
+    const selectionStart = target.selectionStart ?? 0;
+    const selectionEnd = target.selectionEnd ?? selectionStart;
+    const currentValue = target.value;
+    const sanitizedPastedText = CloudToolsHelper.sanitizeFilenameString(event.clipboardData?.getData('text') ?? '');
+    const availableLength = Math.max(0, 100 - (currentValue.length - (selectionEnd - selectionStart)));
+    const truncatedPastedText = sanitizedPastedText.slice(0, availableLength);
+
+    if (typeof target.setRangeText === 'function') {
+      target.setRangeText(truncatedPastedText, selectionStart, selectionEnd, 'end');
+    } else {
+      target.value = `${currentValue.slice(0, selectionStart)}${truncatedPastedText}${currentValue.slice(selectionEnd)}`;
+    }
+
+    const sanitizedValue = this.normalizeRequestedByValue(target.value);
+    if (sanitizedValue !== target.value) {
+      target.value = sanitizedValue;
+    }
+
+    this.requestedBy = sanitizedValue;
+
+    this.updateButtonValidity();
   }
 
   onCancel() {
@@ -92,6 +145,7 @@ export class UploadPanelComponent implements OnInit, OnChanges{
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
+    formData.append('requestedBy', this.requestedBy.trim());
 
     this.cloudToolsAPISVC.uploadFileToCloudTools(formData, this.uploadAPIURL).pipe(
       take(1),
@@ -99,9 +153,11 @@ export class UploadPanelComponent implements OnInit, OnChanges{
       next: res => {
         if(res.status == 202) {
           this.cloudToolsDataSVC.setUploadAPIState('Success');
+          this.showSuccessSnackbar();
           this.showOverlay = false;
           this.reset();
-          this.clearFileTrigger++;          
+          this.clearFileTrigger++;
+          this.panelRef.close();
         }
         // Handle other state codes/error codes if required.
       },
@@ -129,8 +185,22 @@ export class UploadPanelComponent implements OnInit, OnChanges{
   reset() {
     this.isButtonValid = false;
     this.selectedFile = null;
+    this.requestedBy = '';
     this.uploadErrors = [];
     this.clearFileTrigger++;
+  }
+
+  private updateButtonValidity(): void {
+    this.isButtonValid = !!this.selectedFile && !!this.requestedBy.trim();
+  }
+
+  private showSuccessSnackbar(): void {
+    const successMsg = 'File has been uploaded successfully.';
+    this.snackbarService.show(successMsg, 5000);
+  }
+
+  private normalizeRequestedByValue(value: string): string {
+    return CloudToolsHelper.sanitizeFilenameString(value).slice(0, 100);
   }
 
   downloadTemplate() {

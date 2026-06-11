@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SecurityContext } from '@angular/core';
 import { PPCStatusBarData } from 'src/app/models/ppc-status-bar.model';
 import { ppcStatusBarConstants } from './ppc-status-bar.constant';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -14,15 +14,18 @@ export class PpcStatusBarComponent {
     private sanitizer: DomSanitizer
   ) {}
 
-  @Input('data') declare _data: PPCStatusBarData;
+  @Input() data!: PPCStatusBarData;
   @Output() dismissClicked = new EventEmitter<boolean>();
   
   get configData() {
-    return ppcStatusBarConstants[this._data.type]
+    return ppcStatusBarConstants[this.data.type]
   }
   
+  /**
+   * Sanitizes status message HTML to prevent execution of injected markup.
+   */
   get sanitizedContent() {
-    return this.sanitizer.bypassSecurityTrustHtml(this._data.message);
+    return this.sanitizer.sanitize(SecurityContext.HTML, this.data.message) ?? '';
   }
 
   emitDismiss() {

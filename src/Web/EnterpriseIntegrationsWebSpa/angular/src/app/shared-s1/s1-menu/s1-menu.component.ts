@@ -22,6 +22,9 @@ export class S1MenuComponent implements AfterViewInit{
   }
 
   ngAfterViewInit(): void {
+    if (!this.menuTrigger) {
+      return;
+    }
     this.menuTrigger.menuOpened.subscribe(() => {
       this.menuOpened.emit(true);
     });

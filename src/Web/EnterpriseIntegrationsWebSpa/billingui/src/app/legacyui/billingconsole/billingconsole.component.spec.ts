@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { BillingconsoleComponent } from './billingconsole.component';
+import { UpgradeModule } from '@angular/upgrade/static';
 
 describe('BillingconsoleComponent', () => {
   let component: BillingconsoleComponent;
@@ -8,12 +8,15 @@ describe('BillingconsoleComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BillingconsoleComponent ]
-    })
-    .compileComponents();
+      declarations: [BillingconsoleComponent],
+      providers: [
+        { provide: UpgradeModule, useValue: {} }
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(BillingconsoleComponent);
     component = fixture.componentInstance;
+
     fixture.detectChanges();
   });
 

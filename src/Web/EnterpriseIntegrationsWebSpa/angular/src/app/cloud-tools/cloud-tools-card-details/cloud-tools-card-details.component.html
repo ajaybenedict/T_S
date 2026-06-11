@@ -1,15 +1,22 @@
 <section class="details-card-container d-flex flex-column">
     <div class="header-container d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center">
-            <div class="s1-FW700 s1-FS14px s1-C-Charcoal s1-P-8-12-px">Created By</div>
-            <app-s1-text-display [inputData]="createdByTextDisplay"></app-s1-text-display>
+        <div class="d-flex align-items-center" style="min-width: 0; flex: 1;">
+            <!-- Created By section with ellipsis truncation -->
+            <div class="user-info-section d-flex align-items-center">
+                <div class="user-info-label s1-FW700 s1-FS14px s1-C-Charcoal s1-P-8-12-px">Created By</div>
+                <div class="user-info-text" [s1EllipsisTooltip]="true">
+                    <app-s1-text-display [inputData]="createdByTextDisplay"></app-s1-text-display>
+                </div>
+            </div>
+            <!-- Requested By section with ellipsis truncation -->
+            <div class="user-info-section d-flex align-items-center" *ngIf="inputData.row.requestedBy">
+                <div class="user-info-label s1-FW700 s1-FS14px s1-C-Charcoal s1-P-8-12-px">Requested By</div>
+                <div class="user-info-text" [s1EllipsisTooltip]="true">
+                    <app-s1-text-display [inputData]="requestedByTextDisplay"></app-s1-text-display>
+                </div>
+            </div>
         </div>
-        <div class="header-action-holder d-flex flex-row align-items-center">
-            <button type="button" s1-button [iconOnly]="true" (click)="downloadCSV()">
-                <img src="/assets/download_black_icon_40_40.svg" alt="Download" class="default">
-                <img src="/assets/download_black_icon_hover_40_40.svg" alt="Download" class="hover">
-            </button>
-            <div class="divider"></div>
+        <div class="header-action-holder d-flex flex-row align-items-center">                        
             <button type="button" s1-button [iconOnly]="true" (click)="dismissEvent.next()">
                 <img src="/assets/dismiss_btn_44_44.svg" alt="Dismiss" class="default">
                 <img src="/assets/dismiss_btn_hover_red_44_44.svg" alt="Dismiss" class="hover">
@@ -33,4 +40,7 @@
     <nav aria-label="Pagination">
         <app-ppc-paginator></app-ppc-paginator>
     </nav>
+    <button class="card-goto-btn" aria-label="Scroll to selected row" (click)="gotoClickHandler()">
+        <img src="/assets/up_arrow_circle_teal_32_32.svg" alt="GoTo">
+    </button>
 </section>

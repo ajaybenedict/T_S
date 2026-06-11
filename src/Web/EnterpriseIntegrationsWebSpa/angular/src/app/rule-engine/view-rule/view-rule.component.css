@@ -22,12 +22,38 @@
     color: #63666A;
 }
 
+.compare-expression {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #E4E5E6;    
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 150%;
+    color: #63666A;
+}
+
 .other-row-holder {
     border-left: 1px solid #E4E5E6;   
 }
 
 .rule-action-container {
     padding: 20px;
+    border-bottom: 1px solid #E4E5E6;
+    border-left: 1px solid #E4E5E6;
+    border-right: 1px solid #E4E5E6;
+}
+
+.rule-summary-container {
+    padding: 20px;
+    gap: 8px;
+    border-bottom: 1px solid #E4E5E6;
+    border-left: 1px solid #E4E5E6;
+    border-right: 1px solid #E4E5E6;
+}
+
+.criteria-holder {
+    padding: 20px;
+    gap: 20px;
     border-bottom: 1px solid #E4E5E6;
     border-left: 1px solid #E4E5E6;
     border-right: 1px solid #E4E5E6;

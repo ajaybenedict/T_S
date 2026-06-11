@@ -7,6 +7,7 @@ import { C3DashboardTabTypeEnum, C3DetailsCardActionEnum, S1ApprovedDeclinedDeta
 import { S1TextDisplay } from 'src/app/models/s1/s1-text-display.interface';
 import { S1DetailsCardHelper } from './s1-details-card.helper';
 import { S1Menu } from 'src/app/models/s1/s1-menu.interface';
+import { UTC_TIMEZONE } from 'src/app/core/constants/constants';
 
 @Component({
   selector: 's1-details-card',
@@ -17,6 +18,7 @@ import { S1Menu } from 'src/app/models/s1/s1-menu.interface';
 export class S1DetailsCardComponent implements OnInit, OnChanges , OnDestroy {
 
   @Input() declare inputData: S1DetailsCard;
+  @Input() canPerformActions: boolean = false;
   @Output() outputAction = new EventEmitter<C3DetailsCardActionEnum>();
   @Output() dismissEmit = new EventEmitter<void>();
 
@@ -30,6 +32,8 @@ export class S1DetailsCardComponent implements OnInit, OnChanges , OnDestroy {
   tableData!: OrderLine[];
   declinedFooterMenu!: S1Menu;
   outputActionEnum = C3DetailsCardActionEnum;
+
+  utcConstant = UTC_TIMEZONE;
 
   private readonly destroy$ = new Subject<void>();
 

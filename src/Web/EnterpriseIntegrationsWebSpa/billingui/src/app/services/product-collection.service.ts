@@ -1,9 +1,10 @@
-
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ProductDetailsRequest } from '../models/productDetailsRequest.model';
 import { API_ENTRY_URL } from '../constants/constants';
+import { CountryERPMapping } from '../interface/product-collection.interface';
+
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +21,11 @@ export class ProductCollectionService {
     return this.http.get<any>(`${this.apiUrl}${this.billingOrdersApiBaseUrl}GetVendorNames`);
   }
 
-  getCountryname(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}${this.billingOrdersApiBaseUrl}GetCountryCodes`);
+  getCountryname(allowedCountries: string[]): Observable<CountryERPMapping[]> {
+    return this.http.post<CountryERPMapping[]>(
+      `${this.apiUrl}${this.billingOrdersApiBaseUrl}GetCountryCodes`,
+      allowedCountries 
+    );
   }
 
   getCollectionSKUDetails(productDetailsRequest: ProductDetailsRequest) {

@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
-import { countryRegionRestrictionTabList, InsightReportName, RegionPermission, ReportCandidate } from "../../config/insight-dashboard.config";
+import { RegionPermission, ReportCandidate } from "../../config/insight-dashboard.config";
 import { models } from 'powerbi-client';
-import { insightFilterConfig } from "../../config/insight-filter.config";
 import { DataState } from "../data-state";
 
 @Injectable({ providedIn: 'root' })
@@ -31,8 +30,9 @@ export class InsightDataService {
     }
 
     createFilter(table: string, columnName: string, values: string[]): models.IBasicFilter {
+        // Use vendor-provided schema constant to avoid hardcoding while keeping Power BI compatibility.
         return {
-            $schema: 'http://powerbi.com/product/schema#basic',
+            $schema: models.BasicFilter.schemaUrl,
             target: {
                 table,
                 column: columnName,
@@ -44,42 +44,13 @@ export class InsightDataService {
     }
 
     resolvePageFilterConfig(
-        reportName: InsightReportName,
-        embedUrl: string
-    ): { db?: string; region?: string; country?: string } {
-        const config = insightFilterConfig[reportName];
-        if (!config) return {};
-        const pageName = this.extractPageName(embedUrl);        
-        if ('PageConfig' in config && pageName && config.PageConfig[pageName]) {
-            const pageCfg = config.PageConfig[pageName];
+        candidate: ReportCandidate
+    ): { db?: string|string[]; region?: string; country?: string } {
+        const config = candidate.filterConfig;
             return {
-                db: pageCfg.Database,
-                region: pageCfg.RegionColumn,
-                country: pageCfg.CountryColumn
+                db: config?.Database,
+                region: config?.RegionColumn,
+                country: config?.CountryColumn
             };
-        }
-        if ('Database' in config) {
-            return {
-                db: config.Database,
-                region: config.RegionColumn,
-                country: config.CountryColumn
-            };
-        }
-        return {};
-    }
-
-    extractPageName(url: string): string | null {
-        const regex = /pageName=([^&]+)/;
-        const match = regex.exec(url);
-        return match ? decodeURIComponent(match[1]) : null;
-    }
-
-    private isTabUnderCountryRegionRestrictionList(candidate: ReportCandidate): boolean {
-        if(!candidate.permissionKey) return false; // if candidate has no permissionkey, no logic required.
-        return countryRegionRestrictionTabList.includes(candidate.permissionKey);
-    }
-    
-    tabLevelCountryRegionCheck(candidate: ReportCandidate) {
-        return (this.isTabUnderCountryRegionRestrictionList(candidate) && !this.dataState.hasCountryRegionAccess());
     }
 }

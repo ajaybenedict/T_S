@@ -4,14 +4,14 @@
             <div class="d-flex flex-column detail-container">
                 <div class="details d-flex flex-column border-bottom">
                     <div class="details-holder d-flex flex-column">
-                        <div class="title">Name&nbsp;<span class="mandatory-star">*</span></div>
+                        <div class="title">Name&nbsp;<span class="s1-mandatory-star">*</span></div>
                         <div class="content d-flex flex-column">
                             <input type="text" formControlName="name" class="details-input s1-C-Stone" placeholder="Write the rules name">
                             <span class="hint-text">Max 100 words</span>
                         </div>
                     </div>
                     <div class="details-holder d-flex flex-column">
-                        <div class="title">Purpose&nbsp;<span class="mandatory-star">*</span></div>
+                        <div class="title">Purpose&nbsp;<span class="s1-mandatory-star">*</span></div>
                         <div class="content d-flex flex-column">
                             <input type="text" formControlName="purpose" class="details-input s1-C-Stone" placeholder="Write the purpose of the rules">
                             <span class="hint-text">Max 250 words</span>
@@ -20,32 +20,43 @@
                 </div>
                 <div class="details d-flex flex-column border-bottom">
                    <div class="details-holder d-flex flex-column">
-                        <div class="title">Override level&nbsp;<span class="mandatory-star">*</span></div>
+                        <div class="title">Override level&nbsp;<span class="s1-mandatory-star">*</span></div>
                         <div class="content d-flex flex-column">
                             <app-select-dropdown [label]="'Value'" formControlName="override" [options]="overrideData"></app-select-dropdown>
-                            <span *ngIf="selectedOverride == 'Reseller'" class="hint-text">The rule should contain either country or region.</span>
+                            <span *ngIf="showResellerOverrideHint" class="hint-text">The rule should contain either country or region.</span>
                         </div>
                     </div>
-                    <div class="details-holder d-flex flex-column" *ngIf="editForm.get('levelValue')">
-                        <div class="title">Criteria&nbsp;<span class="mandatory-star">*</span></div>
+                    <div class="details-holder d-flex flex-column" *ngIf="hasGeoSelection && editForm.get(formControlList.LEVEL_VALUE)">
+                        <div class="title">Criteria&nbsp;<span class="s1-mandatory-star">*</span></div>
                         <div class="content d-flex flex-column">
-                            <ng-container *ngIf="selectedOverride == 'CountryGroup' || selectedOverride == 'Country'">
+                            <ng-container *ngIf="usesGeoSelector">
                                 <app-select-dropdown
                                     formControlName="countryRegion"
-                                    [options]="selectedOverride == 'CountryGroup' ? countryData.regions : countryData.countries"
+                                    [options]="usesRegionSelector ? countryData.regions : countryData.countries"
                                 ></app-select-dropdown>
                             </ng-container>
-                            <ng-container *ngIf="selectedOverride == 'Reseller'">
-                                <input
-                                    type="text"
-                                    appInputFilter="alphanumerichyphen"
-                                    formControlName="resellerInput"
-                                    class="details-input s1-C-Stone"
-                                    [maxlength]="MAX_RESELLER_LENGTH"
-                                    (keydown.enter)="addResellerValue()"
-                                    (keydown)="blockExtraTyping($event)"
-                                    (paste)="blockInvalidPaste($event)"                                    
-                                >
+                            <ng-container *ngIf="usesResellerInput">
+                                <div class="input-with-add">
+                                    <input
+                                        type="text"
+                                        appInputFilter="alphanumerichyphen"
+                                        formControlName="resellerInput"
+                                        class="details-input s1-C-Stone with-inline-action"
+                                        [maxlength]="resellerMaxLength"
+                                        (input)="onResellerInputChange($event)"
+                                        (keydown.enter)="addResellerValue()"
+                                        (keydown)="blockExtraTyping($event)"
+                                        (paste)="blockInvalidPaste($event)"
+                                    >
+                                    <button
+                                        *ngIf="showResellerAddButton"
+                                        type="button"
+                                        class="inline-add-btn s1-FS14px s1-FW700 s1-C-Teal"
+                                        (click)="addResellerValue()"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
                                 <span class="hint-text">Max 50 chars. Type the reseller and press enter to add.</span>
                             </ng-container>
                         </div>
@@ -58,15 +69,30 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-flex flex-column details">
+                <div class="d-flex flex-column details" *ngIf="showAlertRecipients">
                     <div class="title">Alert Recipients</div>
                     <div class="content d-flex flex-column">
-                        <input
-                            type="text"
-                            [formControlName]="formControlList.ALERT_RECIPIENT_INPUT"
-                            class="details-input s1-C-Stone"
-                            (keydown.enter)="addAlertRecipientValue(); $event.preventDefault()"
-                        >
+                        <div class="input-with-add">
+                            <input
+                                type="text"
+                                [formControlName]="formControlList.ALERT_RECIPIENT_INPUT"
+                                class="details-input s1-C-Stone with-inline-action"
+                                appEmailValidator
+                                emailValidatorMode="validateWithForm"
+                                [emailValidatorAllowMultiple]="true"
+                                [emailValidatorAllowedDomains]="allowedEmailList"
+                                (input)="onAlertRecipientInputChange($event)"
+                                (keydown.enter)="addAlertRecipientValue(); $event.preventDefault()"
+                            >
+                            <button
+                                *ngIf="showAlertRecipientAddButton"
+                                type="button"
+                                class="inline-add-btn s1-FS14px s1-FW700 s1-C-Teal"
+                                (click)="addAlertRecipientValue()"
+                            >
+                                Add
+                            </button>
+                        </div>
                         <span class="hint-text">Type the email and press enter to add. Allowed email domains - {{ allowedEmailList.join(', ') }}</span>
                     </div>
                     <div class="d-flex chip-holder" *ngIf="editForm.get(formControlList.ALERT_RECIPIENTS)?.value?.length">
@@ -79,7 +105,7 @@
                 </div>
             </div>
             <div class="rule-container d-flex flex-column">
-                <app-validation-error [errorMsg]="apiErrorMsg" *ngIf="apiErrorMsg" [width]="'100%'" [imgSrc]="'/assets/validation_alert_icon_24_24.svg'"></app-validation-error>
+                <app-validation-error [errorMsg]="apiErrorMsg" *ngIf="apiErrorMsg" [width]="'100%'"></app-validation-error>
                 <app-rule-edit [formControlName]="formControlList.CHILD_FORM"></app-rule-edit>
             </div>
         </section>

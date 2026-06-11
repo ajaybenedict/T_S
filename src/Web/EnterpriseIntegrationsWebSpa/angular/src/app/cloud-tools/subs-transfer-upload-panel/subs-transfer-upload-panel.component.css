@@ -1,0 +1,61 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.panel-container {
+    background-color: #FFFFFF;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #D9D8D7;
+    height: calc(100vh - 68px);
+    position: relative;
+}
+
+.panel-header {
+    height: 56px;
+    border-bottom: 1px solid #E4E5E6;
+}
+
+.header-progress-bar {
+    height: 4px;
+}
+
+.panel-content-container {       
+    gap: 20px;
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+
+.content-section-value {
+    padding: 8px;
+    border: 1px solid #E4E5E6;
+    height: 44px;
+}
+
+input[type="number"].content-section-value::-webkit-outer-spin-button,
+input[type="number"].content-section-value::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"].content-section-value {
+    -moz-appearance: textfield;
+}
+
+.content-section-value:hover {
+    border: 1px solid #75716E;
+    outline: none;
+}
+
+.content-section-value:focus {
+    border: 1px solid #005758;
+    outline: none;
+}
+
+.panel-footer {
+    margin-top: auto;
+    flex-shrink: 0;
+    height: 76px;
+    border: 1px solid #E4E5E6;    
+}

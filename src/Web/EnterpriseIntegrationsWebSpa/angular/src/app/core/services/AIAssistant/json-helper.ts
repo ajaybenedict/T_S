@@ -78,7 +78,7 @@ export class JsonHelper {
   public static extractAndReplace(input: string): string {
     const markerIndex = input.indexOf('```json');
     let extracted = input.substring(0, markerIndex);
-    extracted = extracted.replace(/`/g, '');
+    extracted = extracted.replaceAll('`', '');
     return extracted;
   }
 
@@ -92,7 +92,7 @@ export class JsonHelper {
 
   public static convertToProperCase(input: string): string {
     // Step 1: Replace underscores with spaces and trim any leading/trailing spaces
-    let result = input.replace(/_/g, ' ').trim();
+    let result = input.replaceAll('_', ' ').trim();
 
     // Step 2: Insert a space before all caps in camelCase and PascalCase (except the first character)
     result = result.replace(/([A-Z])/g, ' $1').trim();

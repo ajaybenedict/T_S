@@ -3,7 +3,7 @@ import { Location } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { APP_ROUTE_CONFIG_URL, DISCLAIMER_TEXT } from 'src/app/core/constants/constants';
+import { APP_ROUTE_CONFIG_URL, DISCLAIMER_TEXT, BOOTSTRAP_5_HREF, BOOTSTRAP_2_HREF } from 'src/app/core/constants/constants';
 import { RuleEngineDataService } from 'src/app/core/services/rule-engine/rule-engine-data.service';
 
 @Component({
@@ -30,6 +30,9 @@ export class PanelShellComponent implements OnInit, OnDestroy {
   editPathKey = '/edit';
   breadCrumbData = 'Rules Engine';
   disclaimerText = DISCLAIMER_TEXT.RULE_ENGINE;
+  private readonly bootstrap5Href = BOOTSTRAP_5_HREF;
+  private readonly bootstrap2Href = BOOTSTRAP_2_HREF;
+
   
   constructor(
     private readonly ruleEngineDataSVC: RuleEngineDataService,
@@ -37,8 +40,14 @@ export class PanelShellComponent implements OnInit, OnDestroy {
     private readonly location: Location,    
     private readonly cdr: ChangeDetectorRef,
   ){}
-
+   /**  
+   * Switches Bootstrap versions when loaded from the CBC dashboard.
+   */
   ngOnInit(): void {
+     if (this.router.url.includes(APP_ROUTE_CONFIG_URL.CBC_DASHBOARD)) {
+      this.switchStyles(this.bootstrap2Href, this.bootstrap5Href);
+    }
+
     this.ruleEngineDataSVC.breadcrumb$
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
@@ -65,7 +74,36 @@ export class PanelShellComponent implements OnInit, OnDestroy {
     }
   }
 
+  private switchStyles(removeHref: string, addHref: string): void {
+    this.removeStyle(removeHref);
+    this.addStyle(addHref);
+  }
+
+  private addStyle(href: string): void {
+    if (document.querySelector(`link[href="${href}"]`)) {
+      return;
+    }
+
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+
+    document.head.appendChild(link);
+  }
+
+  private removeStyle(href: string): void {
+    const link = document.querySelector(`link[href="${href}"]`);
+    link?.remove();
+  }
+  /**
+   * Restores the original Bootstrap stylesheet (if switched)
+   * and cleans up all active subscriptions.
+   */
   ngOnDestroy(): void {
+    if (this.router.url.includes(APP_ROUTE_CONFIG_URL.CBC_DASHBOARD)) {
+      this.switchStyles(this.bootstrap5Href, this.bootstrap2Href);
+    }
+
     this.destroy$.next();
     this.destroy$.complete();
   }

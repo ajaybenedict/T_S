@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { DownloadPanelComponent } from './download-panel.component';
+import { configureTestBed } from 'src/app/testing/test-bed.helper';
 
 describe('DownloadPanelComponent', () => {
   let component: DownloadPanelComponent;
   let fixture: ComponentFixture<DownloadPanelComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
+    await configureTestBed({
       declarations: [ DownloadPanelComponent ]
     })
     .compileComponents();

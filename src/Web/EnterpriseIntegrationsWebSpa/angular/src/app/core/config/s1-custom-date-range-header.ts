@@ -1,6 +1,6 @@
 import { S1CustomHeaderButtons } from "src/app/models/s1/s1-date-range-picker.interface";
 
-export let customCalendarHeaderButtons: S1CustomHeaderButtons[] = [
+export const customCalendarHeaderButtons: S1CustomHeaderButtons[] = [
     {
       displayName: '7 D',
       width: '40px',

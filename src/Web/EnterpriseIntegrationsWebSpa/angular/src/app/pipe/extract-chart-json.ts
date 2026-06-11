@@ -7,7 +7,7 @@ import { JsonHelper } from '../core/services/AIAssistant/json-helper';
 export class ExtractChartJsonObjectPipe implements PipeTransform {
 
   transform(value: string): any {
-    var chartJson = JsonHelper.extractJsonObject(value, "```chartjson");
+    const chartJson = JsonHelper.extractJsonObject(value, "```chartjson");
     return chartJson;
   }
 }

@@ -1,0 +1,41 @@
+<aside class="d-flex flex-column panel-container">
+    <header class="d-flex flex-column s1-border-bottom-1px-NG2 s1-gap-10 s1-P-16-20-px">
+        <div class="d-flex justify-content-between">
+            <span class="s1-C-Charcoal s1-FW700 s1-FS14px">{{ activeResellerOverview.header.resellerName }}</span>
+            <button type="button" s1-button [iconOnly]="true" (click)="closeHandler()">
+                <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss" class="default">
+                <img src="/assets/dismiss_btn_hover_red_24_24.svg" alt="dismiss" class="hover">
+            </button>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <span class="s1-C-Stone s1-FW400 s1-FS14px">{{ activeResellerOverview.header.resellerId }}</span>
+            <div class="s1-separator-H16px"></div>
+            <span class="s1-C-Stone s1-FW400 s1-FS14px">{{ activeResellerOverview.header.country }}</span>
+            <div class="s1-separator-H16px"></div>
+            <span class="s1-C-Stone s1-FW400 s1-FS14px">{{ activeResellerOverview.header.currency }}</span>
+        </div>
+    </header>
+    <!-- Panel pre-content -->
+    <div class="d-flex align-items-center s1-P-16-20-px s1-gap-10 s1-border-bottom-1px-NG2" *ngIf="headerTags.length > 0">
+        <s1-tag *ngFor="let tag of headerTags; trackBy: trackByValue" [value]="tag.value" [color]="tag.color"></s1-tag>
+    </div>
+    <!-- Panel Content -->
+    <div class="panel-content-holder">
+        <div class="d-flex flex-column s1-gap-12 s1-P20px s1-border-bottom-1px-NG2" *ngFor="let section of sections; trackBy: trackByTitle">
+            <span class="s1-C-Charcoal s1-FW700 s1-FS14px">{{ section.title }}</span>
+            <div class="s1-border-all-1px-NG2 d-flex flex-column s1-gap-12 s1-P12px">
+                <div class="d-flex justify-content-between" *ngFor="let row of section.rows; trackBy: trackByLabel">
+                    <span class="s1-C-Charcoal s1-FW400 s1-FS14px">{{ row.label }}</span>
+                    <span class="s1-C-Charcoal s1-FW700 s1-FS14px" *ngIf="!row.isTag">{{ row.value }}</span>
+                    <span class="s1-C-Charcoal s1-FW700 s1-FS14px" *ngIf="row.isTag">
+                        <s1-tag [value]="row.value" [color]="row.tagColor"></s1-tag>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Panel Footer -->
+    <div class="panel-footer s1-P-16-20-px s1-border-top-1px-NG2 d-flex align-items-center justify-content-between">
+        <span class="s1-FW400 s1-FS14px s1-C-Teal reseller-overview-link">Go to Reseller Overview</span>
+    </div>
+</aside>

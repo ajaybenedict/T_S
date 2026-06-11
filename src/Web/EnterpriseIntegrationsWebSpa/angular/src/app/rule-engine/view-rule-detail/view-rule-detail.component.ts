@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { PermissionsEnum } from 'src/app/core/config/permissions.config';
+import { ApplicationIdEnum, PermissionsEnum } from 'src/app/core/config/permissions.config';
 import { DataState } from 'src/app/core/services/data-state';
 import { RuleDetail } from 'src/app/models/rule-engine/rule-engine';
 
@@ -14,7 +14,7 @@ export class ViewRuleDetailComponent {
   @Input() isDraft = false;
   @Output() actionEmitter = new EventEmitter<string>();
 
-  hasEditAccess = this.dataState.hasPermission([PermissionsEnum.RuleEditor]);
+  hasEditAccess = this.dataState.hasPermission([PermissionsEnum.RuleEditor], ApplicationIdEnum.C3);
 
   constructor (
     private readonly dataState: DataState,

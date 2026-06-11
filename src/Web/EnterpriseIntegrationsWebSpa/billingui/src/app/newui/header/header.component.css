@@ -64,11 +64,10 @@
     flex: 1;
 } 
 
-.checkbox-scroll-container {
-  max-height: 510px;
-  overflow-y: auto;
-  margin-top: 12px; 
-  padding-right: 4px; 
+.group-divider {
+    height: 1px;
+    background-color: #e5e5e5;
+    margin: 12px 0;
 }
 
 /* Optional scrollbar styling */

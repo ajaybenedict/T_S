@@ -25,6 +25,16 @@ export interface OrderRequest {
     PageSize: number;
     SortOrder: SortDirectionEnum;
     OrderByColumn: SortColumnEnum;   // 1 || 2 || 3 -- ColumnNumber  
+    /** Enables filtering by reseller discontinued state when set to 1. */
+    DiscontinuedFilter: number;
+    Discontinued: boolean;
+    /** Enables filtering by reseller on-hold state when set to 1. */
+    OnHoldFilter: number;
+    OnHold: boolean;
+    /** Enables the billing-term filter when set to 1. */
+    MultiYearContractFilter: number;
+    /** Billing-term value when `MultiYearContractFilter` is enabled: false=Standard, true=Multi-Year. */
+    MultiYearContract: boolean;
 }
 
 export interface OrderResponse {
@@ -52,6 +62,8 @@ export interface OrderResponse {
     restricted: boolean | null;
     discontinued: boolean | null;
     id: number;
+    multiYearContract: boolean;
+    orderStatusId: number;   
 }
 
 // Use it for approving/declining the order

@@ -2,13 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import {
   AZURE_AD_LOGIN_URL,
-  HOSTNAME_INT,
-  HOSTNAME_PROD,
-  HOSTNAME_UAT,
-  REDIRECT_URI_INT,
-  REDIRECT_URI_LOCAL,
-  REDIRECT_URI_STREAMONE,
-  REDIRECT_URI_UAT
 } from '../core/constants/constants';
 import { SsoService } from '../core/services/sso.service';
 import { DataState } from '../core/services/data-state';
@@ -66,6 +59,9 @@ export class SsoComponent implements OnInit, OnDestroy {
   private redirectToAzure(state?: string | null): void {
     const settingSub = this.dataState.appsettingObservable().subscribe({
       next: (appSettings) => {
+        if (!appSettings) {
+          return;
+        }
         const clientId = appSettings.azureAdClientId;
         const redirectUri = this.getRedirectUri(new URL(globalThis.location.href));
         let azureUrl = this.buildAzureUrl(clientId, redirectUri, state);
@@ -94,17 +90,7 @@ export class SsoComponent implements OnInit, OnDestroy {
   }
 
   private getRedirectUri(url: URL): string {
-    switch (url.hostname) {
-      case HOSTNAME_UAT:
-        return REDIRECT_URI_UAT;
-      case HOSTNAME_INT:
-        return REDIRECT_URI_INT;
-      case HOSTNAME_PROD:
-        localStorage.setItem('streamoneHub', url.toString());
-        return REDIRECT_URI_STREAMONE;
-      default:
-        return REDIRECT_URI_LOCAL;
-    }
+    return `${url.origin}/sso`;
   }
 
   private performAuth(code: string, state?: string | null): void {

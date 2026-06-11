@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { DataState } from "./data-state";
 import { API_PATH_PPC, API_V1 } from "../constants/constants";
+import { UserResponse } from "src/app/models/user.model";
 
 @Injectable({
     providedIn: 'root'
@@ -14,8 +15,8 @@ export class UserApiService {
         private dataState: DataState,
     ) { }
 
-    getUser(): Observable<any> {
-      return this.http.get<any>(`${this.dataState.getBaseUrl()}/${API_PATH_PPC}/${API_V1}/user`);
+    getUser(): Observable<UserResponse | null> {
+        return this.http.get<UserResponse>(`${this.dataState.getBaseUrl()}/${API_PATH_PPC}/${API_V1}/user`);
     }
 
     getAppSettings(): Observable<any> {

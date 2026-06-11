@@ -40,20 +40,39 @@
           </div>
         </div>
 
-         <div class="checkbox-scroll-container">
-          <!-- Checkbox List Filtered by Search -->
-        <app-flatCheckBox [CheckboxesValue]="filteredCheckboxList" (CheckboxesChange)="onCheckboxChange($event)">
-        </app-flatCheckBox>
-         </div>
+        <div>
+          <!-- Country Tab: Render each group separately with dividers -->
+          <ng-container *ngIf="activeTab === 'Country'">
 
-        
+            <ng-container *ngFor="let group of filteredCheckboxList; trackBy: trackByGroupId; let last = last">
+              <app-host-checkbox [checkboxesValue]="[group]" [checkboxType]="'groupcheckbox'"
+                (checkboxesChange)="onCheckboxChange($event)">
+              </app-host-checkbox>
+              <div *ngIf="!last" class="group-divider"></div>
+            </ng-container>
+
+
+          </ng-container>
+
+
+
+
+          <!-- Other Tabs: Render single checkbox list -->
+          <ng-container *ngIf="activeTab !== 'Country'">
+            <app-host-checkbox [checkboxesValue]="filteredCheckboxList" [checkboxType]="'checkbox'"
+              (checkboxesChange)="onCheckboxChange($event)">
+            </app-host-checkbox>
+          </ng-container>
+        </div>
+
+
       </div>
       <div panel-footer class="filter-footer">
-        <button class="btn secondary resetbtn" (click)="onResetAllTabs()">
+        <button class="btn secondary resetbtn" [disabled]="!canResetFilters()" (click)="onResetAllTabs()">
           Reset All
         </button>
 
-        <button class="btn primary applybtn" (click)="onApplyFilters()">
+        <button class="btn primary applybtn" [disabled]="!canApplyFilters()" (click)="onApplyFilters()">
           Apply
         </button>
 

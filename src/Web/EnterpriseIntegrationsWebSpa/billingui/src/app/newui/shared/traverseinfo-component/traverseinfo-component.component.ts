@@ -1,6 +1,4 @@
-import { Component, Input } from '@angular/core';
-import { TraverseStateService } from 'src/app/services/traverse-state.service';
-import { DataTableService } from 'src/app/services/data-table.service';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Button } from 'src/app/interface/button.interface';
 
 @Component({
@@ -9,8 +7,11 @@ import { Button } from 'src/app/interface/button.interface';
   styleUrls: ['./traverseinfo-component.component.css']
 })
 export class TraverseinfoComponentComponent {
-  currentIndex: number | null = null;
-  totalRows: number = 0;
+  @Input() currentIndex = 0;
+  @Input() total = 0;
+
+  @Output() next = new EventEmitter<void>();
+  @Output() previous = new EventEmitter<number>();
 
   backbutton: Button[] = [{
     key: 'BackToList',
@@ -21,29 +22,4 @@ export class TraverseinfoComponentComponent {
     disabled: false,
     class: 'btn-action'
   }];
-
-
-  constructor(
-    private readonly traverseService: TraverseStateService,
-    private readonly dataTableService: DataTableService) { }
-
-  @Input() tableId: string = '';
-
-  ngOnInit() {
-    if (!this.tableId) throw new Error('tableId is required for Traverse');
-
-    // Subscribe to current index and total rows
-    this.traverseService.currentIndex$(this.tableId)?.subscribe(idx => this.currentIndex = idx);
-    this.traverseService.totalRows$(this.tableId)?.subscribe(total => this.totalRows = total);
-  }
-
-  next() { this.traverseService.goNext(this.tableId); }
-  prev() { this.traverseService.goPrev(this.tableId); }
-
-
-  backToListAction(key: string) {
-    this.dataTableService.setTableExpandable(null); 
-  }
-
-
 }

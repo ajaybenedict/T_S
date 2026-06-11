@@ -1,6 +1,7 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject, filter, switchMap, takeUntil, tap } from 'rxjs';
+
 import { ORDER_SECOND_LEVEL_TABLE_COLUMNS } from 'src/app/config/data-table-columns.config';
-import { DataTableComponent } from '../shared/data-table/data-table.component';
 import { DataTableService } from 'src/app/services/data-table.service';
 import { CBCDashboardAPIService } from 'src/app/services/cbcdashboard-api.service';
 
@@ -9,43 +10,46 @@ import { CBCDashboardAPIService } from 'src/app/services/cbcdashboard-api.servic
   templateUrl: './order-second-level-component.component.html',
   styleUrls: ['./order-second-level-component.component.css']
 })
-export class OrderSecondLevelComponent implements OnInit {
-  columns: any = ORDER_SECOND_LEVEL_TABLE_COLUMNS;
-  data: any[] = [];
-  @ViewChild(DataTableComponent) dataTable!: DataTableComponent;
+export class OrderSecondLevelComponent implements OnInit, OnDestroy {
 
+  columns = ORDER_SECOND_LEVEL_TABLE_COLUMNS;
+  data: any[] = [];
+
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
-      private readonly dataTableService: DataTableService,
-      private readonly apiService: CBCDashboardAPIService,
-      private readonly cdr: ChangeDetectorRef
-    ) { }
+    private readonly dataTableService: DataTableService,
+    private readonly apiService: CBCDashboardAPIService
+  ) {}
 
+ ngOnInit(): void {
+  this.dataTableService.selectedOrderLineItem$
+    .pipe(
+      tap(value => console.log('selectedOrderLineItem$ emitted:', value)),
 
-   ngOnInit(): void {
-  
-      this.dataTableService.selectedOrderLineItem$.subscribe(orderLineItemId => {
-        if (orderLineItemId) {
-         
-          this.apiService.getOrderLineItemDetails(orderLineItemId).subscribe({
-            next: (response) => {
-              this.data = response;
+      filter((id): id is string => {
+        const valid = !!id;
+        return valid;
+      }),
 
-                if (this.dataTable) {
-             this.dataTable.updateTable(this.columns, this.data);
-             this.cdr.detectChanges();  // Manually trigger change detection
-           }
-                
-            },
-            error: (err) => {
-              console.error('Failed to load order line items', err);
-            }
-          });
-        }
-      });
-  
-    }
+      switchMap(orderLineItemId => {
+        return this.apiService.getOrderLineItemDetails(orderLineItemId);
+      }),
 
- 
+      takeUntil(this.destroy$)
+    )
+    .subscribe({
+      next: (response) => {
+        this.data = response;
+      },
+      error: (err) => {
+        console.error('API failed:', err);
+      }
+    });
+}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

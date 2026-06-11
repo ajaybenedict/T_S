@@ -88,6 +88,11 @@
     color: black;
 }
 
+.title-progressbar-spacing {
+    margin-top: 10px;
+    width: 100%;
+}
+
 .br-8 {
     border-radius: 8px;
 }

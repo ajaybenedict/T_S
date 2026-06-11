@@ -31,8 +31,6 @@ export abstract class ApiDataService {
   public systemMessage = "";
   public prompts = { showPrompts: true, defaultPromptsNo: 12 }
 
-  public ApiDataService() {
-  }
   public mapToResponse(response: any, data: any): ApiDataResponse{
     let apiDataResponse: ApiDataResponse = {};
     apiDataResponse.data = data
@@ -62,11 +60,11 @@ export abstract class ApiDataService {
   }
 
   public addCommonHeaders(headers?: HttpHeaders): HttpHeaders {
-    headers = new HttpHeaders();
-    headers = headers.append('apiSource', this.apiSource);
-   // headers = headers.append('X-RapidAPI-Host', this.apiDataBaseUrl);
+    let requestHeaders = headers ?? new HttpHeaders();
+    requestHeaders = requestHeaders.append('apiSource', this.apiSource);
+    // headers = headers.append('X-RapidAPI-Host', this.apiDataBaseUrl);
     // Add more headers as needed
-    return headers;
+    return requestHeaders;
   }
 
   public objectToQueryString(params: any): string {

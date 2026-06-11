@@ -1,7 +1,23 @@
 <div class="input-wrapper" [ngStyle]="{'height': height, 'width': width}">
     <img class="input-icon" src="/assets/search.svg" alt="Search">
     <div class="input-container">
-        <input type="text" [formControl]="searchControl" [placeholder]="placeHolder" (keydown)="onKeyDown($event)" (keyup)="inputHandler($event)" class="input-field" [appInputFilter]="inputFilter" />
+        <!-- Apply input filter directive only if inputFilter is provided -->
+        <input type="text" 
+               [formControl]="searchControl" 
+               [placeholder]="placeHolder" 
+               (keydown)="onKeyDown($event)" 
+               (keyup)="inputHandler($event)" 
+               class="input-field" 
+               [appInputFilter]="inputFilter" 
+               *ngIf="inputFilter" />
+        <!-- Input without filter when inputFilter is not provided -->
+        <input type="text" 
+               [formControl]="searchControl" 
+               [placeholder]="placeHolder" 
+               (keydown)="onKeyDown($event)" 
+               (keyup)="inputHandler($event)" 
+               class="input-field" 
+               *ngIf="!inputFilter" />
         <button type="button" *ngIf="showClearButton" class="clear-btn" (click)="clearInput()">
             <img src="/assets/dismiss_btn_24_24.svg" alt="dismiss">
         </button>

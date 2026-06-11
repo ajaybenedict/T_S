@@ -9,11 +9,11 @@
         <div class="chat-history-container d-flex flex-column">
             <button type="button" aria-label="NewChat" class="new-chat-btn" (click)="createNewChat()">New Chat</button>
             <!-- For threads within 30 days -->
-             <div class="thread-list-container recent-threads" *ngIf="recentThreadList?.length">
+             <div class="thread-list-container recent-threads" *ngIf="recentThreadList.length">
                  <app-thread-container [threadList]="recentThreadList" [containerTitle]="'Recent Chats'" [containerHeight]="calculateThreadContainerHeight()"></app-thread-container>
              </div>
             <!-- For threads older than 30 days -->
-             <div class="thread-list-container older-threads" *ngIf="olderThreadList?.length">
+             <div class="thread-list-container older-threads" *ngIf="olderThreadList.length">
                  <app-thread-container [threadList]="olderThreadList" [containerTitle]="'Older Chats'" [containerHeight]="calculateThreadContainerHeight()"></app-thread-container>
              </div>
         </div>
@@ -56,7 +56,9 @@
                                 </div>
                             </div>
                         </div>
-                        <mat-progress-bar mode="indeterminate" *ngIf="showLoader"></mat-progress-bar>
+                        <div class="title-progressbar-spacing" *ngIf="showLoader || showThreadTitleLoader">
+                            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                        </div>
                     </div>
                     <ng-template #welcomeTextLoader>
                         <div class="d-flex flex-column align-items-start text-start p-3 flex-grow-1 w-100">

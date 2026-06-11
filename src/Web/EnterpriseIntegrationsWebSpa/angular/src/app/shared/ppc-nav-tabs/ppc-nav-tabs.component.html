@@ -1,4 +1,4 @@
-<div class="ppc-nav-container" *ngIf="showNavTab" >
+<div class="ppc-nav-container" *ngIf="tabs && tabs.length > 0">
     <mat-tab-group (selectedIndexChange)="tabChange.emit($event)" [selectedIndex]="selectedIndex" dynamicHeight
         animationDuration="0ms">
         <mat-tab *ngFor="let tab of tabs" [label]="tab.label">

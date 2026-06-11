@@ -1,14 +1,16 @@
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { cloneDeep } from 'lodash';
 import { filter, Observable, of, Subscription } from 'rxjs';
-import { DisplayEntity } from 'src/app/AIAssistant/models/display-entity';
+import { v4 as uuidv4 } from 'uuid';
 import { API_V1, CORE_PATH_AI } from 'src/app/core/constants/constants';
 import { AIDataService } from 'src/app/core/services/ai/ai-data.service';
+import { processAssistantToolOutputs } from 'src/app/core/services/ai/ai-message-renderer.helper';
 import { AIThreadMessageService } from 'src/app/core/services/ai/ai-thread-message.service';
 import { IonDataDiscoveryApiDataService } from 'src/app/core/services/AIAssistant/ion-data-discovery.service';
 import { JsonHelper } from 'src/app/core/services/AIAssistant/json-helper';
 import { DataState } from 'src/app/core/services/data-state';
 import { Assistant, AssistantMessage, ToolCall, ToolCallDeltaChunk, ToolFunctionOutput } from 'src/app/models/ai/assistant.interface';
+import { RemoveFileReferencesPipe } from '../../pipe/remove-file-references.pipe';
 
 @Component({
   selector: 'app-chat-message',
@@ -16,6 +18,9 @@ import { Assistant, AssistantMessage, ToolCall, ToolCallDeltaChunk, ToolFunction
   styleUrls: ['./chat-message.component.css']
 })
 export class ChatMessageComponent implements OnInit, OnDestroy {
+  private static readonly HUB_ASSISTANT_ID = 3;
+  private readonly removeFileReferencesPipe = new RemoveFileReferencesPipe();
+
   message = "";
   messages: AssistantMessage[] = [];
   systemMessage = '';
@@ -23,7 +28,7 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
   isFunctionEvaluated = false;
   partialJson = '';
   chatInProgress = false;
-  apiBaseUrl = `${this.dataState.getCoreBaseUrl()}/${CORE_PATH_AI}/${API_V1}/assistant`; // Core Path will be used only for Chat-Completions API
+  apiBaseUrl = `${this.dataState.getCoreBaseUrl()}/${CORE_PATH_AI}/${API_V1}/assistant`;
   gptChatWidth = '0px';
   leftOffset = '0px';
 
@@ -46,76 +51,65 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
     private readonly threadMessageSVC: AIThreadMessageService,
     private readonly aiDataSVC: AIDataService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly apiDataSVC: IonDataDiscoveryApiDataService, // Need to use factort service in future
+    private readonly apiDataSVC: IonDataDiscoveryApiDataService,
     private readonly dataState: DataState,
   ) { }
 
   ngOnInit(): void {
-    this.calculateGPTWidth();    
-    this.assistantIdSubs = this.aiDataSVC.assistantId$.subscribe({
-      next: res => {
-        if (res) {
-          this.assistantId = res;
-        }
-      }
-    });
-    this.threadIdSubs = this.aiDataSVC.threadId$.subscribe({
-      next: res => {
-        if (res) {
-          this.threadId = res;
-        }
-      }
-    });
-    this.assistantSubs = this.aiDataSVC.assistant$.subscribe({
-      next: res => {
-        if (res) {
-          this.assistant = res;
-        }
-      }
-    });
-    this.messageSubs = this.aiDataSVC.message$.subscribe({
-      next: res => {
-        if(res) {
-          this.message = res;
-        }
-      }
-    });
-    this.messageListSubs = this.aiDataSVC.messageList$.subscribe({
-      next: res => this.messages = res
-    });
-    this.submitMessageSubs = this.aiDataSVC.submitMessage$.subscribe({
-      next: res => {
-        if(res) {          
-          this.submitMessage();
-        }
-      }
-    });
-    this.chatInProgressSubs = this.aiDataSVC.chatInProgress$.subscribe({
-      next: res => this.chatInProgress = res
-    });
+    this.calculateGPTWidth();
+    this.assistantIdSubs = this.aiDataSVC.assistantId$.subscribe({ next: res => { if (res) this.assistantId = res; } });
+    this.threadIdSubs = this.aiDataSVC.threadId$.subscribe({ next: res => { if (res) this.threadId = res; } });
+    this.assistantSubs = this.aiDataSVC.assistant$.subscribe({ next: res => { if (res) this.assistant = res; } });
+    this.messageSubs = this.aiDataSVC.message$.subscribe({ next: res => { if (res) this.message = res; } });
+    this.messageListSubs = this.aiDataSVC.messageList$.subscribe({ next: res => this.messages = res });
+    this.submitMessageSubs = this.aiDataSVC.submitMessage$.subscribe({ next: res => { if (res) this.submitMessage(); } });
+    this.chatInProgressSubs = this.aiDataSVC.chatInProgress$.subscribe({ next: res => this.chatInProgress = res });
   }
 
   @HostListener('window:resize', ['$event'])
-    onResize(event: any) {
-      this.calculateGPTWidth();
-    }
+  onResize(event: any) {
+    this.calculateGPTWidth();
+  }
 
   calculateGPTWidth() {
     this.gptChatWidth = `${window.innerWidth - 440}px`;
   }
 
+  private isHubAssistantFlow(): boolean {
+    return this.assistantId === ChatMessageComponent.HUB_ASSISTANT_ID;
+  }
+
   submitMessage(): void {
     if (!this.message?.trim() || !this.validateRequest()) return;
+
     this.prepareForSubmission();
     this.pushUserMessage(this.message);
+
     if (!this.threadId) {
       console.log('submitMessage: ThreadId not defined!');
       return;
     }
-    this.threadMessageSVC.createThreadMessage({ role: 'user', assistantId: this.assistantId, threadId: this.threadId, content: this.message }).subscribe();
+
+    // Legacy path persists user message directly to thread messages endpoint.
+    // Hub assistant flow (id=3) delegates message+run lifecycle to orchestrator endpoint.
+    if (!this.isHubAssistantFlow()) {
+      this.threadMessageSVC.createThreadMessage({
+        role: 'user',
+        assistantId: this.assistantId,
+        threadId: this.threadId,
+        content: this.message
+      }).subscribe();
+    }
+
     this.message = '';
     this.pushAssistantPlaceholder();
-    this.doSendRequestToAi();
+
+    if (this.isHubAssistantFlow()) {
+      this.doSendRequestToAiOrchestrated();
+    } else {
+      this.doSendRequestToAi();
+    }
+
     this.aiDataSVC.setMessageList(this.messages);
   }
 
@@ -139,7 +133,7 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
       content: [{ text: { value: message } }],
       isSubmitEnabled: false
     };
-    this.messages.push(this.asstMessage);    
+    this.messages.push(this.asstMessage);
   }
 
   private pushAssistantPlaceholder(): void {
@@ -150,11 +144,12 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
     };
     this.messages.push(this.asstMessage);
     this.asstMessage.showLoader = of(true);
-    this.cdr.detectChanges();    
+    this.cdr.detectChanges();
     this.localMessages = cloneDeep(this.messages);
     this.localAsstMsg = cloneDeep(this.asstMessage);
   }
 
+  // Existing legacy chat-completions flow
   doSendRequestToAi(): void {
     const aimessages = this.aiDataSVC.getOpenAiMessages(this.localMessages, this.assistant.instructions);
     const requestData = this.buildRequestData(aimessages);
@@ -162,18 +157,43 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
     this.asstMessage.openAiResult = new Observable<string>(observer => {
       const subscription = this.doOpenAICall(requestData).subscribe({
         next: (chunk) => this.handleStreamChunk(chunk, observer),
-        error: (err) =>  this.handleStreamError(err, observer),
-        complete: () =>  this.handleStreamComplete(observer),
+        error: (err) => this.handleStreamError(err, observer),
+        complete: () => this.handleStreamComplete(observer),
       });
 
-      return () => {        
-        subscription.unsubscribe();
-      };
+      return () => { subscription.unsubscribe(); };
     }).pipe(
       filter((result: string) => !result.startsWith('```chartjson'))
     );
   }
 
+  // New hub assistant flow (backend orchestrator endpoint)
+  doSendRequestToAiOrchestrated(): void {
+    const requestData = {
+      threadId: this.threadId,
+      role: 'user',
+      content: this.localMessages?.[this.localMessages.length - 2]?.content?.[0]?.text?.value ?? ''
+    };
+
+    this.asstMessage.openAiResult = new Observable<string>(observer => {
+      const subscription = this.doOpenAIOrchestratedCall(requestData).subscribe({
+        next: (finalMessage) => {
+          const cleaned = this.removeFileReferencesPipe.transform(finalMessage);
+          this.localAsstMsg.childStreamingData = cleaned;
+          observer.next(cleaned);
+          this.scrollToBottom(); // Auto-scroll as orchestrated message streams in
+        },
+        error: (err) => this.handleStreamError(err, observer),
+        complete: () => {
+          this.saveLastMessage();
+          this.scrollToBottom(); // Auto-scroll when orchestrated streaming completes
+          observer.complete();
+        }
+      });
+
+      return () => { subscription.unsubscribe(); };
+    });
+  }
 
   private buildRequestData(messages: any[]): any {
     return {
@@ -194,14 +214,16 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
       observer.next(this.apiDataSVC.displayTitle);
       this.localAsstMsg.childStreamingData = this.apiDataSVC.displayTitle;
       this.saveLastMessage();
+      this.scrollToBottom(); // Auto-scroll when streaming completes
       observer.complete();
       return;
     }
 
-    const newContent = this.parseAndUpdateToolCalls(chunk);
+    const newContent = this.removeFileReferencesPipe.transform(this.parseAndUpdateToolCalls(chunk));
     this.localAsstMsg.childStreamingData ??= '';
     this.localAsstMsg.childStreamingData += newContent;
     observer.next(JsonHelper.removeJsonObject(this.localAsstMsg.childStreamingData));
+    this.scrollToBottom(); // Auto-scroll as new chunks arrive during streaming
   }
 
   private parseAndUpdateToolCalls(chunk: string): string {
@@ -238,7 +260,7 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
     this.aiDataSVC.setChatInProgress(false);
   }
 
-  private handleStreamComplete(observer: any): void {    
+  private handleStreamComplete(observer: any): void {
     if (this.localAsstMsg.tool_calls?.length) {
       this.executeToolCalls(observer);
     } else if (this.localAsstMsg.childStreamingData) {
@@ -249,7 +271,7 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
     }
   }
 
-  private executeToolCalls(observer: any): void {    
+  private executeToolCalls(observer: any): void {
     const functions: any[] = [];
     const toolCallsCopy = JSON.parse(JSON.stringify(this.localAsstMsg.tool_calls)) as ToolCall[];
 
@@ -296,6 +318,7 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
 
     this.localAsstMsg.tool_calls = null;
     this.localAsstMsg.role = 'tool';
+    this.scrollToBottom(); // Auto-scroll when tool results are rendered
     this.localAsstMsg.tool_call_id = toolCallId;
     this.localMessages.push(cloneDeep(this.localAsstMsg));
   }
@@ -305,142 +328,211 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
     this.asstMessage.showLoader = of(false);
     this.showLoader = false;
     this.aiDataSVC.setChatInProgress(false);
+
     if (!this.threadId) {
       console.log('saveLastMessage: ThreadId not defined!');
       return;
     }
-    this.threadMessageSVC.createThreadMessage({ assistantId: this.assistantId, threadId: this.threadId, role: 'assistant', content: this.asstMessage.content[0].text.value }).subscribe();
+
+    // Hub flow already persists assistant output through backend run lifecycle.
+    if (!this.isHubAssistantFlow()) {
+      this.threadMessageSVC.createThreadMessage({
+        assistantId: this.assistantId,
+        threadId: this.threadId,
+        role: 'assistant',
+        content: this.asstMessage.content[0].text.value
+      }).subscribe();
+    }
+
     this.aiDataSVC.setMessageList(this.messages);
   }
 
-  doOpenAICall1(data: any): Observable<string> {    
-    return new Observable<string>((observer: any) => {
-      const url = `${this.apiBaseUrl}/chat-completions`;
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-        credentials: 'include'
-      })
-        .then(response => {          
-          const reader = response.body?.getReader();
-          const decoder = new TextDecoder('utf-8');
-          const readStream = () => {
-            reader?.read().then(({ done, value }) => {
-              if (done) {
-                observer.next();
-                observer.complete();
-                return;
-              }
-              const chunk = decoder.decode(value, { stream: true });
-              observer.next(chunk);
-              readStream();
-            }).catch(err => observer.error(err));
-          };
-          readStream();
-        })
-        .catch(err => observer.error(err));
-
-      return () => observer.complete();
-    });
-  }
-
+  /**
+   * Legacy streaming wrapper kept as Observable for existing caller flow.
+   * Sonar refactor: delegates nested fetch/reader logic into focused helpers.
+   */
   doOpenAICall(data: any): Observable<string> {
     return new Observable<string>((observer: any) => {
-      const url = `${this.apiBaseUrl}/chat-completions`;
+      const abortController = new AbortController();
 
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-        credentials: 'include'
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error ${response.status}`);
-          }
+      this.streamLegacyChatCompletion(data, observer, abortController.signal).catch((err) => {
+        if (abortController.signal.aborted) {
+          return;
+        }
+        console.error('Fetch failed:', err);
+        observer.error(err);
+      });
 
-          const reader = response.body?.getReader();
-          const decoder = new TextDecoder('utf-8');
-
-          const readStream = () => {
-            reader?.read().then(({ done, value }) => {
-              if (done) {                
-                observer.complete(); //MUST call this
-                return;
-              }
-
-              const chunk = decoder.decode(value, { stream: true });
-              observer.next(chunk); // Emit partial chunk
-              readStream();         // Continue reading
-            }).catch(err => {
-              console.error('Error while reading stream:', err);
-              observer.error(err);
-            });
-          };
-
-          readStream(); // Start streaming
-
-        })
-        .catch(err => {
-          console.error('Fetch failed:', err);
-          observer.error(err);
-        });
-
-      return () => {        
+      return () => {
+        abortController.abort();
         observer.complete();
       };
     });
   }
 
+  /** Coordinates the fetch + stream-reader lifecycle for legacy chat-completions. */
+  private async streamLegacyChatCompletion(
+    data: any,
+    observer: any,
+    signal: AbortSignal,
+  ): Promise<void> {
+    const response = await this.fetchLegacyChatCompletion(data, signal);
+    await this.emitLegacyStreamChunks(response, observer, signal);
+    observer.complete();
+  }
 
-  processAiMessage(item: AssistantMessage, outputData: ToolFunctionOutput[]): void {
-    item.components = [];
+  /** Executes the legacy chat-completions request and validates the streaming response body. */
+  private fetchLegacyChatCompletion(data: any, signal: AbortSignal): Promise<Response> {
+    const url = `${this.apiBaseUrl}/chat-completions`;
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      credentials: 'include',
+      signal,
+    }).then((response) => {
+      if (!response.ok || !response.body) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+      return response;
+    });
+  }
 
-    if (item.role !== "assistant" || !outputData) return;
+  /** Reads SSE bytes from the response and emits decoded chunks until done/aborted. */
+  private async emitLegacyStreamChunks(response: Response, observer: any, signal: AbortSignal): Promise<void> {
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder('utf-8');
 
-
-    let isData = false;
-    let isError = false;
-
-    outputData.forEach((func: ToolFunctionOutput) => {
-      const hasData = Array.isArray(func.data) && func.data.length > 0;
-      if (hasData) {
-        isData = true;
-        item.isData = true;
-
-        const displayEntity: DisplayEntity | null =
-          this.apiDataSVC.getDisplayComponent(func.function, func.arguments);
-
-        if (displayEntity) {
-          const component = {
-            outputComponent: displayEntity.displayComponent,
-            compInputs: {
-              apiDataService: this.apiDataSVC,
-              assistantService: this.aiDataSVC,
-              configuration: displayEntity.configuration,
-              dataSource: func.data,
-              pagination: func.pagination,
-              function: func.function,
-              arguments: func.arguments,
-              threadId: this.threadId ?? undefined,
-              messageId: item.id
-            },
-            compOutputs: null,
-          };
-          item.components?.push(component);
-        }
+    while (!signal.aborted) {
+      const { done, value } = await reader.read();
+      if (done) {
+        return;
       }
 
-      if (func.isError) isError = true;
+      observer.next(decoder.decode(value, { stream: true }));
+    }
+  }
+
+  // New orchestrated stream reader
+  doOpenAIOrchestratedCall(data: any): Observable<string> {
+    return new Observable<string>((observer: any) => {
+      const url = `${this.apiBaseUrl}/chat-completions/orchestrate/${this.assistantId}`;
+
+      this.readOrchestratedStream(url, data, observer).catch(err => {
+        console.error('Orchestrated fetch failed:', err);
+        observer.error(err);
+      });
+
+      return () => observer.complete();
+    });
+  }
+
+  private async readOrchestratedStream(url: string, data: any, observer: any): Promise<void> {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream'
+      },
+      body: JSON.stringify(data),
+      credentials: 'include'
     });
 
-    if (!isData) {
-      item.content[0].response = isError
-        ? "There was an error processing your request."
-        : "Your prompt did not return any results. Please try a different prompt.";
+    if (!response.ok || !response.body) {
+      throw new Error(`HTTP error ${response.status}`);
     }
 
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+    let currentEvent = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      const parsed = this.processOrchestratedFrames(buffer, currentEvent, observer);
+      buffer = parsed.buffer;
+      currentEvent = parsed.currentEvent;
+
+      if (parsed.shouldStop) return;
+    }
+
+    observer.complete();
+  }
+
+  private processOrchestratedFrames(buffer: string, currentEvent: string, observer: any):
+    { buffer: string; currentEvent: string; shouldStop: boolean } {
+    const frames = buffer.split('\n\n');
+    const remainingBuffer = frames.pop() ?? '';
+    let latestEvent = currentEvent;
+
+    for (const frame of frames) {
+      const parsedFrame = this.parseSseFrame(frame, latestEvent);
+      latestEvent = parsedFrame.eventName;
+
+      if (this.handleOrchestratedEvent(parsedFrame.eventName, parsedFrame.dataLine, observer)) {
+        return { buffer: remainingBuffer, currentEvent: latestEvent, shouldStop: true };
+      }
+    }
+
+    return { buffer: remainingBuffer, currentEvent: latestEvent, shouldStop: false };
+  }
+
+  private parseSseFrame(frame: string, fallbackEventName: string): { eventName: string; dataLine: string } {
+    let eventName = fallbackEventName;
+    let dataLine = '';
+
+    for (const line of frame.split('\n')) {
+      if (line.startsWith('event:')) {
+        eventName = line.replace('event:', '').trim();
+      } else if (line.startsWith('data:')) {
+        dataLine += line.replace('data:', '').trim();
+      }
+    }
+
+    return { eventName, dataLine };
+  }
+
+  private handleOrchestratedEvent(eventName: string, dataLine: string, observer: any): boolean {
+    if (!dataLine) return false;
+
+    const payload = this.tryParseJson<{ message?: string }>(dataLine);
+    if (!payload) return false;
+
+    if (eventName === 'completed') {
+      observer.next(payload.message ?? '');
+      observer.complete();
+      return true;
+    }
+
+    if (eventName === 'error') {
+      observer.error(payload.message ?? 'Orchestrated chat failed.');
+      return true;
+    }
+
+    return false;
+  }
+
+  private tryParseJson<T>(value: string): T | null {
+    try {
+      return JSON.parse(value) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Reuses shared renderer to keep assistant tool-output handling consistent (Sonar duplicate-code fix). */
+  processAiMessage(item: AssistantMessage, outputData: ToolFunctionOutput[]): void {
+    processAssistantToolOutputs(
+      item,
+      outputData,
+      this.apiDataSVC,
+      this.aiDataSVC,
+      this.threadId ?? undefined,
+    );
     this.messageId = item.id;
   }
 
@@ -451,14 +543,15 @@ export class ChatMessageComponent implements OnInit, OnDestroy {
     }, 0);
   }
 
+  /**
+   * Generates an RFC 4122 version 4 UUID using the shared `uuid` package.
+   * The library uses cryptographically secure randomness in supported environments.
+   */
   private generateGUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0,
-        v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
+    return uuidv4();
   }
 
+  /** Removes OpenAI file citation annotations e.g. 【4:2†source.pdf】 */
   ngOnDestroy(): void {
     if (this.assistantIdSubs) this.assistantIdSubs.unsubscribe();
     if (this.assistantSubs) this.assistantSubs.unsubscribe();

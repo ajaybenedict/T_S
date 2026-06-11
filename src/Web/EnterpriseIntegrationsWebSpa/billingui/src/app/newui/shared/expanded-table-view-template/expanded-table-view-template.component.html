@@ -1,0 +1,81 @@
+<p-table [value]="flattenedData" [dataKey]="uniqueKey" [expandedRowKeys]="expandedRows"
+    [tableStyle]="{ 'min-width': '100%' }">
+
+    <!-- HEADER -->
+    <ng-template pTemplate="header">
+        <tr>
+            <th *ngFor="let col of flattenedColumns" scope="col">
+                {{ col.columnName }}
+            </th>
+        </tr>
+        <tr class="header-divider">
+            <th scope="col" *ngFor="let _ of columns" class="scrollable-col" style="padding: 0;">
+                <div style="border-bottom: 1px solid #005758; width: 100%;"></div>
+            </th>
+        </tr>
+    </ng-template>
+
+    <!-- BODY -->
+    <ng-template pTemplate="body" let-rowData>
+        <tr *ngIf="!navigationMode || selectedRowId === getRowId(rowData)" [pRowToggler]="rowData"
+            (click)="toggleExpandRow(rowData)" (keydown.enter)="toggleExpandRow(rowData)"
+            (keydown.space)="toggleExpandRow(rowData)" tabindex="0" style="cursor:pointer;">
+            
+            <td *ngFor="let col of flattenedColumns">
+
+                <ng-container *ngTemplateOutlet="
+                        cellTemplate;
+                        context: {
+                            col: col,
+                            data: rowData
+                        }">
+                </ng-container>
+
+            </td>
+
+        </tr>
+
+    </ng-template>
+
+    <!-- ROW EXPANSION -->
+    <ng-template pTemplate="rowexpansion" let-rowData>
+
+        <tr>
+
+            <td [attr.colspan]="flattenedColumns.length">
+
+                <div class="p-3">
+
+                    <app-order-second-level-component>
+                    </app-order-second-level-component>
+
+                </div>
+
+            </td>
+
+        </tr>
+
+    </ng-template>
+
+</p-table>
+
+<!-- CELL TEMPLATE -->
+<ng-template #cellTemplate let-col="col" let-data="data">
+
+    <ng-container *ngIf="col.templateId; else defaultCell">
+
+        <ng-container *ngTemplateOutlet="
+                getTemplate(col.templateId);
+                context: {
+                    col: col,
+                    data: data
+                }">
+        </ng-container>
+
+    </ng-container>
+
+    <ng-template #defaultCell>
+        {{ resolveValue(col, data) }}
+    </ng-template>
+
+</ng-template>

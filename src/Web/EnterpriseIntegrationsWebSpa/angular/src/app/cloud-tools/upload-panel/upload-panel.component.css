@@ -17,10 +17,20 @@
     overflow-y: auto;
 }
 
-.mandatory-star {
-    color: #CD163F;
-    font-weight: 700;
-    font-size: 14px;
+.content-section-value {
+    padding: 8px;
+    border: 1px solid #E4E5E6;
+    height: 44px;
+}
+
+.content-section-value:hover {
+    border: 1px solid #75716E;
+    outline: none;
+}
+
+.content-section-value:focus {
+    border: 1px solid #005758;
+    outline: none;
 }
 
 .template-container {

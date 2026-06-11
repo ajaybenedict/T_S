@@ -4,7 +4,6 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
-import { MatTableModule } from "@angular/material/table";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatTooltipModule } from "@angular/material/tooltip";
@@ -14,6 +13,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 const globalRippleConfig: RippleGlobalOptions = {
     disabled: true,
@@ -29,7 +29,6 @@ const modules = [
     MatDialogModule,
     MatButtonModule,
     MatTabsModule,
-    MatTableModule,
     MatPaginatorModule,
     MatTooltipModule,
     MatSelectModule,
@@ -38,7 +37,8 @@ const modules = [
     MatCheckboxModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatToolbarModule
 ];
 
 @NgModule({

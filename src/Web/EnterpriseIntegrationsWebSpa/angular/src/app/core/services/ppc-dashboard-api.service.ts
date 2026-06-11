@@ -17,7 +17,7 @@ export class PPCDashboardAPIService {
 
     private readonly baseURI = `${this.dataState.getBaseUrl()}/${API_PATH_PPC}/${API_V1}`;
 
-    getOrders(data: OrderRequest) {
+    getOrders(data: OrderRequest): Observable<OrderResponse[]> {
         return this.http.post<OrderResponse[]>(this.baseURI + '/order/Orders', data);
     }
 

@@ -1,33 +1,68 @@
 <section class="rule-expression-holder" *ngIf="expressions.length">
     <div class="rule-expression-container d-flex flex-column">
-        <div class="rule-row d-flex justify-content-around align-items-center">
-            <span class="fw-bold s1-C-Charcoal">If</span>
-            <div class="rule-input-holder d-flex">
-                <div class="expression">{{getAttributeString(firstRow) | normalizeString}}</div>
-                <div class="expression">{{firstRow.operator}}</div>
-                <div class="expression">{{getValueString(firstRow) | normalizeString}}</div>
+        <span class="s1-FW700 s1-FS14px S1-C-Charcoal" *ngIf="isCompareFeatureEnabled">{{ruleType}}</span>
+        <ng-container *ngIf="ruleType === ruleTypeEnum.Conditional">
+            <div class="rule-row d-flex justify-content-around align-items-center">
+                <span class="fw-bold s1-C-Charcoal">If</span>
+                <div class="rule-input-holder d-flex">
+                    <div class="expression">{{getAttributeString(firstRow) | normalizeString}}</div>
+                    <div class="expression">{{firstRow.operator}}</div>
+                    <div class="expression">{{getValueString(firstRow) | normalizeString}}</div>
+                </div>
             </div>
-        </div>
-        <div class="other-row-holder d-flex" *ngIf="otherRows.length">
-            <div class="ms-3 d-flex flex-column gap-4">
-                <ng-container *ngFor="let row of otherRows">
-                    <div class="rule-row d-flex gap-3 align-items-center justify-content-between">
-                        <span class="fw-bold s1-C-Charcoal">{{row.logicalOperator?.name}}</span>
-                        <div class="row-input-holder d-flex">
-                            <div class="expression">{{getAttributeString(row) | normalizeString}}</div>
-                            <div class="expression">{{row.operator}}</div>
-                            <div class="expression">{{getValueString(row) | normalizeString}}</div>
+            <div class="other-row-holder d-flex" *ngIf="otherRows.length">
+                <div class="ms-3 d-flex flex-column gap-4">
+                    <ng-container *ngFor="let row of otherRows">
+                        <div class="rule-row d-flex gap-3 align-items-center justify-content-between">
+                            <span class="fw-bold s1-C-Charcoal">{{row.logicalOperator}}</span>
+                            <div class="row-input-holder d-flex">
+                                <div class="expression">{{getAttributeString(row) | normalizeString}}</div>
+                                <div class="expression">{{row.operator}}</div>
+                                <div class="expression">{{getValueString(row) | normalizeString}}</div>
+                            </div>
                         </div>
-                    </div>
-                </ng-container>
+                    </ng-container>
+                </div>
             </div>
+        </ng-container>
+        <ng-container *ngIf="isCompareFeatureEnabled && ruleType === ruleTypeEnum.Compare && compareParts">
+            <div class="rule-row d-flex align-items-center">
+                <span class="fw-bold s1-C-Charcoal">If</span>
+                <div class="rule-input-holder d-flex flex-grow-1">
+                    <div class="compare-expression">{{getAttributeTitle(compareParts.attr1) | normalizeString}}</div>
+                    <div class="compare-expression">{{compareParts.logicalOperator}}</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="compare-expression">{{getAttributeTitle(compareParts.attr2) | normalizeString}}</div>
+                <div class="compare-expression">{{compareParts.arithmeticOperator}}</div>
+                <div class="compare-expression">{{getAttributeTitle(compareParts.attr3) | normalizeString}}</div>
+            </div>
+        </ng-container>
+    </div>
+    <div class="d-flex flex-column criteria-holder" *ngIf="showCriteriaSection">
+        <span class="s1-FS14px s1-FW700 s1-C-Charcoal">Criteria</span>
+        <div class="d-flex gap-2 flex-grow-1 align-items-center">
+            <span>{{ criteriaSummaryLabel }}</span>
+            <div class="compare-expression flex-grow-1">{{ criteriaSummaryValue | normalizeString }}</div>
         </div>
     </div>
     <div class="rule-action-container d-flex justify-content-between">
         <span class="fw-bold s1-C-Charcoal">Then</span>
         <div class="expression d-flex gap-2">
-            <img *ngIf="actionImg" [src]="actionImg" [alt]="action ? action.toLowerCase() : null">
-            <span *ngIf="action">{{action}}</span>
+            <!-- Standard action display: icon + label for non-CBC workflows -->
+            <ng-container *ngIf="!isCostAdjustmentMode">
+                <img *ngIf="actionImg" [src]="actionImg" [alt]="action ? action.toLowerCase() : null">
+                <span *ngIf="action">{{action}}</span>
+            </ng-container>
+            <!-- CBC cost-adjustment display: 'CostAdjustment: N' parsed from {"costAdjustment":N} -->
+            <ng-container *ngIf="isCostAdjustmentMode">
+                <span *ngIf="displayActionText">{{displayActionText}}</span>
+            </ng-container>
         </div>
+    </div>
+    <div class="rule-summary-container d-flex flex-column" *ngIf="isCompareFeatureEnabled && ruleType === ruleTypeEnum.Compare && getCompareSummary()">
+        <span class="s1-FW700 s1-FS14px S1-C-Charcoal">Summary</span>
+        <span class="s1-FW400 s1-C-Charcoal s1-FS14px" [innerHTML]="getCompareSummary()"></span>
     </div>
 </section>
